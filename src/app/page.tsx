@@ -186,7 +186,7 @@ export default function Home() {
       if (shouldScroll) {
         setTimeout(() => {
           document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        }, 150);
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred during retrieval');
@@ -205,15 +205,6 @@ export default function Home() {
         }
       })
       .catch((err) => console.warn('Auth check error:', err));
-  }, []);
-
-  // Pre-load default benchmark tender on mount without autoscrolling at the beginning
-  useEffect(() => {
-    handleAnalyze(
-      '1000 LED street lights, 90W, outdoor use, IP66, suitable for Indian roads, with surge protection and minimum 50,000 hours lifetime.',
-      undefined,
-      false // Do NOT autoscroll at the beginning
-    );
   }, []);
 
   // Handle 1-click update for outdated standard
