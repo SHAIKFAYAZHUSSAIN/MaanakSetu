@@ -20,7 +20,8 @@ import ClarifyingQuestionsCard from '@/components/ClarifyingQuestionsCard';
 import TenderLineItemsCard from '@/components/TenderLineItemsCard';
 import RecommendationEvidenceCard from '@/components/RecommendationEvidenceCard';
 import PortalApiModal from '@/components/PortalApiModal';
-import { SupportedLanguage } from '@/types/language';
+import OfficerAuthModal from '@/components/OfficerAuthModal';
+import { SupportedLanguage, translations } from '@/types/language';
 import { RecommendationResult, SavedTenderProject } from '@/types/procurement';
 import { buildOfficialTenderSpecificationClause } from '@/lib/specExporter';
 import { Compass, ArrowUpRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
@@ -28,6 +29,7 @@ import { Compass, ArrowUpRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-re
 export default function Home() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
+  const t = translations[currentLanguage] || translations.en;
   const [activeTab, setActiveTab] = useState<SectionTabId>('all');
   const [query, setQuery] = useState<string>(
     '1000 LED street lights, 90W, outdoor use, IP66, suitable for Indian roads, with surge protection and minimum 50,000 hours lifetime.'
@@ -44,6 +46,11 @@ export default function Home() {
   const [isPortalApiOpen, setIsPortalApiOpen] = useState<boolean>(false);
   const [savedProjects, setSavedProjects] = useState<SavedTenderProject[]>([]);
   const [isCurrentSaved, setIsCurrentSaved] = useState<boolean>(false);
+
+  // Authentication & Public Mode State
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isOfficerAuthModalOpen, setIsOfficerAuthModalOpen] = useState<boolean>(false);
+  const [authModalAction, setAuthModalAction] = useState<string>('');
 
   // Initialize theme from localStorage or default to dark
   useEffect(() => {
@@ -102,8 +109,40 @@ export default function Home() {
     }
   };
 
+  // Load language preference from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedLang = localStorage.getItem('maanaksetu_lang') as SupportedLanguage | null;
+      if (savedLang && ['en', 'hi', 'te', 'ta'].includes(savedLang)) {
+        setCurrentLanguage(savedLang);
+      }
+    } catch (e) {
+      console.warn('Failed to load language preference:', e);
+    }
+  }, []);
+
+  // Handle language change and live-update report
+  const handleLanguageChange = (newLang: SupportedLanguage) => {
+    setCurrentLanguage(newLang);
+    try {
+      localStorage.setItem('maanaksetu_lang', newLang);
+    } catch (e) {
+      console.warn('Failed to save language preference:', e);
+    }
+    if (result) {
+      setResult({
+        ...result,
+        generatedTenderClause: buildOfficialTenderSpecificationClause(result, [], newLang),
+      });
+    }
+  };
+
   // Trigger analysis pipeline
-  const handleAnalyze = async (overrideQuery?: string, itemIndex?: number) => {
+  const handleAnalyze = async (
+    overrideQuery?: string,
+    itemIndex?: number,
+    shouldScroll: boolean = true
+  ) => {
     const activeQuery = overrideQuery !== undefined ? overrideQuery : query;
     if (!activeQuery.trim() && !tenderDocText.trim()) return;
 
@@ -125,14 +164,27 @@ export default function Home() {
 
       const data = await res.json();
       if (!res.ok) {
+        if (data.requiresAuth) {
+          setAuthModalAction('create or analyze custom tender specifications');
+          setIsOfficerAuthModalOpen(true);
+          return;
+        }
         throw new Error(data.error || 'Failed to analyze specification');
       }
 
-      setResult(data);
+      // Ensure report clause conforms to selected language
+      const localizedClause = buildOfficialTenderSpecificationClause(data, [], currentLanguage);
+      setResult({
+        ...data,
+        generatedTenderClause: localizedClause,
+      });
 
-      setTimeout(() => {
-        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      // Only autoscroll when user explicitly triggers analysis (e.g. clicking Find Standards)
+      if (shouldScroll) {
+        setTimeout(() => {
+          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
     } catch (err: any) {
       setError(err.message || 'An error occurred during retrieval');
     } finally {
@@ -140,10 +192,34 @@ export default function Home() {
     }
   };
 
-  // Start analysis only when the user chooses Find Standards.
+  // Check session authentication status on mount
+  useEffect(() => {
+    fetch('/api/auth/status')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.authenticated) {
+          setIsAuthenticated(true);
+        }
+      })
+      .catch((err) => console.warn('Auth check error:', err));
+  }, []);
+
+  // Pre-load default benchmark tender on mount without autoscrolling at the beginning
+  useEffect(() => {
+    handleAnalyze(
+      '1000 LED street lights, 90W, outdoor use, IP66, suitable for Indian roads, with surge protection and minimum 50,000 hours lifetime.',
+      undefined,
+      false // Do NOT autoscroll at the beginning
+    );
+  }, []);
 
   // Handle 1-click update for outdated standard
   const handleApplyOutdatedUpdate = (replacementStandard: string) => {
+    if (!isAuthenticated) {
+      setAuthModalAction('apply specification updates or re-analyze amended standards');
+      setIsOfficerAuthModalOpen(true);
+      return;
+    }
     const updated = query
       ? query
           .replace(/IS\s*1786[:\s]*1985/gi, replacementStandard)
@@ -162,6 +238,11 @@ export default function Home() {
     _optionValue: string,
     targetStandard?: string
   ) => {
+    if (!isAuthenticated) {
+      setAuthModalAction('answer clarifying questions to refine tender specifications');
+      setIsOfficerAuthModalOpen(true);
+      return;
+    }
     const newQuery = targetStandard
       ? `${query} (Mandating ${targetStandard})`
       : `${query} [Specified: ${_optionValue}]`;
@@ -194,12 +275,21 @@ export default function Home() {
       specificationGaps: updatedGaps,
     };
 
-    updatedResult.generatedTenderClause = buildOfficialTenderSpecificationClause(updatedResult);
+    updatedResult.generatedTenderClause = buildOfficialTenderSpecificationClause(
+      updatedResult,
+      [],
+      currentLanguage
+    );
     setResult(updatedResult);
   };
 
   // Save current project to library
   const handleSaveProject = () => {
+    if (!isAuthenticated) {
+      setAuthModalAction('save tenders to the procurement project library');
+      setIsOfficerAuthModalOpen(true);
+      return;
+    }
     if (!result || !result.primaryStandard) return;
 
     const newProject: SavedTenderProject = {
@@ -250,13 +340,14 @@ export default function Home() {
       {/* Navigation Bar */}
       <Navbar
         currentLanguage={currentLanguage}
-        onLanguageChange={setCurrentLanguage}
+        onLanguageChange={handleLanguageChange}
         savedCount={savedProjects.length}
         onOpenSavedProjects={() => setIsSavedDrawerOpen(true)}
         onReset={handleReset}
         theme={theme}
         onToggleTheme={handleToggleTheme}
         onOpenPortalApi={() => setIsPortalApiOpen(true)}
+        isAuthenticated={isAuthenticated}
       />
 
       {/* Main Workspace */}
@@ -266,7 +357,7 @@ export default function Home() {
           currentLanguage={currentLanguage}
           query={query}
           onQueryChange={setQuery}
-          onAnalyze={() => handleAnalyze()}
+          onAnalyze={(override) => handleAnalyze(override)}
           isLoading={isLoading}
           tenderDocText={tenderDocText}
           tenderFileName={tenderFileName}
@@ -277,6 +368,11 @@ export default function Home() {
           onDocUploaded={(name, text) => {
             setTenderFileName(name);
             setTenderDocText(text);
+          }}
+          isAuthenticated={isAuthenticated}
+          onRequireOfficerAuth={(action) => {
+            setAuthModalAction(action || 'create or analyze custom tender specifications');
+            setIsOfficerAuthModalOpen(true);
           }}
         />
 
@@ -339,32 +435,38 @@ export default function Home() {
                     gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
                     alliedCount={result.relatedStandards.length}
                     isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
+                    currentLanguage={currentLanguage}
                   />
 
                   {/* Summary Status Strip */}
                   <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
                     <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-semibold text-slate-900 dark:text-white">Analysis Status:</span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {currentLanguage === 'hi' ? 'विश्लेषण स्थिति:' : currentLanguage === 'te' ? 'విశ్లేషణ స్థితి:' : currentLanguage === 'ta' ? 'பகுப்பாய்வு நிலை:' : 'Analysis Status:'}
+                      </span>
                       <span>
-                        Recommended standard <strong>{result.primaryStandard.isNumber}</strong>{' '}
-                        (Confidence: <strong>{result.matchConfidence}% - {result.confidenceLevel}</strong>) with{' '}
-                        {result.relatedStandards.length} normative references and{' '}
-                        {result.specificationGaps.length} specification checks.
+                        {currentLanguage === 'hi'
+                          ? `अनुशंसित मानक ${result.primaryStandard.isNumber} (विश्वसनीयता: ${result.matchConfidence}% - ${result.confidenceLevel})। ${result.relatedStandards.length} मानकीय संदर्भ एवं ${result.specificationGaps.length} विनिर्देश जाँच उपलब्ध।`
+                          : currentLanguage === 'te'
+                          ? `సిఫార్సు ప్రమాణం ${result.primaryStandard.isNumber} (విశ్వసనీయత: ${result.matchConfidence}% - ${result.confidenceLevel}).`
+                          : currentLanguage === 'ta'
+                          ? `பரிந்துரைக்கப்பட்ட தரநிலை ${result.primaryStandard.isNumber} (நம்பகத்தன்மை: ${result.matchConfidence}% - ${result.confidenceLevel}).`
+                          : `Recommended standard ${result.primaryStandard.isNumber} (Confidence: ${result.matchConfidence}% - ${result.confidenceLevel}) with ${result.relatedStandards.length} normative references and ${result.specificationGaps.length} specification checks.`}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-4 text-xs font-semibold">
                       <button
                         onClick={() => setIsPortalApiOpen(true)}
-                        className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition"
+                        className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition cursor-pointer"
                       >
                         <Zap className="w-3.5 h-3.5" />
-                        <span>Procurement Portal API</span>
+                        <span>{t.portalApi}</span>
                       </button>
                       <button
                         onClick={() => setIsArchModalOpen(true)}
-                        className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition"
+                        className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition cursor-pointer"
                       >
                         <Compass className="w-3.5 h-3.5" />
                         <span>System Architecture</span>
@@ -381,7 +483,7 @@ export default function Home() {
                           Section 01
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Your requirements
+                          {t.section1Title}
                         </h2>
                       </div>
                       <RequirementBadgeGrid requirement={result.extractedRequirement} />
@@ -396,7 +498,7 @@ export default function Home() {
                           Section 02
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Recommended standard & editions
+                          {t.section2Title}
                         </h2>
                       </div>
                       <PrimaryStandardCard
@@ -429,7 +531,7 @@ export default function Home() {
                           Section 03
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Certification requirements
+                          {t.section3Title}
                         </h2>
                       </div>
                       <RegulatoryCard
@@ -447,7 +549,7 @@ export default function Home() {
                           Section 04
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Related standards
+                          {t.section4Title}
                         </h2>
                       </div>
                       <GraphVisualizer graphData={result.standardsGraph} />
@@ -463,7 +565,7 @@ export default function Home() {
                           Section 05
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Missing requirements
+                          {t.section5Title}
                         </h2>
                       </div>
                       <SpecificationGapsCard
@@ -481,7 +583,7 @@ export default function Home() {
                           Section 06
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Review & export your draft
+                          {t.section6Title}
                         </h2>
                       </div>
                       <ExplainabilityAuditCard result={result} />
@@ -489,6 +591,12 @@ export default function Home() {
                         result={result}
                         onSaveProject={handleSaveProject}
                         isSaved={isCurrentSaved}
+                        isAuthenticated={isAuthenticated}
+                        onRequireOfficerAuth={(action) => {
+                          setAuthModalAction(action || 'export official tender documents');
+                          setIsOfficerAuthModalOpen(true);
+                        }}
+                        currentLanguage={currentLanguage}
                       />
                     </section>
                   )}
@@ -554,6 +662,16 @@ export default function Home() {
       <PortalApiModal
         isOpen={isPortalApiOpen}
         onClose={() => setIsPortalApiOpen(false)}
+      />
+
+      {/* Officer Auth Modal for Public Users attempting to create tenders */}
+      <OfficerAuthModal
+        isOpen={isOfficerAuthModalOpen}
+        onClose={() => setIsOfficerAuthModalOpen(false)}
+        onSuccess={() => {
+          setIsAuthenticated(true);
+        }}
+        actionName={authModalAction}
       />
     </div>
   );

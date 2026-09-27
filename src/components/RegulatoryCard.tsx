@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Scale,
   CheckCircle,
+  ExternalLink,
 } from 'lucide-react';
 
 interface RegulatoryCardProps {
@@ -20,6 +21,24 @@ interface RegulatoryCardProps {
 
 export default function RegulatoryCard({ qco, standardNumber }: RegulatoryCardProps) {
   const isCompulsory = qco.isCompulsory;
+  const isCRS = qco.scheme.includes('CRS');
+  const isISI = qco.scheme === 'Scheme-I (ISI Mark)';
+  const isHallmarking = qco.scheme === 'Hallmarking Scheme';
+  const verificationUrl = isCRS
+    ? 'https://crsbis.in/BIS/Lims_registrationc.do?hmode=getLimsData'
+    : isISI
+      ? 'https://www.manakonline.in/MANAK/ApplicationLicenceRelatedrpt'
+      : 'https://www.bis.gov.in/bis-apps/?lang=en';
+  const verificationLabel = isCRS
+    ? 'Verify CRS registration'
+    : isISI ? 'Verify supplier licence' : isHallmarking ? 'Hallmark verification guidance' : 'BIS verification guidance';
+  const verificationHelp = isCRS
+    ? 'Use the manufacturer’s R-number. Check the listed brand, model, scope and registration status.'
+    : isISI
+      ? 'Use the manufacturer’s CM/L number. Match the product, Indian Standard, scope and licence status.'
+      : isHallmarking
+        ? 'Open BIS Care guidance to check the item’s HUID and hallmark details.'
+        : 'Open BIS Care guidance to find the appropriate verification service for the product.';
 
   return (
     <div
@@ -114,6 +133,45 @@ export default function RegulatoryCard({ qco, standardNumber }: RegulatoryCardPr
           </div>
           <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">{qco.effectiveDate}</div>
         </div>
+      </div>
+
+      {/* Official reference and supplier checks — external lookup, not automatic verification. */}
+      <div className="mb-4 rounded-xl border border-blue-200 dark:border-blue-800/60 bg-blue-50/60 dark:bg-blue-950/20 p-4 sm:p-5">
+        <div className="flex items-center gap-2 mb-1">
+          <FileCheck2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white">Official documents & supplier checks</h4>
+        </div>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+          Check the applicable order and the manufacturer’s certification on official BIS services.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4">
+            <a
+              href="https://www.bis.gov.in/product-certification/products-under-compulsory-certification/?lang=en"
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline"
+            >
+              Browse official orders <ExternalLink className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+              Search for {standardNumber} and review the product scope, effective dates and amendments.
+              This opens the BIS directory, not a verified product-specific notification.
+            </p>
+          </div>
+          <div className="rounded-xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4">
+            <a href={verificationUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 dark:text-blue-300 hover:underline">
+              {verificationLabel} <ExternalLink className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{verificationHelp}</p>
+          </div>
+        </div>
+        <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+          Ask the supplier for the manufacturer’s licence or registration details and covered product information.
+          These links open external lookup services; no supplier certificate has been verified by this demo.
+        </p>
       </div>
 
       {/* Description & Legal Implications */}

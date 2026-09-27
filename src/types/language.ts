@@ -25,6 +25,40 @@ export interface TranslationDictionary {
   amendmentsCount: string;
   qcoCompulsory: string;
   qcoVoluntary: string;
+
+  // Additional App & Navigation Labels
+  savedTenders: string;
+  officerSession: string;
+  publicViewMode: string;
+  officerSignIn: string;
+  logout: string;
+  portalApi: string;
+  bisPortal: string;
+
+  // Section Headers
+  section1Title: string;
+  section2Title: string;
+  section3Title: string;
+  section4Title: string;
+  section5Title: string;
+  section6Title: string;
+
+  // Tabs
+  tabOverview: string;
+  tabRequirements: string;
+  tabStandard: string;
+  tabCertification: string;
+  tabRelated: string;
+  tabGaps: string;
+  tabClauses: string;
+
+  // Report & Export
+  downloadPdf: string;
+  downloadTxt: string;
+  copied: string;
+  publicPreviewNotice: string;
+  exportSubtitle: string;
+  gemCompatible: string;
 }
 
 export const translations: Record<SupportedLanguage, TranslationDictionary> = {
@@ -53,6 +87,36 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     amendmentsCount: "Active Amendments",
     qcoCompulsory: "Compulsory Certification (Mandatory QCO)",
     qcoVoluntary: "Voluntary Certification Scheme",
+
+    savedTenders: "Saved Tenders",
+    officerSession: "Officer Session",
+    publicViewMode: "Public View Mode",
+    officerSignIn: "Officer Sign In",
+    logout: "Log out",
+    portalApi: "Portal API",
+    bisPortal: "BIS Portal",
+
+    section1Title: "Review extracted procurement requirements",
+    section2Title: "Match primary standard & evaluate QCO",
+    section3Title: "Discover linked & allied standards",
+    section4Title: "Resolve technical specification gaps",
+    section5Title: "Review explainable AI audit trail",
+    section6Title: "Review & export your draft",
+
+    tabOverview: "Overview",
+    tabRequirements: "1. Requirements",
+    tabStandard: "2. Standard",
+    tabCertification: "3. Certification",
+    tabRelated: "4. Related",
+    tabGaps: "5. Gaps",
+    tabClauses: "6. Clauses",
+
+    downloadPdf: "Download PDF",
+    downloadTxt: ".txt",
+    copied: "Copied!",
+    publicPreviewNotice: "You can read and copy this draft clause. Formal document exports (PDF / TXT) and saving are restricted to Procurement Officers.",
+    exportSubtitle: "Includes resolved specification gaps, QCO statutory citations, and STI testing protocols.",
+    gemCompatible: "Compatible with GeM / CPPP e-Procurement Formats",
   },
   hi: {
     appName: "मानकसेतु",
@@ -60,7 +124,7 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     subTagline: "सरकारी निविदाओं को आधिकारिक बीआईएस मानकों, मानकीय संबंधों और अनिवार्य गुणवत्ता नियंत्रण आदेशों (QCO) से जोड़ना।",
     searchPlaceholder: "अपनी खरीद आवश्यकता दर्ज करें (उदा. '1000 एलईडी स्ट्रीट लाइट, 90W, आउटडोर, IP66, 50,000 घंटे, सर्ज प्रोटेक्शन') या निविदा दस्तावेज़ अपलोड करें...",
     uploadTenderPrompt: "निविदा पीडीएफ / दस्तावेज़ अपलोड करें",
-    analyzeButton: "विश्लेषण एवं मानक मैपिंग करें",
+    analyzeButton: "मानक खोजें एवं विश्लेषण करें",
     analyzingButton: "हाइब्रिड सिमेंटिक एवं ग्राफ खोज प्रगति पर है...",
     sampleQueriesTitle: "मानक खरीद उदाहरण चुनें:",
     primaryStandardTitle: "प्राथमिक लागू मानक",
@@ -72,13 +136,43 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     explainabilityTitle: "पारदर्शी एआई ऑडिट ट्रेल",
     exportClauseTitle: "तैयार निविदा विनिर्देश खंड",
     saveProjectButton: "निविदा विनिर्देश सहेजें",
-    copyClauseButton: "क्लिपबोर्ड पर कॉपी करें",
+    copyClauseButton: "खंड क्लिपबोर्ड पर कॉपी करें",
     missingBadge: "निविदा में अनुपस्थित",
     mandatoryBadge: "अनिवार्य बीआईएस आवश्यकता",
     currentStatus: "वर्तमान संस्करण",
     amendmentsCount: "सक्रिय संशोधन",
     qcoCompulsory: "अनिवार्य प्रमाणन (QCO लागू)",
     qcoVoluntary: "स्वैच्छिक प्रमाणन योजना",
+
+    savedTenders: "सहेजी गई निविदाएं",
+    officerSession: "अधिकारी सत्र सक्रिय",
+    publicViewMode: "सार्वजनिक दृश्य",
+    officerSignIn: "अधिकारी लॉगिन",
+    logout: "लॉग आउट",
+    portalApi: "पोर्टल एपीआई",
+    bisPortal: "बीआईएस पोर्टल",
+
+    section1Title: "निकाली गई खरीद आवश्यकताओं की समीक्षा करें",
+    section2Title: "प्राथमिक मानक मिलान एवं क्यूसीओ मूल्यांकन",
+    section3Title: "संबंधित एवं मानकीय मानक खोजें",
+    section4Title: "तकनीकी विनिर्देश कमियों का समाधान करें",
+    section5Title: "पारदर्शी एआई ऑडिट ट्रेल की समीक्षा करें",
+    section6Title: "अपने ड्राफ्ट विनिर्देश की समीक्षा एवं निर्यात करें",
+
+    tabOverview: "समग्र दृश्य",
+    tabRequirements: "1. आवश्यकताएँ",
+    tabStandard: "2. मानक",
+    tabCertification: "3. प्रमाणन",
+    tabRelated: "4. संबद्ध",
+    tabGaps: "5. कमियाँ",
+    tabClauses: "6. निविदा खंड",
+
+    downloadPdf: "पीडीएफ डाउनलोड",
+    downloadTxt: ".txt डाउनलोड",
+    copied: "कॉपी हो गया!",
+    publicPreviewNotice: "आप इस ड्राफ्ट खंड को पढ़ और कॉपी कर सकते हैं। औपचारिक दस्तावेज़ निर्यात (PDF / TXT) एवं सहेजना केवल खरीद अधिकारियों के लिए उपलब्ध है।",
+    exportSubtitle: "हल की गई विनिर्देश कमियाँ, क्यूसीओ वैधानिक संदर्भ एवं एसटीआई परीक्षण प्रक्रियाएँ शामिल हैं।",
+    gemCompatible: "GeM / CPPP ई-खरीद प्रारूपों के अनुकूल",
   },
   te: {
     appName: "మానక్ సేతు",
@@ -105,6 +199,36 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     amendmentsCount: "సవరణలు",
     qcoCompulsory: "తప్పనిసరి ధృవీకరణ (QCO వర్తిస్తుంది)",
     qcoVoluntary: "స్వచ్ఛంద ధృవీకరణ పథకం",
+
+    savedTenders: "సేవ్ చేసిన టెండర్లు",
+    officerSession: "అధికారి సెషన్",
+    publicViewMode: "పబ్లిక్ వీక్షణ",
+    officerSignIn: "అధికారి లాగిన్",
+    logout: "లాగ్ అవుట్",
+    portalApi: "పోర్టల్ API",
+    bisPortal: "బీఐఎస్ పోర్టల్",
+
+    section1Title: "సేకరించిన కొనుగోలు అవసరాలను సమీక్షించండి",
+    section2Title: "ప్రధాన ప్రమాణాన్ని సరిపోల్చి QCO ను అంచనా వేయండి",
+    section3Title: "అనుబంధ మరియు సంబంధిత ప్రమాణాలను కనుగొనండి",
+    section4Title: "సాంకేతిక స్పెసిఫికేషన్ లోపాలను పరిష్కరించండి",
+    section5Title: "వివరణాత్మక AI ఆడిట్ ట్రయల్‌ను సమీక్షించండి",
+    section6Title: "మీ డ్రాఫ్ట్ టెండర్ క్లాజ్‌ను సమీక్షించి ఎగుమతి చేయండి",
+
+    tabOverview: "అవలోకనం",
+    tabRequirements: "1. అవసరాలు",
+    tabStandard: "2. ప్రమాణం",
+    tabCertification: "3. ధృవీకరణ",
+    tabRelated: "4. సంబంధిత",
+    tabGaps: "5. లోపాలు",
+    tabClauses: "6. క్లాజులు",
+
+    downloadPdf: "PDF డౌన్‌లోడ్",
+    downloadTxt: ".txt డౌన్‌లోడ్",
+    copied: "కాపీ చేయబడింది!",
+    publicPreviewNotice: "మీరు ఈ ముసాయిదా క్లాజ్‌ను చదవవచ్చు మరియు కాపీ చేయవచ్చు. అధికారిక పత్రాల డౌన్‌లోడ్ (PDF / TXT) అధికారులు మాత్రమే చేయగలరు.",
+    exportSubtitle: "పరిష్కరించిన స్పెసిఫికేషన్ లోపాలు మరియు చట్టబద్ధమైన QCO వివరాలు కలిగి ఉంది.",
+    gemCompatible: "GeM / CPPP ఈ-ప్రొక్యూర్మెంట్ ఫార్మాట్‌లకు అనుకూలం",
   },
   ta: {
     appName: "மானக் சேது",
@@ -131,5 +255,35 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     amendmentsCount: "செயலில் உள்ள திருத்தங்கள்",
     qcoCompulsory: "கட்டாய சான்றிதழ் (QCO)",
     qcoVoluntary: "விருப்ப சான்றிதழ் திட்டம்",
+
+    savedTenders: "சேமிக்கப்பட்டவை",
+    officerSession: "அதிகாரி அமர்வு",
+    publicViewMode: "பொது பார்வை",
+    officerSignIn: "அதிகாரி உள்நுழைவு",
+    logout: "வெளியேறு",
+    portalApi: "போர்டல் API",
+    bisPortal: "BIS போர்டல்",
+
+    section1Title: "கொள்முதல் தேவைகளை மதிப்பாய்வு செய்யவும்",
+    section2Title: "முதன்மை தரநிலையை பொருத்தி QCO ஐ சரிபார்க்கவும்",
+    section3Title: "தொடர்புடைய தரநிலைகளை கண்டறியவும்",
+    section4Title: "தொழில்நுட்ப விவரக்குறிப்பு இடைவெளிகளை தீர்க்கவும்",
+    section5Title: "AI தணிக்கை விவரங்களை மதிப்பாய்வு செய்யவும்",
+    section6Title: "உங்கள் வரைவு விவரக்குறிப்பை ஏற்றுமதி செய்யவும்",
+
+    tabOverview: "கண்ணோட்டம்",
+    tabRequirements: "1. தேவைகள்",
+    tabStandard: "2. தரநிலை",
+    tabCertification: "3. சான்றிதழ்",
+    tabRelated: "4. தொடர்புடைய",
+    tabGaps: "5. இடைவெளிகள்",
+    tabClauses: "6. விதிகள்",
+
+    downloadPdf: "PDF பதிவிறக்கு",
+    downloadTxt: ".txt பதிவிறக்கு",
+    copied: "நகலெடுக்கப்பட்டது!",
+    publicPreviewNotice: "நீங்கள் இந்த வரைவு விதியை படிக்கலாம் மற்றும் நகலெடுக்கலாம். அதிகாரப்பூர்வ ஆவண பதிவிறக்கம் (PDF / TXT) அதிகாரிகளுக்கு மட்டுமே.",
+    exportSubtitle: "தீர்க்கப்பட்ட விவரக்குறிப்பு இடைவெளிகள் மற்றும் QCO விதிகள் இதில் அடங்கும்.",
+    gemCompatible: "GeM / CPPP மின்-கொள்முதல் அமைப்புகளுக்கு ஏற்றது",
   }
 };

@@ -11,6 +11,7 @@ import { buildStandardsKnowledgeGraph } from '@/lib/graphEngine';
 import { analyzeSpecificationGaps } from '@/lib/gapAnalysis';
 import { buildOfficialTenderSpecificationClause } from '@/lib/specExporter';
 import { RecommendationResult, ConfidenceLevel } from '@/types/procurement';
+import { SESSION_COOKIE, validSession } from '@/lib/session';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +21,41 @@ export async function POST(req: NextRequest) {
     const query = (body.query || '').trim();
     const tenderDocText = (body.tenderDocText || '').trim();
     const selectedItemIndex = typeof body.selectedItemIndex === 'number' ? body.selectedItemIndex : 0;
+
+    const isAuth = await validSession(req.cookies.get(SESSION_COOKIE)?.value);
+
+    // Exact pre-configured benchmark tenders that public visitors are allowed to inspect
+    const ALLOWED_BENCHMARK_QUERIES = [
+      '1000 led street lights, 90w, outdoor use, ip66, suitable for indian roads, with surge protection and minimum 50,000 hours lifetime.',
+      'procurement of 500 kva outdoor oil-immersed distribution transformer, 11kv / 433v, energy efficiency level 2, copper winding with cpri type test.',
+      '40w standalone solar led street light system with monocrystalline solar pv module, lifepo4 battery storage, ip65 housing and mnre compliance.',
+      '5 hp three phase agricultural monobloc water pump, 415v, clear cold water irrigation, energy efficient bee star rating with ip55 protection.',
+      '200 units folding hospital wheelchairs for adult patients, epoxy powder-coated tubular steel frame, solid rubber tyres with 120 kg load capacity.',
+      '300 units 4mp outdoor ip cctv surveillance cameras with night vision ir, ip66 weatherproof housing, onvif compliant and stqc cybersecurity certification.',
+      'ग्रामीण विद्युतीकरण के लिए 250 kva आउटडोर डिस्ट्रीब्यूशन ट्रांसफार्मर, 11kv/433v, तांबे की वाइंडिंग और बीईई स्टार रेटिंग।',
+      'గ్రామీణ విద్యుదీకరణ కొరకు 250 kva అవుట్‌డోర్ డిస్ట్రిబ్యూషన్ ట్రాన్స్‌ఫార్మర్, 11kv/433v, రాగి వైండింగ్ మరియు bee స్టార్ రేటింగ్.',
+      'మున్సిపల్ రోడ్ల ప్రాజెక్ట్ కోసం 90w అవుట్‌డోర్ led స్ట్రీట్ లైట్లు 1000 కావలెను, ip66 ప్రొటెక్షన్ మరియు సర్జ్ రక్షణతో కనీసం 50,000 గంటల జీవితకాలం.',
+      'கிராமப்புற மின்மயமாக்கலுக்கான 250 kva வெளிப்புற விநியோக மின்மாற்றி, 11kv/433v, தாமிர முறுக்கு மற்றும் bee நட்சத்திர மதிப்பீடு.',
+      'விவசாய பாசனத்திற்கு 5hp மூன்று கட்ட மோனோபிளாக் நீர் பம்ப், 415v, ஐபி55 பாதுகாப்புடன்.',
+      'procure 50 metric tonnes of 16mm saria fe 500d for primary school concrete building construction.',
+      'tender specification for high strength deformed steel bars conforming to is 1786:1985 for bridge pier foundation.',
+      'supply of 500 packed lunch catering boxes with bottled water for national civil services training workshop.',
+    ];
+
+    const isExactBenchmark =
+      !tenderDocText &&
+      ALLOWED_BENCHMARK_QUERIES.some((b) => b.trim() === query.trim().toLowerCase());
+
+    if (!isAuth && !isExactBenchmark) {
+      return NextResponse.json(
+        {
+          error:
+            'Officer authentication required to create or analyze custom tender specifications. You are in Public View Mode (you can browse existing benchmark tenders).',
+          requiresAuth: true,
+        },
+        { status: 403 }
+      );
+    }
 
     const textToAnalyze = tenderDocText ? `${tenderDocText}\n${query}` : query;
 

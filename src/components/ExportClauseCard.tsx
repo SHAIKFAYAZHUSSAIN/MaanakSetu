@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { RecommendationResult } from '@/types/procurement';
+import { SupportedLanguage, translations } from '@/types/language';
 import {
   FileText,
   Copy,
@@ -16,14 +17,21 @@ interface ExportClauseCardProps {
   result: RecommendationResult;
   onSaveProject: () => void;
   isSaved: boolean;
+  isAuthenticated?: boolean;
+  onRequireOfficerAuth?: (actionName?: string) => void;
+  currentLanguage?: SupportedLanguage;
 }
 
 export default function ExportClauseCard({
   result,
   onSaveProject,
   isSaved,
+  isAuthenticated = false,
+  onRequireOfficerAuth,
+  currentLanguage = 'en',
 }: ExportClauseCardProps) {
   const [copied, setCopied] = useState(false);
+  const t = translations[currentLanguage] || translations.en;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(result.generatedTenderClause);
@@ -32,6 +40,10 @@ export default function ExportClauseCard({
   };
 
   const handleDownloadTxt = () => {
+    if (!isAuthenticated) {
+      onRequireOfficerAuth?.('download tender specification clauses (.txt)');
+      return;
+    }
     const blob = new Blob([result.generatedTenderClause], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -39,7 +51,7 @@ export default function ExportClauseCard({
     const stdName = result.primaryStandard
       ? result.primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')
       : 'General_Procurement';
-    link.download = `Tender_Spec_${stdName}.txt`;
+    link.download = `Tender_Spec_${stdName}_${currentLanguage.toUpperCase()}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -47,6 +59,10 @@ export default function ExportClauseCard({
   };
 
   const handleDownloadPdf = () => {
+    if (!isAuthenticated) {
+      onRequireOfficerAuth?.('generate and download official GFR 144(i) tender document (PDF)');
+      return;
+    }
     const { primaryStandard, extractedRequirement, relatedStandards, specificationGaps } = result;
     if (!primaryStandard) {
       handleDownloadTxt();
@@ -60,7 +76,7 @@ export default function ExportClauseCard({
 
     const relatedRows = relatedStandards
       .map(
-        (r, i) => `
+        (r) => `
         <tr>
           <td style="padding: 8px 12px; border: 1px solid #cbd5e1; font-weight: bold; width: 25%;">${r.standard.isNumber}</td>
           <td style="padding: 8px 12px; border: 1px solid #cbd5e1; width: 45%;">${r.standard.title}</td>
@@ -71,19 +87,117 @@ export default function ExportClauseCard({
 
     const resolvedGapsList = specificationGaps
       .filter((g) => g.isResolved)
-      .map(
-        (g) => `
+      .map((g) => {
+        const gapPrefix =
+          currentLanguage === 'hi'
+            ? '[हल किया गया विनिर्देश अंतर]'
+            : currentLanguage === 'te'
+            ? '[పరిష్కరించిన లోపం]'
+            : currentLanguage === 'ta'
+            ? '[சரிசெய்யப்பட்ட இடைவெளி]'
+            : '[RESOLVED SPECIFICATION GAP]';
+        return `
         <li style="margin-bottom: 6px; color: #0f172a;">
-          <strong>[RESOLVED SPECIFICATION GAP] ${g.parameter}:</strong> ${g.suggestedClause}
-        </li>`
-      )
+          <strong>${gapPrefix} ${g.parameter}:</strong> ${g.suggestedClause}
+        </li>`;
+      })
       .join('');
+
+    // Localized Headers & Titles for the Official PDF Document
+    const pdfTitles = {
+      en: {
+        govHeader: 'GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT',
+        docSubtitle: 'TECHNICAL SPECIFICATION & STATUTORY COMPLIANCE SCHEDULE',
+        engineCredit: `Generated via MaanakSetu (BIS SmartSpec AI Engine) | Generated on: ${now}`,
+        tenderItem: 'Tender Item / Product:',
+        primaryStd: 'Primary Standard:',
+        app: 'Intended Application:',
+        committee: 'BIS Technical Committee:',
+        statutoryCert: 'Statutory Certification:',
+        scheme: 'Applicable Scheme:',
+        compulsory: 'COMPULSORY (MANDATORY QCO)',
+        voluntary: 'VOLUNTARY SCHEME',
+        sec1: '1. Mandatory Indian Standard Compliance Clause',
+        sec2: '2. Allied & Normative Subsystem Standards',
+        sec3: '3. Quality Control Order (QCO) Statutory Mandate',
+        sec4: '4. Technical Parameters & Gap Closures',
+        sec5: '5. Scheme of Testing and Inspection (STI) & Quality Assurance',
+        sig1: 'Indenting / Technical Officer',
+        sig2: 'Scrutiny / BIS Compliance Officer',
+        sig3: 'Competent Approving Authority',
+      },
+      hi: {
+        govHeader: 'भारत सरकार / सार्वजनिक क्षेत्र खरीद (GOVERNMENT OF INDIA)',
+        docSubtitle: 'तकनीकी विनिर्देश एवं वैधानिक अनुपालन अनुसूची (GFR 144(i) COMPLIANT)',
+        engineCredit: `मानकसेतु (MaanakSetu) - बीआईएस स्मार्टस्पेक एआई इंजन | सृजन तिथि: ${now}`,
+        tenderItem: 'निविदा मद / उत्पाद (Tender Item):',
+        primaryStd: 'प्राथमिक लागू मानक (Primary Standard):',
+        app: 'प्रयोजन / उपयोग (Intended Application):',
+        committee: 'बीआईएस तकनीकी समिति (BIS Committee):',
+        statutoryCert: 'वैधानिक प्रमाणन स्थिति (Statutory Certification):',
+        scheme: 'लागू प्रमाणन योजना (Scheme):',
+        compulsory: 'अनिवार्य वैधानिक प्रमाणन (MANDATORY QCO)',
+        voluntary: 'मानक स्वैच्छिक योजना (VOLUNTARY)',
+        sec1: '1. अनिवार्य भारतीय मानक अनुपालन खंड (Mandatory Compliance Clause)',
+        sec2: '2. मानकीय एवं संबद्ध संदर्भ मानक (Normative & Allied Standards)',
+        sec3: '3. गुणवत्ता नियंत्रण आदेश (QCO) वैधानिक आदेश (Statutory Order)',
+        sec4: '4. तकनीकी विनिर्देश एवं अंतर समाधान (Technical Benchmarks)',
+        sec5: '5. परीक्षण एवं निरीक्षण योजना (STI) एवं गुणवत्ता आश्वासन',
+        sig1: 'मांगकर्ता / तकनीकी अधिकारी',
+        sig2: 'बीआईएस अनुपालन अधिकारी',
+        sig3: 'सक्षम अनुमोदन प्राधिकारी',
+      },
+      te: {
+        govHeader: 'భారత ప్రభుత్వం / పబ్లిక్ సెక్టార్ సేకరణ (GOVERNMENT OF INDIA)',
+        docSubtitle: 'సాంకేతిక స్పెసిఫికేషన్ మరియు చట్టబద్ధమైన సమ్మతి షెడ్యూల్ (GFR 144(i))',
+        engineCredit: `మానక్ సేతు (MaanakSetu) - బీఐఎస్ స్మార్ట్‌స్పెక్ ఏఐ ఇంజిన్ | తేదీ: ${now}`,
+        tenderItem: 'టెండర్ అంశం (Tender Item):',
+        primaryStd: 'ప్రధాన ప్రమాణం (Primary Standard):',
+        app: 'వినియోగం (Application):',
+        committee: 'బీఐఎస్ కమిటీ (BIS Committee):',
+        statutoryCert: 'చట్టబద్ధ ధృవీకరణ (Statutory Certification):',
+        scheme: 'పథకం (Scheme):',
+        compulsory: 'తప్పనిసరి ధృవీకరణ (MANDATORY QCO)',
+        voluntary: 'స్వచ్ఛంద పథకం (VOLUNTARY)',
+        sec1: '1. తప్పనిసరి భారతీయ ప్రమాణాల సమ్మతి నిబంధన',
+        sec2: '2. అనుబంధ మరియు పరీక్షా ప్రమాణాలు',
+        sec3: '3. క్వాలిటీ కంట్రోల్ ఆర్డర్ (QCO) నిబంధనలు',
+        sec4: '4. సాంకేతిక స్పెసిఫికేషన్లు & లోపాల పరిష్కారం',
+        sec5: '5. పరీక్ష మరియు నాణ్యత తనిఖీ వ్యవస్థ (STI)',
+        sig1: 'సాంకేతిక అధికారి',
+        sig2: 'బీఐఎస్ సమ్మతి అధికారి',
+        sig3: 'అనుమోదించే అధికారి',
+      },
+      ta: {
+        govHeader: 'இந்திய அரசு / பொதுத்துறை கொள்முதல் (GOVERNMENT OF INDIA)',
+        docSubtitle: 'தொழில்நுட்ப விவரக்குறிப்பு மற்றும் சட்டப்பூர்வ இணக்க அட்டவணை (GFR 144(i))',
+        engineCredit: `மானக் சேது (MaanakSetu) - BIS ஸ்மார்ட்ஸ்பெக் AI இயந்திரம் | தேதி: ${now}`,
+        tenderItem: 'டெண்டர் பொருள் (Tender Item):',
+        primaryStd: 'முதன்மை தரநிலை (Primary Standard):',
+        app: 'பயன்பாடு (Application):',
+        committee: 'BIS தொழில்நுட்பக் குழு (Committee):',
+        statutoryCert: 'சட்டப்பூர்வ சான்றிதழ் (Statutory Certification):',
+        scheme: 'திட்டம் (Scheme):',
+        compulsory: 'கட்டாய சான்றிதழ் (MANDATORY QCO)',
+        voluntary: 'விருப்பத் திட்டம் (VOLUNTARY)',
+        sec1: '1. கட்டாய இந்தியத் தரநிலைகள் இணக்க விதி',
+        sec2: '2. தொடர்புடைய மற்றும் துணை தரநிலைகள்',
+        sec3: '3. தரக் கட்டுப்பாட்டு ஆணை (QCO) சட்டப்பூர்வ விதி',
+        sec4: '4. தொழில்நுட்ப விவரக்குறிப்புகள் மற்றும் தீர்வுகள்',
+        sec5: '5. சோதனை மற்றும் ஆய்வுத் திட்டம் (STI)',
+        sig1: 'தொழில்நுட்ப அதிகாரி',
+        sig2: 'BIS இணக்க அதிகாரி',
+        sig3: 'ஒப்புதல் அதிகாரி',
+      },
+    };
+
+    const strings = pdfTitles[currentLanguage] || pdfTitles.en;
 
     const printHtml = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Tender_Specification_${primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')}</title>
+          <title>Tender_Specification_${primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')}_${currentLanguage.toUpperCase()}</title>
           <style>
             @page {
               size: A4;
@@ -104,7 +218,7 @@ export default function ExportClauseCard({
               margin-bottom: 16px;
             }
             .header h1 {
-              font-size: 16pt;
+              font-size: 15pt;
               text-transform: uppercase;
               margin: 0 0 4px 0;
               letter-spacing: 0.5px;
@@ -121,20 +235,20 @@ export default function ExportClauseCard({
               background-color: #f8fafc;
             }
             .meta-table td {
-              padding: 6px 10px;
+              padding: 8px 12px;
               border: 1px solid #cbd5e1;
               font-size: 10pt;
             }
             .meta-label {
-              font-weight: 600;
+              font-weight: bold;
               color: #334155;
               width: 25%;
+              background-color: #f1f5f9;
             }
             .section-title {
-              font-size: 11.5pt;
+              font-size: 12pt;
               font-weight: bold;
-              text-transform: uppercase;
-              color: #1e3a8a;
+              color: #0f172a;
               border-bottom: 1px solid #94a3b8;
               padding-bottom: 4px;
               margin-top: 16px;
@@ -186,100 +300,91 @@ export default function ExportClauseCard({
         </head>
         <body>
           <div class="header">
-            <h1>GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT</h1>
-            <p><strong>TECHNICAL SPECIFICATION & STATUTORY COMPLIANCE SCHEDULE</strong></p>
-            <p>Generated via MaanakSetu (BIS SmartSpec AI Engine) | Generated on: ${now}</p>
+            <h1>${strings.govHeader}</h1>
+            <p><strong>${strings.docSubtitle}</strong></p>
+            <p>${strings.engineCredit}</p>
           </div>
 
           <table class="meta-table">
             <tr>
-              <td class="meta-label">Tender Item / Product:</td>
+              <td class="meta-label">${strings.tenderItem}</td>
               <td><strong>${extractedRequirement.product.toUpperCase()}</strong></td>
-              <td class="meta-label">Primary Standard:</td>
+              <td class="meta-label">${strings.primaryStd}</td>
               <td><strong>${primaryStandard.isNumber}</strong></td>
             </tr>
             <tr>
-              <td class="meta-label">Intended Application:</td>
+              <td class="meta-label">${strings.app}</td>
               <td>${extractedRequirement.application}</td>
-              <td class="meta-label">BIS Technical Committee:</td>
+              <td class="meta-label">${strings.committee}</td>
               <td>${primaryStandard.department}</td>
             </tr>
             <tr>
-              <td class="meta-label">Statutory Certification:</td>
+              <td class="meta-label">${strings.statutoryCert}</td>
               <td style="color: ${primaryStandard.qco.isCompulsory ? '#b91c1c' : '#15803d'}; font-weight: bold;">
-                ${primaryStandard.qco.isCompulsory ? 'COMPULSORY (MANDATORY QCO)' : 'VOLUNTARY SCHEME'}
+                ${primaryStandard.qco.isCompulsory ? strings.compulsory : strings.voluntary}
               </td>
-              <td class="meta-label">Applicable Scheme:</td>
+              <td class="meta-label">${strings.scheme}</td>
               <td><strong>${primaryStandard.qco.scheme}</strong></td>
             </tr>
           </table>
 
-          <div class="section-title">1. Mandatory Indian Standard Compliance Clause</div>
+          <div class="section-title">${strings.sec1}</div>
           <div class="content-block">
-            1.1 The offered product shall strictly conform to <strong>${primaryStandard.isNumber}</strong> 
-            (<em>${primaryStandard.title}</em>) including all amendments currently in force 
-            (Amendment(s): ${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'None'}).<br>
-            1.2 Bids offering equipment conforming to legacy, withdrawn, or superseded editions of the standard 
-            shall be summarily rejected without technical clarification.
+            <p>1.1 The supplied items/equipment shall strictly conform to the specifications and performance metrics of <strong>${primaryStandard.isNumber}</strong> (<em>${primaryStandard.title}</em>) including all current active amendments (${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'Nil'}).</p>
+            <p>1.2 Bids offering products manufactured or tested to superseded/outdated editions of Indian Standards shall be deemed non-responsive in accordance with GFR 2017 Rule 144(i)(b).</p>
           </div>
 
-          <div class="section-title">2. Statutory Quality Control Order (QCO) & Legal Mandates</div>
-          <div class="qco-box">
-            <strong>REGULATORY COMPLIANCE MANDATE:</strong><br>
-            This procurement is governed under the <strong>${primaryStandard.qco.orderName}</strong> 
-            (Gazette Notification No. <em>${primaryStandard.qco.gazetteNotification}</em> issued by the ${primaryStandard.qco.ministry}).<br>
-            <strong>Mandatory Bidding Clause:</strong> Bidders must submit a valid BIS License / Compulsory Registration Scheme (CRS) 
-            registration certificate bearing a valid registration number on or before the tender submission deadline. 
-            Under Section 29 of the BIS Act 2016, supply of non-compliant goods is a cognizable legal offense.
-          </div>
-
-          <div class="section-title">3. Normative & Subsystem Reference Standards</div>
-          <div class="content-block">
-            The equipment subsystems, electrical components, and testing procedures shall additionally satisfy the following reference standards:
-          </div>
+          <div class="section-title">${strings.sec2}</div>
           <table class="table-custom">
             <thead>
               <tr>
-                <th>Standard Reference</th>
-                <th>Standard Title / Scope</th>
-                <th>Purpose in Procurement</th>
+                <th>Standard No.</th>
+                <th>Standard Title</th>
+                <th>Relevance / Interoperability Role</th>
               </tr>
             </thead>
             <tbody>
-              ${relatedRows || '<tr><td colspan="3">Direct compliance under primary standard.</td></tr>'}
+              ${relatedRows || '<tr><td colspan="3" style="text-align: center; padding: 8px;">No allied standards mandated.</td></tr>'}
             </tbody>
           </table>
 
-          <div class="section-title">4. Technical Specifications & Operating Benchmarks</div>
+          <div class="section-title">${strings.sec3}</div>
+          <div class="qco-box">
+            <p style="margin: 0 0 6px 0;"><strong>Statutory Notification:</strong> ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification})</p>
+            <p style="margin: 0 0 6px 0;"><strong>Ministry / Authority:</strong> ${primaryStandard.qco.ministry}</p>
+            <p style="margin: 0;"><strong>Mandatory Clause:</strong> Bidders must submit a valid BIS License / CRS Registration certificate issued by the Bureau of Indian Standards as of the date of bid submission. Offers without valid BIS certification shall be rejected without technical clarification.</p>
+          </div>
+
+          <div class="section-title">${strings.sec4}</div>
           <div class="content-block">
-            <ul>
-              <li><strong>Rated Output / Capacity:</strong> ${extractedRequirement.power || extractedRequirement.capacity || 'As per Schedule of Requirements'}</li>
-              <li><strong>Nominal Operating Voltage:</strong> ${extractedRequirement.voltage || '230 V AC, 50 Hz +/- 3%'}</li>
-              <li><strong>Ingress Protection & Environmental Rating:</strong> ${extractedRequirement.protectionRating || 'IP66 as per IS 12063'}</li>
-              <li><strong>Rated Lifetime:</strong> ${extractedRequirement.lifetime || 'Minimum 50,000 burning hours'}</li>
+            <ul style="padding-left: 20px; margin: 6px 0;">
+              <li><strong>Rated Power / Capacity:</strong> ${extractedRequirement.power || extractedRequirement.capacity || 'As per Schedule of Requirements'}</li>
+              <li><strong>Rated Voltage / Frequency:</strong> ${extractedRequirement.voltage || '230V AC, 50Hz single-phase / 415V three-phase'}</li>
+              <li><strong>Enclosure Protection Rating:</strong> ${extractedRequirement.protectionRating || 'IP65/IP66 as per IS 12063 / IEC 60529'}</li>
+              <li><strong>Operational Lifetime:</strong> ${extractedRequirement.lifetime || 'Minimum 50,000 burning hours'}</li>
               ${resolvedGapsList}
             </ul>
           </div>
 
-          <div class="section-title">5. Testing, Quality Assurance & Acceptance Protocols</div>
+          <div class="section-title">${strings.sec5}</div>
           <div class="content-block">
-            5.1 Bidders must submit genuine Type Test Certificates conducted at a BIS-approved or NABL-accredited test laboratory within the last 3 years.<br>
-            5.2 The manufacturer must demonstrate compliance with the official <strong>Scheme of Testing and Inspection (STI):</strong> ${primaryStandard.schemesOfTesting}.<br>
-            5.3 Pre-dispatch inspection (PDI) may be conducted by the Buyer or third-party inspecting agencies (e.g., RITES/EIL/BIS).
+            <p>5.1 <strong>Type Test Certificates:</strong> The bidder must submit authentic Type Test reports conducted at a BIS-approved laboratory or NABL-accredited facility within the last 3 years.</p>
+            <p>5.2 <strong>Factory Testing Protocol:</strong> Testing and factory inspection shall conform to <em>${primaryStandard.schemesOfTesting}</em>.</p>
+            <p>5.3 <strong>Pre-Dispatch Inspection:</strong> Buyer reserves the right to conduct pre-dispatch inspection (PDI) at the manufacturer's premises through an authorized inspection agency.</p>
           </div>
 
           <div class="signatures">
             <div class="sig-block">
-              <strong>Prepared By</strong><br>
-              Procurement Officer
+              <strong>${strings.sig1}</strong><br/>
+              <span style="font-size: 8pt; color: #64748b;">Signature & Date</span>
             </div>
             <div class="sig-block">
-              <strong>Vetted By</strong><br>
-              Technical Specification Member
+              <strong>${strings.sig2}</strong><br/>
+              <span style="font-size: 8pt; color: #64748b;">BIS Standards Scrutiny</span>
             </div>
             <div class="sig-block">
-              <strong>Approved By</strong><br>
-              Competent Financial Authority
+              <strong>${strings.sig3}</strong><br/>
+              <span style="font-size: 8pt; color: #64748b;">Approval / Sanction</span>
             </div>
           </div>
         </body>
@@ -291,37 +396,42 @@ export default function ExportClauseCard({
       printWindow.document.open();
       printWindow.document.write(printHtml);
       printWindow.document.close();
-      printWindow.focus();
       setTimeout(() => {
+        printWindow.focus();
         printWindow.print();
       }, 350);
-    } else {
-      // Fallback if popup blocked
-      handleDownloadTxt();
     }
   };
 
   return (
-    <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700/80 shadow-md relative transition-colors">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+    <div className="glass-panel rounded-2xl p-5 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-800 transition-colors">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Your draft tender clause
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+              <span>{t.exportClauseTitle}</span>
+              <span className="text-[10px] px-2 py-0.5 rounded font-mono font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">
+                GFR 144(i)
+              </span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Review your draft, then copy, save or export it.
+              {currentLanguage === 'hi'
+                ? 'सरकारी ई-मार्केटप्लेस (GeM) एवं सीपीपीपी निविदाओं में सीधे उपयोग हेतु तैयार'
+                : currentLanguage === 'te'
+                ? 'GeM మరియు CPPP టెండర్లలో నేరుగా ఉపయోగించడానికి రూపొందించబడింది'
+                : currentLanguage === 'ta'
+                ? 'GeM மற்றும் CPPP டெண்டர்களில் நேரடியாக பயன்படுத்தக்கூடியது'
+                : 'Formatted for direct insertion into GeM / CPPP tender documentation'}
             </p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 flex-wrap">
-          {/* Save Project Button */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Save Tender Button */}
           <button
             type="button"
             onClick={onSaveProject}
@@ -329,18 +439,19 @@ export default function ExportClauseCard({
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
               isSaved
                 ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed'
-                : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm'
+                : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm cursor-pointer'
             }`}
           >
             {isSaved ? (
               <>
                 <BookmarkCheck className="w-3.5 h-3.5 text-amber-500" />
-                <span>Saved</span>
+                <span>{currentLanguage === 'hi' ? 'सहेजा गया' : currentLanguage === 'te' ? 'సేవ్ చేయబడింది' : currentLanguage === 'ta' ? 'சேமிக்கப்பட்டது' : 'Saved'}</span>
               </>
             ) : (
               <>
                 <BookmarkPlus className="w-3.5 h-3.5" />
-                <span>Save Tender</span>
+                <span>{t.saveProjectButton}</span>
+                {!isAuthenticated && <span className="text-[10px] opacity-80">🔒</span>}
               </>
             )}
           </button>
@@ -349,44 +460,65 @@ export default function ExportClauseCard({
           <button
             type="button"
             onClick={handleDownloadTxt}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition"
-            title="Download Plain Text Document"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition cursor-pointer"
+            title={isAuthenticated ? 'Download Plain Text Document' : 'Officer sign-in required to download .txt'}
           >
             <Download className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
-            <span>.txt</span>
+            <span>{t.downloadTxt}</span>
+            {!isAuthenticated && <span className="text-[10px] text-amber-500">🔒</span>}
           </button>
 
           {/* Download PDF Button */}
           <button
             type="button"
             onClick={handleDownloadPdf}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center gap-1.5 transition"
-            title="Print or save your draft as PDF"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center gap-1.5 transition cursor-pointer"
+            title={isAuthenticated ? 'Print or save your draft as PDF' : 'Officer sign-in required to download PDF'}
           >
             <Printer className="w-3.5 h-3.5 text-white" />
-            <span>Download PDF</span>
+            <span>{t.downloadPdf}</span>
+            {!isAuthenticated && <span className="text-[10px] text-amber-300">🔒</span>}
           </button>
 
           {/* Copy Button */}
           <button
             type="button"
             onClick={handleCopy}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center gap-1.5 transition"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center gap-1.5 transition cursor-pointer"
           >
             {copied ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                <span>Copied!</span>
+                <span>{t.copied}</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Copy Clause</span>
+                <span>{t.copyClauseButton}</span>
               </>
             )}
           </button>
         </div>
       </div>
+
+      {/* Public Preview Mode Notice */}
+      {!isAuthenticated && (
+        <div className="mb-4 p-3 rounded-xl bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-200 shrink-0">
+              {currentLanguage === 'hi' ? 'सार्वजनिक पूर्वावलोकन' : currentLanguage === 'te' ? 'పబ్లిక్ ప్రివ్యూ' : currentLanguage === 'ta' ? 'பொது முன்னோட்டம்' : 'Public Preview'}
+            </span>
+            <span>{t.publicPreviewNotice}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => onRequireOfficerAuth?.('download official tender documents')}
+            className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-[11px] shrink-0 transition cursor-pointer"
+          >
+            {t.officerSignIn}
+          </button>
+        </div>
+      )}
 
       {/* Code / Clause Display Box */}
       <div className="relative">
@@ -397,8 +529,8 @@ export default function ExportClauseCard({
 
       {/* Footer Info */}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
-        <span>Includes resolved specification gaps, QCO statutory citations, and STI testing protocols.</span>
-        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Compatible with GeM / CPPP e-Procurement Formats</span>
+        <span>{t.exportSubtitle}</span>
+        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">{t.gemCompatible}</span>
       </div>
     </div>
   );

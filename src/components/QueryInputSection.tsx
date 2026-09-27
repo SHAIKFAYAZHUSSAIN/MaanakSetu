@@ -21,12 +21,14 @@ interface QueryInputSectionProps {
   currentLanguage: SupportedLanguage;
   query: string;
   onQueryChange: (q: string) => void;
-  onAnalyze: () => void;
+  onAnalyze: (overrideQuery?: string) => void;
   isLoading: boolean;
   tenderDocText: string;
   tenderFileName: string;
   onClearUploadedDoc: () => void;
   onDocUploaded: (name: string, text: string) => void;
+  isAuthenticated?: boolean;
+  onRequireOfficerAuth?: (actionName?: string) => void;
 }
 
 export default function QueryInputSection({
@@ -39,6 +41,8 @@ export default function QueryInputSection({
   tenderFileName,
   onClearUploadedDoc,
   onDocUploaded,
+  isAuthenticated = false,
+  onRequireOfficerAuth,
 }: QueryInputSectionProps) {
   const t = translations[currentLanguage] || translations.en;
   const [showAllExamples, setShowAllExamples] = useState(false);
@@ -126,6 +130,14 @@ export default function QueryInputSection({
   ];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!isAuthenticated) {
+      e.target.value = '';
+      if (onRequireOfficerAuth) {
+        onRequireOfficerAuth('upload tender specifications (PDF/DOCX)');
+      }
+      return;
+    }
+
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -155,6 +167,26 @@ export default function QueryInputSection({
     }
   };
 
+  const isSampleQuery =
+    !tenderDocText &&
+    (sampleQueries.some((s) => s.text.toLowerCase().trim() === query.toLowerCase().trim()) ||
+      regionalSamples.some((r) => r.text.toLowerCase().trim() === query.toLowerCase().trim()));
+
+  const handleAnalyzeClick = () => {
+    if (!isAuthenticated && (!isSampleQuery || Boolean(tenderDocText))) {
+      if (onRequireOfficerAuth) {
+        onRequireOfficerAuth('create or analyze custom tender specifications');
+      }
+      return;
+    }
+    onAnalyze();
+  };
+
+  const handleSelectSample = (sampleText: string) => {
+    onQueryChange(sampleText);
+    onAnalyze(sampleText);
+  };
+
   return (
     <section className="relative pt-6 pb-8">
       {/* Background Glow Circles */}
@@ -179,10 +211,40 @@ export default function QueryInputSection({
           </p>
         </div>
 
+        {/* Public Read-Only Banner when Unauthenticated */}
+        {!isAuthenticated && (
+          <div className="mb-4 p-3.5 rounded-2xl bg-blue-50/90 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-900 dark:text-blue-200 shadow-sm animate-fade-in">
+            <div className="flex items-start sm:items-center gap-2.5">
+              <span className="px-2 py-0.5 rounded-md font-bold text-[10px] uppercase tracking-wider bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200 shrink-0">
+                Public Read-Only Mode
+              </span>
+              <span className="leading-relaxed">
+                You can inspect existing benchmark tenders below. To create or analyze custom tenders or upload PDF/DOCX schedules, please sign in.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onRequireOfficerAuth?.('sign in as an officer')}
+              className="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shrink-0 transition text-xs shadow-sm cursor-pointer"
+            >
+              Sign In (Officer)
+            </button>
+          </div>
+        )}
+
         {/* Smart Query Box */}
         <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-700/60 ring-1 ring-black/5 dark:ring-white/10 transition-colors">
           <div className="relative">
-            <label htmlFor="procurement-query" className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Describe your procurement requirement</label>
+            <div className="flex items-center justify-between mb-3">
+              <label htmlFor="procurement-query" className="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Describe your procurement requirement
+              </label>
+              {!isAuthenticated && (
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                  (Custom tender creation requires Officer sign-in)
+                </span>
+              )}
+            </div>
             <textarea
               id="procurement-query"
               rows={4}
@@ -220,7 +282,15 @@ export default function QueryInputSection({
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               {/* File Upload Trigger */}
               <div className="flex items-center gap-3">
-                <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 transition">
+                <label
+                  onClick={(e) => {
+                    if (!isAuthenticated) {
+                      e.preventDefault();
+                      onRequireOfficerAuth?.('upload tender specifications (PDF/DOCX)');
+                    }
+                  }}
+                  className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 transition"
+                >
                   <UploadCloud className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span>{isUploading ? 'Extracting Text...' : 'Upload Tender PDF / Spec'}</span>
                   <input
@@ -239,9 +309,9 @@ export default function QueryInputSection({
               {/* Main Submit Button */}
               <button
                 type="button"
-                onClick={onAnalyze}
+                onClick={handleAnalyzeClick}
                 disabled={isLoading || (!query.trim() && !tenderDocText.trim())}
-                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-600 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-95"
+                className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-semibold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-500 hover:to-indigo-600 shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition transform active:scale-95 cursor-pointer"
               >
                 {isLoading ? (
                   <>
@@ -274,7 +344,7 @@ export default function QueryInputSection({
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => onQueryChange(sample.text)}
+                    onClick={() => handleSelectSample(sample.text)}
                     className="text-left p-3 rounded-xl bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500/40 shadow-sm transition group"
                   >
                     <div className="flex items-center gap-2 mb-1">
@@ -301,7 +371,7 @@ export default function QueryInputSection({
                 <button
                   key={i}
                   type="button"
-                  onClick={() => onQueryChange(r.text)}
+                  onClick={() => handleSelectSample(r.text)}
                   title={r.text}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-normal text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-amber-500/40 shadow-sm transition"
                 >

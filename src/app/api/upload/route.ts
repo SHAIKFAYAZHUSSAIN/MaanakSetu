@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractTenderProducts } from '@/lib/gemini';
+import { SESSION_COOKIE, validSession } from '@/lib/session';
 
 // Dynamic route handler
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    const isAuth = await validSession(req.cookies.get(SESSION_COOKIE)?.value);
+    if (!isAuth) {
+      return NextResponse.json(
+        { error: 'Officer authentication required to upload tender documents. Please sign in.' },
+        { status: 401 }
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
 
