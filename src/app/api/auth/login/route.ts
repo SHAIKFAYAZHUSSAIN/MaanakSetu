@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
   }
   const email = process.env.AUTH_LOGIN_EMAIL || 'officer@maanaksetu.demo';
-  const password = process.env.AUTH_LOGIN_PASSWORD || 'password';
+  const password = process.env.AUTH_LOGIN_PASSWORD || 'password@123';
   try {
     const body = await req.json();
     if (typeof body.email !== 'string' || typeof body.password !== 'string' || body.email.length > 254 || body.password.length > 256) return NextResponse.json({ error: 'Invalid email or password.' }, { status: 400 });

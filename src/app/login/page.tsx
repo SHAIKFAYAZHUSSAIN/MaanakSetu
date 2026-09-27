@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   const handleFillDemo = () => {
     setEmail('officer@maanaksetu.demo');
-    setPassword('password');
+    setPassword('password@123');
     setError('');
   };
 
@@ -174,7 +174,7 @@ export default function LoginPage() {
                 Email: <strong>officer@maanaksetu.demo</strong>
               </p>
               <p className="font-mono text-[11px] text-slate-700 dark:text-slate-300">
-                Password: <strong>password</strong>
+                Password: <strong>password@123</strong>
               </p>
             </div>
 

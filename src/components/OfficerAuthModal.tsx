@@ -17,7 +17,7 @@ export default function OfficerAuthModal({
   actionName = 'create or analyze a custom tender specification',
 }: OfficerAuthModalProps) {
   const [email, setEmail] = useState('officer@maanaksetu.demo');
-  const [password, setPassword] = useState('password');
+  const [password, setPassword] = useState('password@123');
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');

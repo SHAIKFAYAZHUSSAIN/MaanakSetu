@@ -13,10 +13,10 @@ Public users are prevented from creating custom tenders or uploading tender file
 ### 2. Officer Access (Tender Creation & Document Uploads)
 To create custom tenders, upload PDF/DOCX tender schedules, or save tenders, users sign in with authorized Procurement Officer credentials:
 * **Email:** `officer@maanaksetu.demo`
-* **Password:** `password`
+* **Password:** `password@123`
 
 ### 3. Environment Configuration
 Credentials are configured in `.env.local`:
 * `AUTH_LOGIN_EMAIL`: officer@maanaksetu.demo
-* `AUTH_LOGIN_PASSWORD`: password
+* `AUTH_LOGIN_PASSWORD`: password@123
 * `AUTH_SESSION_SECRET`: Minimum 32-character secret key for HMAC SHA-256 session tokens.
