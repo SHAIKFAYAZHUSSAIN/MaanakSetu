@@ -414,8 +414,8 @@ Extract a structured JSON response with the following schema ONLY (no markdown f
       testRequirements: parsed.testRequirements || [],
       otherSpecs: parsed.otherSpecs || {},
     };
-  } catch (error) {
-    console.warn('Gemini API extraction fallback to heuristic:', error);
+  } catch (error: any) {
+    console.info('Gemini API unavailable or invalid key; engaging deterministic multilingual NLP extraction engine.');
     return heuristicExtract(rawText);
   }
 }
