@@ -31,10 +31,10 @@ export default function RecommendationEvidenceCard({
           </div>
           <div>
             <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-              Procurement Audit Integrity
+              Recommendation context
             </span>
             <h3 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white mt-0.5">
-              Recommendation Evidence & Regulatory Verification Trail
+              Why this standard fits
             </h3>
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function RecommendationEvidenceCard({
         <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-850 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-750">
             <Calendar className="w-3.5 h-3.5 text-blue-500" />
-            <span>Verified: <strong>{evidence.lastVerifiedDate}</strong></span>
+            <span>Record date: <strong>{evidence.lastVerifiedDate}</strong></span>
           </div>
 
           <a
@@ -63,7 +63,7 @@ export default function RecommendationEvidenceCard({
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-              <span>Statutory Applicability Rationale:</span>
+              <span>Why it applies</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
               {evidence.whyApplies}
@@ -72,7 +72,7 @@ export default function RecommendationEvidenceCard({
 
           <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
             <span>Primary Standard: <strong>{standardNumber}</strong></span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-medium">Verified Official Record</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-medium">Source-linked record</span>
           </div>
         </div>
 
@@ -81,7 +81,7 @@ export default function RecommendationEvidenceCard({
           <div>
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200 mb-2">
               <FileText className="w-4 h-4 text-blue-500" />
-              <span>Official BIS Statutory Scope:</span>
+              <span>Standard scope</span>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic">
               &ldquo;{evidence.scopeExtract}&rdquo;
@@ -99,7 +99,7 @@ export default function RecommendationEvidenceCard({
         <div className="p-3.5 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/80 text-xs">
           <div className="flex items-center gap-2 text-amber-900 dark:text-amber-200 font-bold mb-1.5">
             <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            <span>Technical Discrepancies & Items Requiring Officer Review Before Issuance:</span>
+            <span>Items to review</span>
           </div>
           <ul className="space-y-1 list-disc list-inside text-amber-800 dark:text-amber-300">
             {evidence.uncertaintyFlags.map((flag, idx) => (
@@ -113,7 +113,7 @@ export default function RecommendationEvidenceCard({
         <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/60 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           <span>
-            <strong>Specification Complete:</strong> No critical technical uncertainties identified. All essential parameters align with primary standard benchmarks.
+            <strong>Scope review:</strong> No additional scope questions identified. Check the missing requirements below before preparing your draft.
           </span>
         </div>
       )}

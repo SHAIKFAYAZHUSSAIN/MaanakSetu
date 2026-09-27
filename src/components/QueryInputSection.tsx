@@ -41,6 +41,7 @@ export default function QueryInputSection({
   onDocUploaded,
 }: QueryInputSectionProps) {
   const t = translations[currentLanguage] || translations.en;
+  const [showAllExamples, setShowAllExamples] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -113,12 +114,12 @@ export default function QueryInputSection({
       text: 'Procure 50 metric tonnes of 16mm saria Fe 500D for primary school concrete building construction.',
     },
     {
-      tag: 'Outdated Standard Test',
+      tag: 'Older edition',
       title: 'IS 1786:1985 CTD Bars',
       text: 'Tender specification for high strength deformed steel bars conforming to IS 1786:1985 for bridge pier foundation.',
     },
     {
-      tag: 'Zero-Default Guardrail Test',
+      tag: 'Unmatched product',
       title: 'Lunch Catering Service',
       text: 'Supply of 500 packed lunch catering boxes with bottled water for national civil services training workshop.',
     },
@@ -165,24 +166,25 @@ export default function QueryInputSection({
         <div className="text-center mb-7">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-3 shadow-sm">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 animate-pulse" />
-            <span>Problem Statement 26108 • AI Indian Standards Recommendation Layer</span>
+            <span>Demo prototype • Indian Standards for procurement</span>
           </div>
 
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">
-            Which Indian Standards Should Your Tender Refer To?
+            The right standards. A clearer tender.
           </h1>
 
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            {t.subTagline} Enter your procurement requirement in natural language (English, हिन्दी, తెలుగు)
-            or upload tender specifications to retrieve the exact primary standard, normative relationships,
-            revisions, compulsory QCOs, and missing specifications.
+            Describe what you need to buy. Explore relevant Indian Standards, review missing requirements,
+            and prepare a tender draft — in English or an Indian language.
           </p>
         </div>
 
         {/* Smart Query Box */}
         <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-700/60 ring-1 ring-black/5 dark:ring-white/10 transition-colors">
           <div className="relative">
+            <label htmlFor="procurement-query" className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3">Describe your procurement requirement</label>
             <textarea
+              id="procurement-query"
               rows={4}
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
@@ -229,8 +231,8 @@ export default function QueryInputSection({
                     className="hidden"
                   />
                 </label>
-                <span className="text-[11px] text-slate-500 hidden sm:inline">
-                  Supports Tender PDFs, GeM BOQ bids & Word documents
+                <span className="text-xs text-slate-600 dark:text-slate-400 hidden sm:inline">
+                  PDF, Word or plain text
                 </span>
               </div>
 
@@ -262,11 +264,11 @@ export default function QueryInputSection({
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 {t.sampleQueriesTitle}
               </span>
-              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Click to test scenario</span>
+              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Choose an example to get started</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-              {sampleQueries.map((sample, idx) => {
+              {(showAllExamples ? sampleQueries : sampleQueries.slice(0, 3)).map((sample, idx) => {
                 const Icon = sample.icon;
                 return (
                   <button
@@ -283,7 +285,7 @@ export default function QueryInputSection({
                         {sample.title}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                       {sample.text}
                     </p>
                   </button>
@@ -291,9 +293,10 @@ export default function QueryInputSection({
               })}
             </div>
 
+            <button type="button" onClick={() => setShowAllExamples(!showAllExamples)} aria-expanded={showAllExamples} className="mt-3 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">{showAllExamples ? "Fewer examples" : "More examples"}</button>
             {/* Compliance & Multilingual Quick Chips */}
             <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/50">
-              <span className="text-[11px] text-slate-500 font-medium">Compliance & Multilingual Tests:</span>
+              <span className="text-[11px] text-slate-500 font-medium">Explore more scenarios:</span>
               {regionalSamples.map((r, i) => (
                 <button
                   key={i}

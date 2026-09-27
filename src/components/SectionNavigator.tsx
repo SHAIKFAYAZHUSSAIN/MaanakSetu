@@ -38,7 +38,7 @@ export default function SectionNavigator({
   const sections = [
     {
       id: 'all' as SectionTabId,
-      label: 'All Sections',
+      label: 'Overview',
       icon: LayoutGrid,
       desc: 'Full Procurement Dossier',
     },
@@ -50,23 +50,23 @@ export default function SectionNavigator({
     },
     {
       id: 'primary-standard' as SectionTabId,
-      label: '2. Primary Standard',
+      label: '2. Standard',
       icon: FileCheck,
       desc: 'IS & Version History',
     },
     {
       id: 'regulatory-qco' as SectionTabId,
-      label: '3. Regulatory QCO',
+      label: '3. Certification',
       icon: ShieldAlert,
       desc: 'Statutory Certification',
-      badge: isQCOCompulsory ? 'Compulsory' : 'Voluntary',
+      badge: isQCOCompulsory ? 'Required' : 'Voluntary',
       badgeColor: isQCOCompulsory
         ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30'
         : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30',
     },
     {
       id: 'knowledge-graph' as SectionTabId,
-      label: '4. Knowledge Graph',
+      label: '4. Related',
       icon: Network,
       desc: 'Normative Ecosystem',
       badge: `${alliedCount} Links`,
@@ -74,7 +74,7 @@ export default function SectionNavigator({
     },
     {
       id: 'gap-analysis' as SectionTabId,
-      label: '5. Gap Analysis',
+      label: '5. Gaps',
       icon: AlertTriangle,
       desc: 'Missing Benchmarks',
       badge: `${gapsCount} Gaps`,
@@ -82,7 +82,7 @@ export default function SectionNavigator({
     },
     {
       id: 'tender-clause' as SectionTabId,
-      label: '6. Tender Clause',
+      label: '6. Draft',
       icon: FileText,
       desc: 'GeM Contract Clause',
     },
@@ -100,7 +100,8 @@ export default function SectionNavigator({
               <button
                 key={sec.id}
                 onClick={() => onTabChange(sec.id)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                aria-pressed={isActive}
+                className={`flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-1 ring-blue-400'
                     : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'

@@ -43,9 +43,9 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
 
     const totalOthers = otherNodes.length;
     otherNodes.forEach((node, index) => {
-      let radius = 180;
-      if (node.group === 'certification') radius = 130;
-      if (node.group === 'amendment') radius = 140;
+      let radius = 190;
+      if (node.group === 'certification') radius = 190;
+      if (node.group === 'amendment') radius = 190;
       if (node.group === 'testing') radius = 210;
       if (node.group === 'safety') radius = 200;
 
@@ -261,6 +261,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                   onClick={() => setSelectedNode(node)}
                   className="cursor-pointer group"
                 >
+                  <title>{node.label}: {node.title}</title>
                   {/* Glowing ring for primary node */}
                   {isPrimary && (
                     <circle
@@ -289,11 +290,11 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     textAnchor="middle"
                     dy="-3"
                     fill="#ffffff"
-                    fontSize={isPrimary ? '10' : '8.5'}
+                    fontSize={isPrimary ? '11' : '10'}
                     fontWeight="bold"
                     className="pointer-events-none select-none"
                   >
-                    {node.label.length > 14 ? node.label.substring(0, 12) + '...' : node.label}
+                    {node.label.match(/IS\s*\d+/)?.[0] || (node.group === 'certification' ? 'BIS' : node.label)}
                   </text>
 
                   {/* Group Tag */}
@@ -301,7 +302,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     textAnchor="middle"
                     dy="11"
                     fill={colors.text}
-                    fontSize="7"
+                    fontSize="8"
                     fontWeight="600"
                     className="pointer-events-none uppercase tracking-wider"
                   >

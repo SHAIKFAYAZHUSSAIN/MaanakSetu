@@ -54,7 +54,7 @@ export default function ExplainabilityAuditCard({ result }: ExplainabilityAuditC
           </div>
           <div>
             <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Explainable AI Audit Trail (Why This Standard?)
+              Why this recommendation?
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Deterministic regulatory facts separated from generative reasoning for statutory auditability
@@ -90,15 +90,7 @@ export default function ExplainabilityAuditCard({ result }: ExplainabilityAuditC
         })}
       </div>
 
-      {/* Difference from Generic Chatbot Box */}
-      <div className="p-3.5 rounded-xl bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-500/20 text-xs text-slate-700 dark:text-slate-300">
-        <strong className="text-amber-700 dark:text-amber-400 block mb-1">
-          ✦ System Architecture Note (Contrast with Generic LLMs):
-        </strong>
-        Unlike general conversational LLMs which frequently hallucinate outdated standard revisions or fictional QCO mandates,
-        MaanakSetu grounds all recommendations in a controlled BIS-oriented Knowledge Base, traverses explicit normative graph relationships,
-        checks active amendments, and separates regulatory verification from natural language synthesis.
-      </div>
+
     </div>
   );
 }

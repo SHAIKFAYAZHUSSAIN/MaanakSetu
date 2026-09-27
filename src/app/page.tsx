@@ -140,11 +140,7 @@ export default function Home() {
     }
   };
 
-  // Run initial analysis automatically on mount
-  useEffect(() => {
-    handleAnalyze();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Start analysis only when the user chooses Find Standards.
 
   // Handle 1-click update for outdated standard
   const handleApplyOutdatedUpdate = (replacementStandard: string) => {
@@ -351,7 +347,7 @@ export default function Home() {
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                       <span className="font-semibold text-slate-900 dark:text-white">Analysis Status:</span>
                       <span>
-                        Successfully verified standard <strong>{result.primaryStandard.isNumber}</strong>{' '}
+                        Recommended standard <strong>{result.primaryStandard.isNumber}</strong>{' '}
                         (Confidence: <strong>{result.matchConfidence}% - {result.confidenceLevel}</strong>) with{' '}
                         {result.relatedStandards.length} normative references and{' '}
                         {result.specificationGaps.length} specification checks.
@@ -385,7 +381,7 @@ export default function Home() {
                           Section 01
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          AI Requirement Extraction & Scope Classification
+                          Your requirements
                         </h2>
                       </div>
                       <RequirementBadgeGrid requirement={result.extractedRequirement} />
@@ -400,7 +396,7 @@ export default function Home() {
                           Section 02
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Primary Applicable Indian Standard & Version Evolution
+                          Recommended standard & editions
                         </h2>
                       </div>
                       <PrimaryStandardCard
@@ -433,7 +429,7 @@ export default function Home() {
                           Section 03
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Statutory Certification Applicability & Quality Control Orders (QCO)
+                          Certification requirements
                         </h2>
                       </div>
                       <RegulatoryCard
@@ -451,7 +447,7 @@ export default function Home() {
                           Section 04
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Standards Ecosystem & Interactive Knowledge Graph
+                          Related standards
                         </h2>
                       </div>
                       <GraphVisualizer graphData={result.standardsGraph} />
@@ -467,7 +463,7 @@ export default function Home() {
                           Section 05
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Specification Gap Analysis (Missing Requirements Detector)
+                          Missing requirements
                         </h2>
                       </div>
                       <SpecificationGapsCard
@@ -485,7 +481,7 @@ export default function Home() {
                           Section 06
                         </span>
                         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          Auditable Rationale & Generated Tender Specification Clause
+                          Review & export your draft
                         </h2>
                       </div>
                       <ExplainabilityAuditCard result={result} />
@@ -511,7 +507,7 @@ export default function Home() {
             <span>• Problem Statement PS 26108</span>
           </div>
           <div>
-            Hybrid RAG, Standards Knowledge Graph Traversal & Deterministic Regulatory Verification
+            Discover standards. Review requirements. Prepare a better tender.
           </div>
           <div className="flex items-center gap-3">
             <button

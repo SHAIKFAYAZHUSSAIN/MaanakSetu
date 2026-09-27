@@ -65,7 +65,7 @@ export default function RequirementBadgeGrid({ requirement }: RequirementBadgeGr
                 <span>{item.label}</span>
               </div>
               <div
-                className={`text-xs sm:text-sm font-semibold truncate ${
+                className={`text-xs sm:text-sm font-semibold break-words ${
                   item.highlight ? 'text-blue-700 dark:text-blue-300' : 'text-slate-900 dark:text-slate-100'
                 }`}
                 title={item.value}

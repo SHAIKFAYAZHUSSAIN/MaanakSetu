@@ -188,7 +188,7 @@ export default function ExportClauseCard({
           <div class="header">
             <h1>GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT</h1>
             <p><strong>TECHNICAL SPECIFICATION & STATUTORY COMPLIANCE SCHEDULE</strong></p>
-            <p>Generated via MaanakSetu (BIS SmartSpec AI Engine) | Verified on: ${now}</p>
+            <p>Generated via MaanakSetu (BIS SmartSpec AI Engine) | Generated on: ${now}</p>
           </div>
 
           <table class="meta-table">
@@ -311,10 +311,10 @@ export default function ExportClauseCard({
           </div>
           <div>
             <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-              Generated Tender Specification Clause & PDF
+              Your draft tender clause
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Official contract schedule formatted for GeM Custom Bids, CPWD, Railways, and Public Works
+              Review your draft, then copy, save or export it.
             </p>
           </div>
         </div>
@@ -361,7 +361,7 @@ export default function ExportClauseCard({
             type="button"
             onClick={handleDownloadPdf}
             className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white shadow-sm flex items-center gap-1.5 transition"
-            title="Export and Print Official Tender Specification PDF"
+            title="Print or save your draft as PDF"
           >
             <Printer className="w-3.5 h-3.5 text-white" />
             <span>Download PDF</span>
@@ -390,7 +390,7 @@ export default function ExportClauseCard({
 
       {/* Code / Clause Display Box */}
       <div className="relative">
-        <pre className="w-full max-h-96 overflow-y-auto p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 font-mono text-xs leading-relaxed select-all whitespace-pre-wrap">
+        <pre className="w-full max-h-96 overflow-y-auto p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 font-sans text-sm leading-7 select-all whitespace-pre-wrap">
           {result.generatedTenderClause}
         </pre>
       </div>

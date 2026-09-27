@@ -110,3 +110,11 @@ html.dark ::-webkit-scrollbar-thumb {
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Presentation polish: readable supporting copy and visible keyboard focus. */
+#results-section .glass-card .text-xs { font-size: 0.8125rem; line-height: 1.6; }
+#results-section section { scroll-margin-top: 9rem; }
+button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #60a5fa; outline-offset: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

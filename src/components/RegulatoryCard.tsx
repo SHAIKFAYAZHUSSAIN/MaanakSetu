@@ -90,7 +90,7 @@ export default function RegulatoryCard({ qco, standardNumber }: RegulatoryCardPr
             <Building2 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
             <span>Issuing Ministry</span>
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate" title={qco.ministry}>
+          <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 break-words" title={qco.ministry}>
             {qco.ministry}
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function RegulatoryCard({ qco, standardNumber }: RegulatoryCardPr
             <Scale className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Gazette Order / QCO</span>
           </div>
-          <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 truncate" title={qco.gazetteNotification}>
+          <div className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 break-words" title={qco.gazetteNotification}>
             {qco.gazetteNotification}
           </div>
         </div>
