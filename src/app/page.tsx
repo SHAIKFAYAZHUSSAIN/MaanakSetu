@@ -47,6 +47,9 @@ export default function Home() {
   const [savedProjects, setSavedProjects] = useState<SavedTenderProject[]>([]);
   const [isCurrentSaved, setIsCurrentSaved] = useState<boolean>(false);
 
+  // Left-Side Sections Dashboard State
+  const [isDashboardOpen, setIsDashboardOpen] = useState<boolean>(true);
+
   // Authentication & Public Mode State
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isOfficerAuthModalOpen, setIsOfficerAuthModalOpen] = useState<boolean>(false);
@@ -388,7 +391,7 @@ export default function Home() {
         {/* Analysis Results View */}
         {result && (
           <div id="results-section">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4 animate-fade-in">
+            <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4 animate-fade-in">
               {/* Outdated / Superseded Standard Alert Banner (Feature 6) */}
               {result.outdatedStandardAlert && result.outdatedStandardAlert.isOutdated && (
                 <OutdatedStandardAlertCard
@@ -428,18 +431,36 @@ export default function Home() {
                     />
                   )}
 
-                  {/* Sticky Section Navigator & Filter */}
-                  <SectionNavigator
-                    activeTab={activeTab}
-                    onTabChange={setActiveTab}
-                    gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
-                    alliedCount={result.relatedStandards.length}
-                    isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
-                    currentLanguage={currentLanguage}
-                  />
+                  {/* Left-side Dashboard Navigation + Content Layout */}
+                  <div className="relative flex flex-col lg:flex-row items-start gap-6 pt-2">
+                    {/* Left-Side Dashboard Sidebar (Collapsible / Expandable) */}
+                    <SectionNavigator
+                      activeTab={activeTab}
+                      onTabChange={(tab) => {
+                        setActiveTab(tab);
+                        if (tab === 'all') {
+                          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                          setTimeout(() => {
+                            document.getElementById(`section-${tab}`)?.scrollIntoView({ behavior: 'smooth' });
+                          }, 50);
+                        }
+                      }}
+                      gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
+                      alliedCount={result.relatedStandards.length}
+                      isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
+                      currentLanguage={currentLanguage}
+                      isOpen={isDashboardOpen}
+                      onToggleOpen={() => setIsDashboardOpen((prev) => !prev)}
+                      confidenceLevel={result.confidenceLevel}
+                      matchConfidence={result.matchConfidence}
+                      standardNumber={result.primaryStandard.isNumber}
+                    />
 
-                  {/* Summary Status Strip */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                    {/* Main Content Area (Full Dossier & Specific Sections) */}
+                    <div className="flex-1 w-full min-w-0 space-y-6">
+                      {/* Summary Status Strip */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
                     <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                       <span className="font-semibold text-slate-900 dark:text-white">
@@ -600,6 +621,8 @@ export default function Home() {
                       />
                     </section>
                   )}
+                    </div>
+                  </div>
                 </>
               )}
             </div>

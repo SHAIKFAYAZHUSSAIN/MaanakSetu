@@ -43,7 +43,7 @@ export interface TranslationDictionary {
   section5Title: string;
   section6Title: string;
 
-  // Tabs
+  // Tabs & Dashboard
   tabOverview: string;
   tabRequirements: string;
   tabStandard: string;
@@ -51,6 +51,9 @@ export interface TranslationDictionary {
   tabRelated: string;
   tabGaps: string;
   tabClauses: string;
+  dashboardSections: string;
+  openDashboard: string;
+  closeDashboard: string;
 
   // Report & Export
   downloadPdf: string;
@@ -110,6 +113,9 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabRelated: "4. Related",
     tabGaps: "5. Gaps",
     tabClauses: "6. Clauses",
+    dashboardSections: "Sections Dashboard",
+    openDashboard: "Open Dashboard",
+    closeDashboard: "Close Dashboard",
 
     downloadPdf: "Download PDF",
     downloadTxt: ".txt",
@@ -166,6 +172,9 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabRelated: "4. संबद्ध",
     tabGaps: "5. कमियाँ",
     tabClauses: "6. निविदा खंड",
+    dashboardSections: "अनुभाग डैशबोर्ड",
+    openDashboard: "डैशबोर्ड खोलें",
+    closeDashboard: "डैशबोर्ड बंद करें",
 
     downloadPdf: "पीडीएफ डाउनलोड",
     downloadTxt: ".txt डाउनलोड",
@@ -222,6 +231,9 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabRelated: "4. సంబంధిత",
     tabGaps: "5. లోపాలు",
     tabClauses: "6. క్లాజులు",
+    dashboardSections: "విభాగాల డ్యాష్‌బోర్డ్",
+    openDashboard: "డ్యాష్‌బోర్డ్ తెరవండి",
+    closeDashboard: "డ్యాష్‌బోర్డ్ మూసివేయండి",
 
     downloadPdf: "PDF డౌన్‌లోడ్",
     downloadTxt: ".txt డౌన్‌లోడ్",
@@ -278,6 +290,9 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     tabRelated: "4. தொடர்புடைய",
     tabGaps: "5. இடைவெளிகள்",
     tabClauses: "6. விதிகள்",
+    dashboardSections: "பிரிவுகள் டாஷ்போர்டு",
+    openDashboard: "டாஷ்போர்டைத் திறக்கவும்",
+    closeDashboard: "டாஷ்போர்டை மூடுக",
 
     downloadPdf: "PDF பதிவிறக்கு",
     downloadTxt: ".txt பதிவிறக்கு",
