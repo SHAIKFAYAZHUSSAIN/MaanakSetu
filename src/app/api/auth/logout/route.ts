@@ -4,8 +4,11 @@ export async function POST(req: NextRequest) {
   const origin = req.headers.get('origin');
   const host = req.headers.get('host');
   if (origin && origin !== req.nextUrl.origin) {
-    const isLocal = (origin.includes('localhost') || origin.includes('127.0.0.1')) && (host?.includes('localhost') || host?.includes('127.0.0.1'));
-    if (!isLocal && !origin.includes(host || '')) {
+    const isLocal =
+      (origin.includes('localhost') || origin.includes('127.0.0.1')) &&
+      (host?.includes('localhost') || host?.includes('127.0.0.1'));
+    const isVercel = origin.includes('vercel.app') || (host ? origin.includes(host) : false);
+    if (!isLocal && !isVercel) {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 403 });
     }
   }

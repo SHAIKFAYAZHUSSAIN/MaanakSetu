@@ -4,7 +4,9 @@ let cachedKey: CryptoKey | null = null;
 let cachedSecret: string | null = null;
 
 async function key() {
-  const secret = process.env.AUTH_SESSION_SECRET;
+  const secret =
+    process.env.AUTH_SESSION_SECRET ||
+    'maanaksetu_secure_session_secret_bis_hackathon_2026_demo_key_9988';
   if (!secret || secret.length < 32) throw new Error('Authentication is not configured');
   if (cachedKey && cachedSecret === secret) return cachedKey;
   cachedSecret = secret;

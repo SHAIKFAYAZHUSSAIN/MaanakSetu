@@ -9,6 +9,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     authenticated: isAuth,
     role: isAuth ? 'officer' : 'guest',
-    email: isAuth ? process.env.AUTH_LOGIN_EMAIL : null,
+    email: isAuth ? (process.env.AUTH_LOGIN_EMAIL || 'officer@maanaksetu.demo') : null,
   });
 }
