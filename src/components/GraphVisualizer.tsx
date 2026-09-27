@@ -7,11 +7,7 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Layers,
   Filter,
-  Info,
-  CheckCircle,
-  ExternalLink,
 } from 'lucide-react';
 
 interface GraphVisualizerProps {
@@ -29,7 +25,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
     return graphData.edges.filter((e) => e.type === filterType || e.label === filterType);
   }, [graphData.edges, filterType]);
 
-  // Compute 2D node positions in a radial / tiered force layout around center
+  // Compute 2D node positions in a radial layout
   const layoutNodes = useMemo(() => {
     const centerNode = graphData.nodes.find((n) => n.group === 'primary') || graphData.nodes[0];
     const otherNodes = graphData.nodes.filter((n) => n.id !== centerNode?.id);
@@ -47,14 +43,12 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
 
     const totalOthers = otherNodes.length;
     otherNodes.forEach((node, index) => {
-      // Determine distance radius based on group
       let radius = 180;
       if (node.group === 'certification') radius = 130;
       if (node.group === 'amendment') radius = 140;
       if (node.group === 'testing') radius = 210;
       if (node.group === 'safety') radius = 200;
 
-      // Calculate angle spread
       const angle = (2 * Math.PI * index) / totalOthers - Math.PI / 2;
       const x = centerX + radius * Math.cos(angle);
       const y = centerY + radius * Math.sin(angle);
@@ -65,63 +59,61 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
     return result;
   }, [graphData.nodes]);
 
-  // Helper map for fast coordinate lookup
   const nodeCoordMap = useMemo(() => {
     const map = new Map<string, { x: number; y: number; node: GraphNode }>();
     layoutNodes.forEach((n) => map.set(n.id, { x: n.x, y: n.y, node: n }));
     return map;
   }, [layoutNodes]);
 
-  // Group color schemes
   const getNodeColor = (group: GraphNode['group']) => {
     switch (group) {
       case 'primary':
-        return { fill: '#1e3a8a', stroke: '#60a5fa', text: '#93c5fd', badge: 'bg-blue-600' };
+        return { fill: '#1d4ed8', stroke: '#3b82f6', text: '#bfdbfe', badge: 'bg-blue-600' };
       case 'safety':
-        return { fill: '#4c0519', stroke: '#f43f5e', text: '#fda4af', badge: 'bg-rose-600' };
+        return { fill: '#be123c', stroke: '#f43f5e', text: '#fecdd3', badge: 'bg-rose-600' };
       case 'testing':
-        return { fill: '#064e3b', stroke: '#10b981', text: '#6ee7b7', badge: 'bg-emerald-600' };
+        return { fill: '#047857', stroke: '#10b981', text: '#a7f3d0', badge: 'bg-emerald-600' };
       case 'amendment':
-        return { fill: '#451a03', stroke: '#f59e0b', text: '#fcd34d', badge: 'bg-amber-600' };
+        return { fill: '#b45309', stroke: '#f59e0b', text: '#fde68a', badge: 'bg-amber-600' };
       case 'certification':
-        return { fill: '#3b0764', stroke: '#a855f7', text: '#d8b4fe', badge: 'bg-purple-600' };
+        return { fill: '#7e22ce', stroke: '#a855f7', text: '#e9d5ff', badge: 'bg-purple-600' };
       default:
-        return { fill: '#1e293b', stroke: '#64748b', text: '#cbd5e1', badge: 'bg-slate-600' };
+        return { fill: '#475569', stroke: '#94a3b8', text: '#e2e8f0', badge: 'bg-slate-600' };
     }
   };
 
   const relationshipTypes = ['ALL', 'REQUIRES', 'TESTED_BY', 'SAFETY_REQUIREMENT', 'AMENDED_BY', 'CERTIFICATION'];
 
   return (
-    <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-700/80 shadow-2xl relative">
+    <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700/80 shadow-md relative transition-colors">
       {/* Header and Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-blue-500/20 text-blue-400">
+          <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
             <Network className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider">
+            <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Interactive Standards Knowledge Graph
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Traversing normative references, test methods, safety standards, and QCO certification
             </p>
           </div>
         </div>
 
         {/* Zoom & Reset Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setZoomLevel((z) => Math.min(z + 0.15, 1.6))}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition"
             title="Zoom In"
           >
             <ZoomIn className="w-4 h-4" />
           </button>
           <button
             onClick={() => setZoomLevel((z) => Math.max(z - 0.15, 0.6))}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition"
             title="Zoom Out"
           >
             <ZoomOut className="w-4 h-4" />
@@ -132,7 +124,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
               setFilterType('ALL');
               setSelectedNode(null);
             }}
-            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition"
             title="Reset View"
           >
             <RotateCcw className="w-4 h-4" />
@@ -142,7 +134,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
 
       {/* Relationship Filters */}
       <div className="flex items-center gap-1.5 flex-wrap mb-4">
-        <span className="text-xs text-slate-400 flex items-center gap-1 mr-1">
+        <span className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1 mr-1">
           <Filter className="w-3.5 h-3.5" />
           Filter Link:
         </span>
@@ -153,7 +145,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
             className={`px-2.5 py-1 text-xs rounded-lg font-medium transition ${
               filterType === type
                 ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700/80'
+                : 'bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700'
             }`}
           >
             {type.replace('_', ' ')}
@@ -162,13 +154,13 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
       </div>
 
       {/* Main SVG Graph Canvas */}
-      <div className="relative w-full h-[480px] bg-slate-950/90 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center">
+      <div className="relative w-full h-[480px] bg-slate-50 dark:bg-slate-950/90 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex items-center justify-center transition-colors">
         {/* Subtle grid pattern background */}
         <div
-          className="absolute inset-0 opacity-15 pointer-events-none"
+          className="absolute inset-0 opacity-20 dark:opacity-15 pointer-events-none"
           style={{
             backgroundImage:
-              'radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px)',
+              'radial-gradient(circle, currentColor 1px, transparent 1px)',
             backgroundSize: '24px 24px',
           }}
         />
@@ -198,7 +190,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
               refY="3.5"
               orient="auto"
             >
-              <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa" />
+              <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb" />
             </marker>
           </defs>
 
@@ -212,7 +204,6 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
               const isEdgeHighlighted =
                 selectedNode && (selectedNode.id === edge.from || selectedNode.id === edge.to);
 
-              // Midpoint for text label
               const midX = (from.x + to.x) / 2;
               const midY = (from.y + to.y) / 2;
 
@@ -223,7 +214,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     y1={from.y}
                     x2={to.x}
                     y2={to.y}
-                    stroke={isEdgeHighlighted ? '#60a5fa' : '#334155'}
+                    stroke={isEdgeHighlighted ? '#2563eb' : '#94a3b8'}
                     strokeWidth={isEdgeHighlighted ? 2.5 : 1.5}
                     strokeDasharray={edge.type === 'AMENDED_BY' ? '4 3' : undefined}
                     markerEnd={isEdgeHighlighted ? 'url(#arrowhead-active)' : 'url(#arrowhead)'}
@@ -235,15 +226,15 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     width={64}
                     height={16}
                     rx={4}
-                    fill="#0f172a"
-                    stroke="#1e293b"
+                    fill="#1e293b"
+                    stroke="#334155"
                     strokeWidth={1}
                   />
                   <text
                     x={midX}
                     y={midY + 3}
                     textAnchor="middle"
-                    fill={isEdgeHighlighted ? '#93c5fd' : '#94a3b8'}
+                    fill={isEdgeHighlighted ? '#93c5fd' : '#e2e8f0'}
                     fontSize="8"
                     fontWeight="600"
                     className="pointer-events-none"
@@ -275,7 +266,7 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     <circle
                       r={radius + 8}
                       fill="none"
-                      stroke="#3b82f6"
+                      stroke="#2563eb"
                       strokeWidth={2}
                       strokeDasharray="4 4"
                       className="animate-spin"
@@ -289,8 +280,8 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
                     fill={colors.fill}
                     stroke={isSelected ? '#ffffff' : colors.stroke}
                     strokeWidth={isSelected ? 3 : 2}
-                    filter={isSelected ? 'drop-shadow(0 0 8px rgba(96, 165, 250, 0.8))' : undefined}
-                    className="transition duration-150 group-hover:opacity-90"
+                    filter={isSelected ? 'drop-shadow(0 0 8px rgba(37, 99, 235, 0.6))' : undefined}
+                    className="transition duration-150 group-hover:opacity-95"
                   />
 
                   {/* Node Label Text */}
@@ -324,23 +315,23 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
 
         {/* Selected Node Details Drawer */}
         {selectedNode && (
-          <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-3 sm:w-96 p-4 rounded-xl bg-slate-900/95 border border-slate-700 shadow-2xl backdrop-blur-md animate-fade-in">
+          <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-3 sm:w-96 p-4 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-700 shadow-2xl backdrop-blur-md animate-fade-in">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                 Standards Graph Node Inspector
               </span>
               <button
                 onClick={() => setSelectedNode(null)}
-                className="text-xs text-slate-400 hover:text-white"
+                className="text-xs text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               >
                 ✕ Close
               </button>
             </div>
-            <h4 className="text-sm font-bold text-white mb-1">{selectedNode.label}</h4>
-            <p className="text-xs text-slate-300 mb-2 leading-relaxed">{selectedNode.title}</p>
-            <div className="flex items-center justify-between text-[11px] text-slate-400 pt-2 border-t border-slate-800">
-              <span>Classification: <strong className="text-slate-200 capitalize">{selectedNode.group}</strong></span>
-              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700">
+            <h4 className="text-sm font-bold text-slate-900 dark:text-white mb-1">{selectedNode.label}</h4>
+            <p className="text-xs text-slate-700 dark:text-slate-300 mb-2 leading-relaxed">{selectedNode.title}</p>
+            <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <span>Classification: <strong className="text-slate-800 dark:text-slate-200 capitalize">{selectedNode.group}</strong></span>
+              <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium">
                 {selectedNode.status}
               </span>
             </div>
@@ -349,31 +340,31 @@ export default function GraphVisualizer({ graphData }: GraphVisualizerProps) {
       </div>
 
       {/* Legend */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400 pt-3 border-t border-slate-800">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3 flex-wrap">
-          <span className="font-semibold text-slate-300">Legend:</span>
+          <span className="font-semibold text-slate-700 dark:text-slate-300">Legend:</span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-blue-600" />
             Primary Standard
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
             Test Method Standard
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-600" />
             Safety Requirement
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-600" />
             Active Amendment
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-600" />
             Compulsory QCO
           </span>
         </div>
-        <span className="text-[11px] text-slate-500">
+        <span className="text-[11px] text-slate-400 dark:text-slate-500">
           Click any node to inspect relationship details
         </span>
       </div>

@@ -128,30 +128,29 @@ export default function QueryInputSection({
       setUploadError(err.message || 'Error processing document');
     } finally {
       setIsUploading(false);
-      // Reset input value
       e.target.value = '';
     }
   };
 
   return (
-    <section className="relative pt-6 pb-10">
+    <section className="relative pt-6 pb-8">
       {/* Background Glow Circles */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-10 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Hero Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-900/30 border border-blue-500/30 text-blue-300 text-xs font-medium mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+        <div className="text-center mb-7">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-3 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 animate-pulse" />
             <span>Problem Statement 26108 • AI Indian Standards Recommendation Layer</span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-3">
             Which Indian Standards Should Your Tender Refer To?
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
             {t.subTagline} Enter your procurement requirement in natural language (English, हिन्दी, తెలుగు)
             or upload tender specifications to retrieve the exact primary standard, normative relationships,
             revisions, compulsory QCOs, and missing specifications.
@@ -159,28 +158,28 @@ export default function QueryInputSection({
         </div>
 
         {/* Smart Query Box */}
-        <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-700/60 ring-1 ring-white/10">
+        <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl border border-slate-200 dark:border-slate-700/60 ring-1 ring-black/5 dark:ring-white/10 transition-colors">
           <div className="relative">
             <textarea
               rows={4}
               value={query}
               onChange={(e) => onQueryChange(e.target.value)}
               placeholder={t.searchPlaceholder}
-              className="w-full bg-slate-900/90 text-slate-100 placeholder-slate-400 text-sm sm:text-base rounded-xl p-4 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"
+              className="w-full bg-slate-50 dark:bg-slate-900/90 text-slate-900 dark:text-slate-100 placeholder-slate-400 text-xs sm:text-sm md:text-base rounded-xl p-4 border border-slate-300 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-y"
             />
 
             {/* Uploaded File Indicator Banner */}
             {tenderFileName && (
-              <div className="mt-3 flex items-center justify-between p-3 rounded-lg bg-blue-950/70 border border-blue-500/30 text-xs text-blue-200">
+              <div className="mt-3 flex items-center justify-between p-3 rounded-lg bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-500/30 text-xs text-blue-900 dark:text-blue-200">
                 <div className="flex items-center gap-2 truncate">
-                  <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                  <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                   <span className="font-semibold truncate">Tender Attached: {tenderFileName}</span>
-                  <span className="text-slate-400">({tenderDocText.length} characters parsed)</span>
+                  <span className="text-slate-500 dark:text-slate-400">({tenderDocText.length} characters parsed)</span>
                 </div>
                 <button
                   type="button"
                   onClick={onClearUploadedDoc}
-                  className="text-xs text-rose-400 hover:text-rose-300 font-medium ml-4 underline flex-shrink-0"
+                  className="text-xs text-rose-600 dark:text-rose-400 hover:underline font-medium ml-4 flex-shrink-0"
                 >
                   Remove Document
                 </button>
@@ -188,17 +187,17 @@ export default function QueryInputSection({
             )}
 
             {uploadError && (
-              <div className="mt-2 text-xs text-rose-400 bg-rose-950/40 p-2 rounded border border-rose-800">
+              <div className="mt-2 text-xs text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2 rounded border border-rose-200 dark:border-rose-800">
                 {uploadError}
               </div>
             )}
 
             {/* Input Action Toolbar */}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-200 dark:border-slate-800">
               {/* File Upload Trigger */}
               <div className="flex items-center gap-3">
-                <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium text-slate-300 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition">
-                  <UploadCloud className="w-4 h-4 text-blue-400" />
+                <label className="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 border border-slate-300 dark:border-slate-700 transition">
+                  <UploadCloud className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   <span>{isUploading ? 'Extracting Text...' : 'Upload Tender PDF / Spec'}</span>
                   <input
                     type="file"
@@ -236,12 +235,12 @@ export default function QueryInputSection({
           </div>
 
           {/* Sample Procurement Scenarios Pills */}
-          <div className="mt-6 pt-5 border-t border-slate-800/80">
+          <div className="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800/80">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                 {t.sampleQueriesTitle}
               </span>
-              <span className="text-[11px] text-amber-400/90 font-medium">Click to test scenario</span>
+              <span className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">Click to test scenario</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -252,17 +251,17 @@ export default function QueryInputSection({
                     key={idx}
                     type="button"
                     onClick={() => onQueryChange(sample.text)}
-                    className="text-left p-3 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/40 transition group"
+                    className="text-left p-3 rounded-xl bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-800 hover:border-blue-400 dark:hover:border-blue-500/40 shadow-sm transition group"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="p-1 rounded bg-blue-500/10 text-blue-400 group-hover:text-blue-300">
+                      <div className="p-1 rounded bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 group-hover:text-blue-500">
                         <Icon className="w-3.5 h-3.5" />
                       </div>
-                      <span className="text-xs font-semibold text-slate-200 group-hover:text-white">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-white">
                         {sample.title}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                       {sample.text}
                     </p>
                   </button>
@@ -271,16 +270,16 @@ export default function QueryInputSection({
             </div>
 
             {/* Regional Language Quick Chips */}
-            <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-800/50">
+            <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/50">
               <span className="text-[11px] text-slate-500 font-medium">Multilingual Tests:</span>
               {regionalSamples.map((r, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => onQueryChange(r.text)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal text-slate-300 bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-amber-500/40 transition"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-amber-500/40 shadow-sm transition"
                 >
-                  <span className="font-semibold text-amber-400">{r.tag}:</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-400">{r.tag}:</span>
                   <span className="truncate max-w-xs">{r.text}</span>
                 </button>
               ))}

@@ -9,8 +9,6 @@ import {
   Download,
   BookmarkPlus,
   BookmarkCheck,
-  Send,
-  ExternalLink,
 } from 'lucide-react';
 
 interface ExportClauseCardProps {
@@ -45,18 +43,18 @@ export default function ExportClauseCard({
   };
 
   return (
-    <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-700/80 shadow-2xl relative">
+    <div className="glass-card rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-700/80 shadow-md relative transition-colors">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-800 pb-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-200 dark:border-slate-800 pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-emerald-500/20 text-emerald-400">
+          <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
             <FileText className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider">
+            <h3 className="text-xs sm:text-sm md:text-base font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Generated Tender Specification Clause
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Ready-to-paste contract clause for GeM Custom Bids, CPWD, Railways, and Public Works
             </p>
           </div>
@@ -71,13 +69,13 @@ export default function ExportClauseCard({
             disabled={isSaved}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
               isSaved
-                ? 'bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed'
-                : 'bg-amber-600 hover:bg-amber-500 text-white shadow-md'
+                ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 cursor-not-allowed'
+                : 'bg-amber-600 hover:bg-amber-500 text-white shadow-sm'
             }`}
           >
             {isSaved ? (
               <>
-                <BookmarkCheck className="w-3.5 h-3.5 text-amber-400" />
+                <BookmarkCheck className="w-3.5 h-3.5 text-amber-500" />
                 <span>Saved to Library</span>
               </>
             ) : (
@@ -92,10 +90,10 @@ export default function ExportClauseCard({
           <button
             type="button"
             onClick={handleDownload}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 transition"
             title="Download Specification Document"
           >
-            <Download className="w-3.5 h-3.5 text-blue-400" />
+            <Download className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>Download .txt</span>
           </button>
 
@@ -103,7 +101,7 @@ export default function ExportClauseCard({
           <button
             type="button"
             onClick={handleCopy}
-            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md flex items-center gap-1.5 transition"
+            className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm flex items-center gap-1.5 transition"
           >
             {copied ? (
               <>
@@ -122,15 +120,15 @@ export default function ExportClauseCard({
 
       {/* Code / Clause Display Box */}
       <div className="relative">
-        <pre className="w-full max-h-96 overflow-y-auto p-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 font-mono text-xs leading-relaxed select-all whitespace-pre-wrap">
+        <pre className="w-full max-h-96 overflow-y-auto p-4 rounded-xl bg-slate-900 text-slate-100 border border-slate-800 font-mono text-xs leading-relaxed select-all whitespace-pre-wrap">
           {result.generatedTenderClause}
         </pre>
       </div>
 
       {/* Footer Info */}
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
         <span>Includes resolved specification gaps, QCO statutory citations, and STI testing protocols.</span>
-        <span className="text-[11px] text-emerald-400 font-medium">Compatible with GeM / CPPP e-Procurement Formats</span>
+        <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">Compatible with GeM / CPPP e-Procurement Formats</span>
       </div>
     </div>
   );
