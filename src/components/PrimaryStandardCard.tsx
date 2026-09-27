@@ -58,6 +58,28 @@ export default function PrimaryStandardCard({
         <p className="text-base sm:text-lg text-slate-800 dark:text-slate-200 font-medium leading-snug">
           {standard.title}
         </p>
+
+        {/* Verification & Official Link Badges */}
+        <div className="flex flex-wrap items-center gap-2.5 mt-3 pt-2">
+          {standard.lastVerifiedDate && (
+            <span className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              Verified Record: <strong>{standard.lastVerifiedDate}</strong>
+            </span>
+          )}
+
+          {standard.officialSourceUrl && (
+            <a
+              href={standard.officialSourceUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1 rounded-lg text-xs font-semibold bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 border border-blue-200 dark:border-blue-800 flex items-center gap-1.5 transition"
+            >
+              <span>BIS Official Standard Portal</span>
+              <span className="text-[10px]">↗</span>
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Scope Description */}

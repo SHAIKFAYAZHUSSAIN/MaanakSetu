@@ -10,6 +10,7 @@ import {
   Globe,
   Sun,
   Moon,
+  Server,
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -20,6 +21,7 @@ interface NavbarProps {
   onReset: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  onOpenPortalApi?: () => void;
 }
 
 export default function Navbar({
@@ -30,6 +32,7 @@ export default function Navbar({
   onReset,
   theme,
   onToggleTheme,
+  onOpenPortalApi,
 }: NavbarProps) {
   const languageOptions: { code: SupportedLanguage; label: string; nativeName: string }[] = [
     { code: 'en', label: 'English', nativeName: 'EN' },
@@ -89,6 +92,18 @@ export default function Navbar({
               <Moon className="w-4 h-4 text-blue-600" />
             )}
           </button>
+
+          {/* Portal API Button */}
+          {onOpenPortalApi && (
+            <button
+              onClick={onOpenPortalApi}
+              className="hidden md:flex items-center gap-1.5 text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-white px-2.5 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-800 transition"
+              title="Procurement Portal REST API"
+            >
+              <Server className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Portal API</span>
+            </button>
+          )}
 
           {/* Official BIS Reference Link */}
           <a

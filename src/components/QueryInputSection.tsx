@@ -90,15 +90,37 @@ export default function QueryInputSection({
     },
   ];
 
-  // Multilingual Indian Language Samples
+  // Multilingual Indian Language & Compliance Verification Samples
   const regionalSamples = [
     {
       tag: 'हिन्दी (Hindi)',
-      text: 'हमें नगर पालिका सड़क परियोजना के लिए 1000 एलईडी स्ट्रीट लाइट खरीदनी है, 90W, IP66 वाटरप्रूफ, 50,000 घंटे आयु और सर्ज प्रोटेक्शन के साथ।',
+      title: '250 kVA ट्रांसफार्मर',
+      text: 'ग्रामीण विद्युतीकरण के लिए 250 kVA आउटडोर डिस्ट्रीब्यूशन ट्रांसफार्मर, 11kV/433V, तांबे की वाइंडिंग और बीईई स्टार रेटिंग।',
     },
     {
       tag: 'తెలుగు (Telugu)',
+      title: '90W LED లైట్లు',
       text: 'మున్సిపల్ రోడ్ల ప్రాజెక్ట్ కోసం 90W అవుట్‌డోర్ LED స్ట్రీట్ లైట్లు 1000 కావలెను, IP66 ప్రొటెక్షన్ మరియు సర్జ్ రక్షణతో కనీసం 50,000 గంటల జీవితకాలం.',
+    },
+    {
+      tag: 'தமிழ் (Tamil)',
+      title: '5HP விவசாய மோட்டார்',
+      text: 'விவசாய பாசனத்திற்கு 5HP மூன்று கட்ட மோனோபிளாக் நீர் பம்ப், 415V, ஐபி55 பாதுகாப்புடன்.',
+    },
+    {
+      tag: 'सरिया (Colloquial)',
+      title: 'TMT Saria Fe 500D',
+      text: 'Procure 50 metric tonnes of 16mm saria Fe 500D for primary school concrete building construction.',
+    },
+    {
+      tag: 'Outdated Standard Test',
+      title: 'IS 1786:1985 CTD Bars',
+      text: 'Tender specification for high strength deformed steel bars conforming to IS 1786:1985 for bridge pier foundation.',
+    },
+    {
+      tag: 'Zero-Default Guardrail Test',
+      title: 'Lunch Catering Service',
+      text: 'Supply of 500 packed lunch catering boxes with bottled water for national civil services training workshop.',
     },
   ];
 
@@ -269,18 +291,19 @@ export default function QueryInputSection({
               })}
             </div>
 
-            {/* Regional Language Quick Chips */}
+            {/* Compliance & Multilingual Quick Chips */}
             <div className="mt-4 flex flex-wrap items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/50">
-              <span className="text-[11px] text-slate-500 font-medium">Multilingual Tests:</span>
+              <span className="text-[11px] text-slate-500 font-medium">Compliance & Multilingual Tests:</span>
               {regionalSamples.map((r, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => onQueryChange(r.text)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-amber-500/40 shadow-sm transition"
+                  title={r.text}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-normal text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900/90 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-amber-500/40 shadow-sm transition"
                 >
-                  <span className="font-semibold text-amber-600 dark:text-amber-400">{r.tag}:</span>
-                  <span className="truncate max-w-xs">{r.text}</span>
+                  <span className="font-bold text-amber-600 dark:text-amber-400">{r.tag}:</span>
+                  <span className="font-medium text-slate-800 dark:text-slate-200">{r.title}</span>
                 </button>
               ))}
             </div>

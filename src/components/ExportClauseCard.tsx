@@ -36,7 +36,10 @@ export default function ExportClauseCard({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `Tender_Spec_${result.primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    const stdName = result.primaryStandard
+      ? result.primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')
+      : 'General_Procurement';
+    link.download = `Tender_Spec_${stdName}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -45,6 +48,10 @@ export default function ExportClauseCard({
 
   const handleDownloadPdf = () => {
     const { primaryStandard, extractedRequirement, relatedStandards, specificationGaps } = result;
+    if (!primaryStandard) {
+      handleDownloadTxt();
+      return;
+    }
     const now = new Date().toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'long',

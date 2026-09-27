@@ -38,9 +38,52 @@ export interface CandidateStandardMatch {
   isPrimary: boolean;
 }
 
+export interface ClarifyingOption {
+  label: string;
+  value: string;
+  description?: string;
+  targetStandardNumber?: string;
+}
+
+export interface ClarifyingQuestion {
+  id: string;
+  question: string;
+  parameterKey: string;
+  whyNeeded: string;
+  options: ClarifyingOption[];
+}
+
+export interface TenderProductItem {
+  id: string;
+  itemNumber: number;
+  productName: string;
+  quantity?: string;
+  rawSnippet: string;
+  estimatedCategory: string;
+}
+
+export interface OutdatedStandardAlert {
+  isOutdated: boolean;
+  citedStandard: string;
+  currentReplacement: string;
+  replacementTitle: string;
+  effectiveSince: string;
+  actionRequired: string;
+}
+
+export interface RecommendationEvidence {
+  whyApplies: string;
+  officialSourceUrl: string;
+  lastVerifiedDate: string;
+  uncertaintyFlags: string[];
+  scopeExtract: string;
+}
+
+export type ConfidenceLevel = 'High' | 'Medium' | 'Low' | 'No_Reliable_Match';
+
 export interface RecommendationResult {
   extractedRequirement: ExtractedRequirement;
-  primaryStandard: IndianStandard;
+  primaryStandard: IndianStandard | null;
   relatedStandards: CandidateStandardMatch[];
   specificationGaps: SpecificationGap[];
   explanation: {
@@ -65,6 +108,16 @@ export interface RecommendationResult {
     }[];
   };
   generatedTenderClause: string;
+  // Enhanced accuracy fields
+  matchConfidence: number; // 0 to 100
+  confidenceLevel: ConfidenceLevel;
+  isNoMatch: boolean;
+  noMatchExplanation?: string;
+  clarifyingQuestions?: ClarifyingQuestion[];
+  outdatedStandardAlert?: OutdatedStandardAlert;
+  evidence?: RecommendationEvidence;
+  tenderItemsDetected?: TenderProductItem[];
+  selectedItemIndex?: number;
 }
 
 export interface SavedTenderProject {

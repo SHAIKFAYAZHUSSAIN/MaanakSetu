@@ -14,10 +14,16 @@ import ExplainabilityAuditCard from '@/components/ExplainabilityAuditCard';
 import ExportClauseCard from '@/components/ExportClauseCard';
 import SavedProjectsDrawer from '@/components/SavedProjectsDrawer';
 import ArchitectureModal from '@/components/ArchitectureModal';
+import NoReliableMatchCard from '@/components/NoReliableMatchCard';
+import OutdatedStandardAlertCard from '@/components/OutdatedStandardAlertCard';
+import ClarifyingQuestionsCard from '@/components/ClarifyingQuestionsCard';
+import TenderLineItemsCard from '@/components/TenderLineItemsCard';
+import RecommendationEvidenceCard from '@/components/RecommendationEvidenceCard';
+import PortalApiModal from '@/components/PortalApiModal';
 import { SupportedLanguage } from '@/types/language';
 import { RecommendationResult, SavedTenderProject } from '@/types/procurement';
 import { buildOfficialTenderSpecificationClause } from '@/lib/specExporter';
-import { Compass, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { Compass, ArrowUpRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
 
 export default function Home() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -35,6 +41,7 @@ export default function Home() {
   // Modals & Drawers
   const [isSavedDrawerOpen, setIsSavedDrawerOpen] = useState<boolean>(false);
   const [isArchModalOpen, setIsArchModalOpen] = useState<boolean>(false);
+  const [isPortalApiOpen, setIsPortalApiOpen] = useState<boolean>(false);
   const [savedProjects, setSavedProjects] = useState<SavedTenderProject[]>([]);
   const [isCurrentSaved, setIsCurrentSaved] = useState<boolean>(false);
 
@@ -96,8 +103,9 @@ export default function Home() {
   };
 
   // Trigger analysis pipeline
-  const handleAnalyze = async () => {
-    if (!query.trim() && !tenderDocText.trim()) return;
+  const handleAnalyze = async (overrideQuery?: string, itemIndex?: number) => {
+    const activeQuery = overrideQuery !== undefined ? overrideQuery : query;
+    if (!activeQuery.trim() && !tenderDocText.trim()) return;
 
     setIsLoading(true);
     setError(null);
@@ -108,8 +116,9 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query,
+          query: activeQuery,
           tenderDocText,
+          selectedItemIndex: itemIndex ?? result?.selectedItemIndex ?? 0,
           language: currentLanguage,
         }),
       });
@@ -137,6 +146,42 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle 1-click update for outdated standard
+  const handleApplyOutdatedUpdate = (replacementStandard: string) => {
+    const updated = query
+      ? query
+          .replace(/IS\s*1786[:\s]*1985/gi, replacementStandard)
+          .replace(/IS\s*13252([^\n,]*)/gi, replacementStandard)
+          .replace(/IS\s*10322([^\n,]*1987)/gi, replacementStandard)
+      : replacementStandard;
+    const finalQuery =
+      updated !== query ? updated : `${query} (Updated to conform to ${replacementStandard})`;
+    setQuery(finalQuery);
+    handleAnalyze(finalQuery);
+  };
+
+  // Handle clarifying question option selection
+  const handleAnswerClarifyingQuestion = (
+    _questionId: string,
+    _optionValue: string,
+    targetStandard?: string
+  ) => {
+    const newQuery = targetStandard
+      ? `${query} (Mandating ${targetStandard})`
+      : `${query} [Specified: ${_optionValue}]`;
+    setQuery(newQuery);
+    handleAnalyze(newQuery);
+  };
+
+  // Handle multi-product line item selection from tender document
+  const handleSelectTenderItem = (itemIndex: number) => {
+    if (!result?.tenderItemsDetected?.[itemIndex]) return;
+    const selectedItem = result.tenderItemsDetected[itemIndex];
+    const newQuery = `${selectedItem.productName}: ${selectedItem.rawSnippet}`;
+    setQuery(newQuery);
+    handleAnalyze(newQuery, itemIndex);
+  };
+
   // Handle Specification Gap Toggling (In-place live clause update)
   const handleToggleResolveGap = (gapId: string) => {
     if (!result) return;
@@ -159,7 +204,7 @@ export default function Home() {
 
   // Save current project to library
   const handleSaveProject = () => {
-    if (!result) return;
+    if (!result || !result.primaryStandard) return;
 
     const newProject: SavedTenderProject = {
       id: `proj-${Date.now()}`,
@@ -184,7 +229,7 @@ export default function Home() {
     setTenderFileName('');
     setIsSavedDrawerOpen(false);
     setTimeout(() => {
-      handleAnalyze();
+      handleAnalyze(project.extractedRequirement.rawQuery);
     }, 50);
   };
 
@@ -215,6 +260,7 @@ export default function Home() {
         onReset={handleReset}
         theme={theme}
         onToggleTheme={handleToggleTheme}
+        onOpenPortalApi={() => setIsPortalApiOpen(true)}
       />
 
       {/* Main Workspace */}
@@ -224,7 +270,7 @@ export default function Home() {
           currentLanguage={currentLanguage}
           query={query}
           onQueryChange={setQuery}
-          onAnalyze={handleAnalyze}
+          onAnalyze={() => handleAnalyze()}
           isLoading={isLoading}
           tenderDocText={tenderDocText}
           tenderFileName={tenderFileName}
@@ -250,158 +296,207 @@ export default function Home() {
         {/* Analysis Results View */}
         {result && (
           <div id="results-section">
-            {/* Sticky Section Navigator & Filter */}
-            <SectionNavigator
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
-              alliedCount={result.relatedStandards.length}
-              isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
-            />
-
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 pt-6 animate-fade-in">
-              {/* Summary Status Strip */}
-              <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-semibold text-slate-900 dark:text-white">Analysis Status:</span>
-                  <span>
-                    Successfully mapped to <strong>{result.primaryStandard.isNumber}</strong> with{' '}
-                    {result.relatedStandards.length} normative references and{' '}
-                    {result.specificationGaps.length} specification checks.
-                  </span>
-                </div>
-
-                <button
-                  onClick={() => setIsArchModalOpen(true)}
-                  className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5 transition"
-                >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>View 10-Step AI Architecture</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              {/* ======================================================== */}
-              {/* SECTION 1: AI REQUIREMENT EXTRACTION & SCOPE             */}
-              {/* ======================================================== */}
-              {shouldShowSection('requirements') && (
-                <section id="section-requirements" className="space-y-2">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
-                      Section 01
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      AI Requirement Extraction & Scope Classification
-                    </h2>
-                  </div>
-                  <RequirementBadgeGrid requirement={result.extractedRequirement} />
-                </section>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4 animate-fade-in">
+              {/* Outdated / Superseded Standard Alert Banner (Feature 6) */}
+              {result.outdatedStandardAlert && result.outdatedStandardAlert.isOutdated && (
+                <OutdatedStandardAlertCard
+                  alert={result.outdatedStandardAlert}
+                  onApplyUpdate={handleApplyOutdatedUpdate}
+                />
               )}
 
-              {/* ======================================================== */}
-              {/* SECTION 2: PRIMARY APPLICABLE STANDARD & VERSION CHAIN   */}
-              {/* ======================================================== */}
-              {shouldShowSection('primary-standard') && (
-                <section id="section-primary-standard" className="space-y-2">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
-                      Section 02
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      Primary Applicable Indian Standard & Version Evolution
-                    </h2>
-                  </div>
-                  <PrimaryStandardCard
-                    standard={result.primaryStandard}
-                    onOpenClauseBuilder={() => {
-                      setActiveTab('all');
-                      setTimeout(() => {
-                        document.getElementById('section-tender-clause')?.scrollIntoView({ behavior: 'smooth' });
-                      }, 50);
-                    }}
+              {/* Multi-Product Tender Items Schedule (Feature 4) */}
+              {result.tenderItemsDetected && result.tenderItemsDetected.length > 1 && (
+                <TenderLineItemsCard
+                  items={result.tenderItemsDetected}
+                  selectedItemIndex={result.selectedItemIndex || 0}
+                  onSelectItem={handleSelectTenderItem}
+                  ocrApplied={result.extractedRequirement.rawQuery.includes('OCR')}
+                />
+              )}
+
+              {/* Case A: "NO RELIABLE MATCH" Integrity Guardrail Active (Feature 3) */}
+              {result.isNoMatch || !result.primaryStandard ? (
+                <NoReliableMatchCard
+                  productName={result.extractedRequirement.product}
+                  rawQuery={result.extractedRequirement.rawQuery}
+                  explanation={result.noMatchExplanation}
+                  clarifyingQuestions={result.clarifyingQuestions}
+                  onSelectOption={(val, std) => handleAnswerClarifyingQuestion('', val, std)}
+                  onResetSearch={handleReset}
+                />
+              ) : (
+                /* Case B: SUCCESSFUL VERIFIED MATCH FOUND */
+                <>
+                  {/* Proactive Clarifying Questions (Feature 3) */}
+                  {result.clarifyingQuestions && result.clarifyingQuestions.length > 0 && (
+                    <ClarifyingQuestionsCard
+                      questions={result.clarifyingQuestions}
+                      onSelectOption={handleAnswerClarifyingQuestion}
+                    />
+                  )}
+
+                  {/* Sticky Section Navigator & Filter */}
+                  <SectionNavigator
+                    activeTab={activeTab}
+                    onTabChange={setActiveTab}
+                    gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
+                    alliedCount={result.relatedStandards.length}
+                    isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
                   />
-                </section>
-              )}
 
-              {/* ======================================================== */}
-              {/* SECTION 3: STATUTORY CERTIFICATION & QCO CHECK           */}
-              {/* ======================================================== */}
-              {shouldShowSection('regulatory-qco') && (
-                <section id="section-regulatory-qco" className="space-y-2">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
-                      Section 03
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      Statutory Regulatory Verification & Compulsory QCO Orders
-                    </h2>
-                  </div>
-                  <RegulatoryCard
-                    qco={result.primaryStandard.qco}
-                    standardNumber={result.primaryStandard.isNumber}
-                  />
-                </section>
-              )}
+                  {/* Summary Status Strip */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
+                    <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-semibold text-slate-900 dark:text-white">Analysis Status:</span>
+                      <span>
+                        Successfully verified standard <strong>{result.primaryStandard.isNumber}</strong>{' '}
+                        (Confidence: <strong>{result.matchConfidence}% - {result.confidenceLevel}</strong>) with{' '}
+                        {result.relatedStandards.length} normative references and{' '}
+                        {result.specificationGaps.length} specification checks.
+                      </span>
+                    </div>
 
-              {/* ======================================================== */}
-              {/* SECTION 4: STANDARDS ECOSYSTEM & KNOWLEDGE GRAPH        */}
-              {/* ======================================================== */}
-              {shouldShowSection('knowledge-graph') && (
-                <section id="section-knowledge-graph" className="space-y-6">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
-                      Section 04
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      Standards Ecosystem & Interactive Knowledge Graph
-                    </h2>
+                    <div className="flex items-center gap-4 text-xs font-semibold">
+                      <button
+                        onClick={() => setIsPortalApiOpen(true)}
+                        className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition"
+                      >
+                        <Zap className="w-3.5 h-3.5" />
+                        <span>Procurement Portal API</span>
+                      </button>
+                      <button
+                        onClick={() => setIsArchModalOpen(true)}
+                        className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition"
+                      >
+                        <Compass className="w-3.5 h-3.5" />
+                        <span>System Architecture</span>
+                        <ArrowUpRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <GraphVisualizer graphData={result.standardsGraph} />
-                  <RelatedStandardsTable relatedStandards={result.relatedStandards} />
-                </section>
-              )}
 
-              {/* ======================================================== */}
-              {/* SECTION 5: SPECIFICATION GAP ANALYSIS (MISSING SPECS)    */}
-              {/* ======================================================== */}
-              {shouldShowSection('gap-analysis') && (
-                <section id="section-gap-analysis" className="space-y-2">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
-                      Section 05
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      Specification Gap Analysis (Missing Requirements Detector)
-                    </h2>
-                  </div>
-                  <SpecificationGapsCard
-                    gaps={result.specificationGaps}
-                    onToggleResolveGap={handleToggleResolveGap}
-                  />
-                </section>
-              )}
+                  {/* SECTION 1: AI REQUIREMENT EXTRACTION & SCOPE */}
+                  {shouldShowSection('requirements') && (
+                    <section id="section-requirements" className="space-y-2">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
+                          Section 01
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          AI Requirement Extraction & Scope Classification
+                        </h2>
+                      </div>
+                      <RequirementBadgeGrid requirement={result.extractedRequirement} />
+                    </section>
+                  )}
 
-              {/* ======================================================== */}
-              {/* SECTION 6: AUDIT TRAIL & TENDER CLAUSE EXPORTER         */}
-              {/* ======================================================== */}
-              {shouldShowSection('tender-clause') && (
-                <section id="section-tender-clause" className="space-y-6">
-                  <div className="flex items-center gap-2 pb-1">
-                    <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
-                      Section 06
-                    </span>
-                    <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                      Auditable Rationale & Generated GeM Specification Clause
-                    </h2>
-                  </div>
-                  <ExplainabilityAuditCard result={result} />
-                  <ExportClauseCard
-                    result={result}
-                    onSaveProject={handleSaveProject}
-                    isSaved={isCurrentSaved}
-                  />
-                </section>
+                  {/* SECTION 2: PRIMARY APPLICABLE STANDARD & EVIDENCE */}
+                  {shouldShowSection('primary-standard') && (
+                    <section id="section-primary-standard" className="space-y-4">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
+                          Section 02
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          Primary Applicable Indian Standard & Version Evolution
+                        </h2>
+                      </div>
+                      <PrimaryStandardCard
+                        standard={result.primaryStandard}
+                        onOpenClauseBuilder={() => {
+                          setActiveTab('all');
+                          setTimeout(() => {
+                            document
+                              .getElementById('section-tender-clause')
+                              ?.scrollIntoView({ behavior: 'smooth' });
+                          }, 50);
+                        }}
+                      />
+
+                      {/* Transparent Recommendation Evidence (Feature 9) */}
+                      {result.evidence && (
+                        <RecommendationEvidenceCard
+                          evidence={result.evidence}
+                          standardNumber={result.primaryStandard.isNumber}
+                        />
+                      )}
+                    </section>
+                  )}
+
+                  {/* SECTION 3: STATUTORY CERTIFICATION & QCO CHECK (Feature 7) */}
+                  {shouldShowSection('regulatory-qco') && (
+                    <section id="section-regulatory-qco" className="space-y-2">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
+                          Section 03
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          Statutory Certification Applicability & Quality Control Orders (QCO)
+                        </h2>
+                      </div>
+                      <RegulatoryCard
+                        qco={result.primaryStandard.qco}
+                        standardNumber={result.primaryStandard.isNumber}
+                      />
+                    </section>
+                  )}
+
+                  {/* SECTION 4: STANDARDS ECOSYSTEM & KNOWLEDGE GRAPH (Feature 5) */}
+                  {shouldShowSection('knowledge-graph') && (
+                    <section id="section-knowledge-graph" className="space-y-6">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
+                          Section 04
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          Standards Ecosystem & Interactive Knowledge Graph
+                        </h2>
+                      </div>
+                      <GraphVisualizer graphData={result.standardsGraph} />
+                      <RelatedStandardsTable relatedStandards={result.relatedStandards} />
+                    </section>
+                  )}
+
+                  {/* SECTION 5: SPECIFICATION GAP ANALYSIS */}
+                  {shouldShowSection('gap-analysis') && (
+                    <section id="section-gap-analysis" className="space-y-2">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
+                          Section 05
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          Specification Gap Analysis (Missing Requirements Detector)
+                        </h2>
+                      </div>
+                      <SpecificationGapsCard
+                        gaps={result.specificationGaps}
+                        onToggleResolveGap={handleToggleResolveGap}
+                      />
+                    </section>
+                  )}
+
+                  {/* SECTION 6: AUDIT TRAIL & TENDER CLAUSE EXPORTER */}
+                  {shouldShowSection('tender-clause') && (
+                    <section id="section-tender-clause" className="space-y-6">
+                      <div className="flex items-center gap-2 pb-1">
+                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
+                          Section 06
+                        </span>
+                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                          Auditable Rationale & Generated Tender Specification Clause
+                        </h2>
+                      </div>
+                      <ExplainabilityAuditCard result={result} />
+                      <ExportClauseCard
+                        result={result}
+                        onSaveProject={handleSaveProject}
+                        isSaved={isCurrentSaved}
+                      />
+                    </section>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -419,6 +514,13 @@ export default function Home() {
             Hybrid RAG, Standards Knowledge Graph Traversal & Deterministic Regulatory Verification
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsPortalApiOpen(true)}
+              className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+            >
+              Procurement REST API
+            </button>
+            <span>•</span>
             <button
               onClick={() => setIsArchModalOpen(true)}
               className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
@@ -450,6 +552,12 @@ export default function Home() {
       <ArchitectureModal
         isOpen={isArchModalOpen}
         onClose={() => setIsArchModalOpen(false)}
+      />
+
+      {/* Procurement Portal Integration API Modal (Feature 10) */}
+      <PortalApiModal
+        isOpen={isPortalApiOpen}
+        onClose={() => setIsPortalApiOpen(false)}
       />
     </div>
   );

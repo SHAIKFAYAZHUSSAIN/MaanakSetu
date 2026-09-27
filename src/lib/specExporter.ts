@@ -6,6 +6,18 @@ export function buildOfficialTenderSpecificationClause(
 ): string {
   const { extractedRequirement, primaryStandard, relatedStandards, specificationGaps } = result;
 
+  if (!primaryStandard) {
+    return `================================================================================
+GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT NOTICE
+Generated via MaanakSetu - BIS SmartSpec AI Engine
+================================================================================
+
+TENDER ITEM: ${extractedRequirement.product.toUpperCase()}
+STATUS: NO MANDATORY INDIAN STANDARD IDENTIFIED
+MaanakSetu guardrails prevented defaulting this requirement to an unrelated standard.
+Please verify whether this item is governed by state-specific PWD specifications or contact the BIS Standardization Directorate for technical classification.`;
+  }
+
   const now = new Date().toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',

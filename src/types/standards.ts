@@ -15,6 +15,7 @@ export type CertificationScheme =
   | 'Scheme-II (CRS - Compulsory Registration Scheme)'
   | 'Scheme-IV'
   | 'Scheme-X'
+  | 'Hallmarking Scheme'
   | 'Voluntary'
   | 'Not Applicable';
 
@@ -27,12 +28,22 @@ export interface Amendment {
   effectiveDate: string;
 }
 
+export interface EditionRecord {
+  editionNumber: number;
+  year: number;
+  status: 'Active' | 'Superseded' | 'Withdrawn';
+  notes?: string;
+}
+
 export interface VersionChain {
   currentStandard: string;
   currentYear: number;
   supersededStandard?: string;
   supersededYear?: number;
   amendments: Amendment[];
+  editions?: EditionRecord[];
+  supersededByStandardNumber?: string;
+  supersededByTitle?: string;
   revisionNotes?: string;
 }
 
@@ -41,7 +52,7 @@ export interface StandardRelationship {
   targetTitle: string;
   relationshipType: RelationshipType;
   description: string;
-  criticality: 'Mandatory' | 'Recommended' | 'Informational';
+  criticality: 'Mandatory Subsystem' | 'Mandatory Test Method' | 'Mandatory Safety' | 'Recommended Practice' | 'Informational';
 }
 
 export interface QCOInfo {
@@ -54,6 +65,7 @@ export interface QCOInfo {
   description: string;
   enforcementStatus: 'In Force' | 'Enforced Soon' | 'Under Consultation' | 'Voluntary';
   penaltiesClause?: string;
+  officialNotificationUrl?: string;
 }
 
 export interface StandardRequirementItem {
@@ -67,8 +79,8 @@ export interface IndianStandard {
   id: string;
   isNumber: string;
   title: string;
-  department: string; // e.g. ETD (Electrotechnical), MED (Mechanical), CED (Civil)
-  domain: string; // e.g. "Lighting & Luminaires", "Solar & Renewable", "Power Distribution"
+  department: string; // e.g. ETD (Electrotechnical), MED (Mechanical), CED (Civil), TXD (Textiles), PCD (Petroleum/Chemical)
+  domain: string; // e.g. "Lighting & Luminaires", "Power Distribution", "Civil & Construction", etc.
   productCategory: string;
   scope: string;
   status: StandardStatus;
@@ -85,4 +97,8 @@ export interface IndianStandard {
   }[];
   testingLaboratoriesAvailable: number;
   schemesOfTesting: string;
+  officialSourceUrl: string;
+  lastVerifiedDate: string; // YYYY-MM-DD
+  applicabilityEvidence: string;
+  uncertaintyNotes?: string;
 }
