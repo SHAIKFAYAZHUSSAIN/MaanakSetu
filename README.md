@@ -1,6 +1,7 @@
 # 🇮🇳 MaanakSetu (मानकसेतु)
 ### *AI-Powered Public Procurement Standards Intelligence & Compliance Platform*
 
+[![Live Application](https://img.shields.io/badge/Live%20Application-maanaksetu.vercel.app-0F766E?style=for-the-badge&logo=vercel&logoColor=white)](https://maanaksetu.vercel.app)
 [![Smart India Hackathon 2026](https://img.shields.io/badge/SIH%202026-Problem%20Statement%20SIH262108-orange?style=for-the-badge&logo=target)](https://sih.gov.in/)
 [![Bureau of Indian Standards](https://img.shields.io/badge/Organization-Bureau%20of%20Indian%20Standards%20(BIS)-blue?style=for-the-badge&logo=shield)](https://www.bis.gov.in/)
 [![Ministry](https://img.shields.io/badge/Ministry-Consumer%20Affairs%2C%20Food%20%26%20Public%20Distribution-green?style=for-the-badge)](https://consumeraffairs.nic.in/)
@@ -9,6 +10,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+> 🌐 **Live Web Application**: **[https://maanaksetu.vercel.app](https://maanaksetu.vercel.app)**  
 > **"Transforming unstructured tender requirements into authoritative, standards-ready procurement specifications grounded in the Bureau of Indian Standards (BIS) Act, 2016 and General Financial Rules (GFR 2017) Rule 144(i)."**
 
 ---
