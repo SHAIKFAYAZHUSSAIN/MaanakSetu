@@ -85,10 +85,6 @@ export default function DemoLoginScreen({ onLoginSuccess }: DemoLoginScreenProps
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <ManakSetuLogo size="md" showTagline={false} />
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand dark:text-brand-200 text-[11px] font-bold border border-brand-200 dark:border-brand-700/50">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-              <span>BIS COPILOT</span>
-            </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-govmuted dark:text-[#94A39D]">
@@ -111,13 +107,10 @@ export default function DemoLoginScreen({ onLoginSuccess }: DemoLoginScreenProps
                 <ShieldCheck className="w-7 h-7 text-brand" />
               </div>
               
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center">
                 <h1 className="text-xl font-extrabold tracking-tight text-charcoal dark:text-white">
                   MaanakSetu
                 </h1>
-                <span className="px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand dark:text-brand-300 text-[10px] font-bold border border-brand-200 dark:border-brand-700">
-                  BIS COPILOT
-                </span>
               </div>
 
               <p className="text-xs text-govmuted dark:text-[#94A39D] font-medium">

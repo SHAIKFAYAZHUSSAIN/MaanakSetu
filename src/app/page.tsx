@@ -322,12 +322,6 @@ export default function Home() {
               onClick={() => setActiveView('landing')}
             />
 
-            {/* BIS COPILOT Tag Pill */}
-            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-brand-50 border border-brand-200 text-brand text-[11px] font-bold tracking-wide">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-              <span>BIS COPILOT</span>
-            </div>
-
             {/* Current Workspace Pill */}
             <div className="hidden xl:flex items-center gap-2 pl-3 border-l border-govborder text-xs text-govmuted">
               <Building2 className="w-3.5 h-3.5 text-brand" />
