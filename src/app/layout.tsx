@@ -2,19 +2,21 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'MaanakSetu - BIS SmartSpec AI | Indian Standards Procurement Engine',
+  title: 'ManakSetu — From Tender Requirement to Standards-Ready Specification',
   description:
-    'AI-powered Indian Standards recommendation, normative knowledge graph, version tracking, and compulsory QCO certification engine for public procurement tenders.',
+    'AI procurement standards copilot for identifying applicable Indian Standards (IS), normative references, revision currency, and compulsory BIS/QCO regulatory compliance for government departments and PSUs.',
   keywords: [
-    'BIS',
+    'ManakSetu',
     'Bureau of Indian Standards',
     'Indian Standards',
+    'BIS',
     'Public Procurement',
     'GeM',
+    'CPWD',
+    'Quality Control Orders',
     'QCO',
-    'SmartSpec AI',
-    'MaanakSetu',
     'Tender Specifications',
+    'Standards-Ready',
   ],
 };
 
@@ -24,28 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var theme = localStorage.getItem('maanaksetu_theme');
-                if (theme === 'light') {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.classList.add('light');
-                } else {
-                  document.documentElement.classList.add('dark');
-                  document.documentElement.classList.remove('light');
-                }
-              } catch (e) {
-                document.documentElement.classList.add('dark');
-              }
-            `,
-          }}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap"
+          rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
+      <body className="min-h-screen bg-ivory text-charcoal antialiased selection:bg-brand selection:text-white">
         {children}
       </body>
     </html>

@@ -1,262 +1,207 @@
 import { RecommendationResult } from '../types/procurement';
 import { SupportedLanguage } from '../types/language';
 
+export interface StructuredSpecificationClause {
+  sectionNumber: number;
+  title: string;
+  clauses: string[];
+}
+
+export function build9SectionSpecification(
+  result: RecommendationResult,
+  additionalClauses: string[] = []
+): StructuredSpecificationClause[] {
+  const { extractedRequirement, primaryStandard, relatedStandards, specificationGaps } = result;
+
+  const resolvedGaps = specificationGaps.filter((g) => g.isResolved);
+
+  if (!primaryStandard) {
+    return [
+      {
+        sectionNumber: 1,
+        title: 'Scope of Procurement & Adherence Notice',
+        clauses: [
+          `Procurement of ${extractedRequirement.product} for ${extractedRequirement.application}.`,
+          'Notice: No direct mandatory Indian Standard was automatically matched in the active BIS catalog.',
+          'Guardrail recommendation: Consult the relevant BIS Standardization Division (ETD/CED/MED) for technical classification before drafting custom tender specifications.',
+        ],
+      },
+    ];
+  }
+
+  // 1. Scope
+  const section1: StructuredSpecificationClause = {
+    sectionNumber: 1,
+    title: 'Scope of Work & General Requirements',
+    clauses: [
+      `1.1 This specification covers the technical requirements for supply, inspection, testing, packaging, and delivery of ${extractedRequirement.product} intended for ${extractedRequirement.application}.`,
+      `1.2 The equipment/material shall be suitable for continuous outdoor/indoor operation under Indian tropical climatic conditions (ambient temperature up to 50°C and relative humidity up to 95%).`,
+      `1.3 All components supplied shall be brand new, un-used, of current manufacture, and free from any patent defects in workmanship or materials.`,
+    ],
+  };
+
+  // 2. Product Requirements
+  const productClauses = [
+    `2.1 Power / Capacity Rating: ${extractedRequirement.power || extractedRequirement.capacity || 'As stipulated in Schedule of Requirements'}.`,
+    `2.2 Operating Voltage & Supply: ${extractedRequirement.voltage || '230 V AC / 415 V AC, 50 Hz +/- 3%'}.`,
+    `2.3 Enclosure Protection / Material: ${extractedRequirement.protectionRating || 'Minimum IP66 weatherproofing as per IS 12063'} constructed from high-grade corrosion-resistant materials.`,
+    `2.4 Performance Benchmark: ${extractedRequirement.efficiency || extractedRequirement.lifetime || 'High energy efficiency conforming to latest Bureau of Energy Efficiency (BEE) benchmarks'}.`,
+  ];
+  if (extractedRequirement.otherSpecs && Object.keys(extractedRequirement.otherSpecs).length > 0) {
+    Object.entries(extractedRequirement.otherSpecs).forEach(([key, val]) => {
+      productClauses.push(`2.${productClauses.length + 1} ${key}: ${val}.`);
+    });
+  }
+  const section2: StructuredSpecificationClause = {
+    sectionNumber: 2,
+    title: 'Product Requirements & Technical Benchmarks',
+    clauses: productClauses,
+  };
+
+  // 3. Applicable Indian Standards
+  const activeAmendments = primaryStandard.versionChain.amendments.length > 0
+    ? primaryStandard.versionChain.amendments.map((a) => `Amd. ${a.number} (${a.year})`).join(', ')
+    : 'Nil';
+  const stdClauses = [
+    `3.1 Primary Standard: The supplied items shall strictly conform in all respects to the latest edition of ${primaryStandard.isNumber} including all amendments in force (${activeAmendments}).`,
+    `3.2 Currency Prohibition: Citing or supplying under legacy, superseded, or withdrawn revisions of standards is strictly prohibited under General Financial Rules (GFR 2017).`,
+    `3.3 Normative References: The subsystems, raw materials, and components shall conform to the following allied Indian Standards:`,
+  ];
+  relatedStandards.slice(0, 5).forEach((rel, i) => {
+    stdClauses.push(`    3.3.${i + 1} ${rel.standard.isNumber} - ${rel.standard.title}`);
+  });
+  const section3: StructuredSpecificationClause = {
+    sectionNumber: 3,
+    title: 'Applicable Indian Standards (Mandatory & Normative)',
+    clauses: stdClauses,
+  };
+
+  // 4. Testing Requirements
+  const testClauses = [
+    `4.1 Type Tests: The bidder shall submit authentic Type Test Certificates for all mandatory tests prescribed in ${primaryStandard.isNumber} conducted at a BIS-recognized or NABL-accredited laboratory within the preceding three (3) years.`,
+    `4.2 Routine & Acceptance Tests: Routine tests shall be carried out by the manufacturer on 100% of finished units in accordance with ${primaryStandard.schemesOfTesting}.`,
+  ];
+  // Add resolved test gaps
+  resolvedGaps
+    .filter((g) => g.parameter.toLowerCase().includes('test') || g.parameter.toLowerCase().includes('lab') || g.parameter.toLowerCase().includes('certificate'))
+    .forEach((g) => {
+      testClauses.push(`4.${testClauses.length + 1} [Adopted Requirement] ${g.suggestedClause}`);
+    });
+  const section4: StructuredSpecificationClause = {
+    sectionNumber: 4,
+    title: 'Testing Requirements & Verification Regime',
+    clauses: testClauses,
+  };
+
+  // 5. Safety Requirements
+  const safetyClauses = [
+    `5.1 Electrical & Mechanical Safety: The equipment shall incorporate all fail-safe protections against over-voltage, short-circuit, mechanical shock, and thermal runaway.`,
+    `5.2 Fire & Hazard Containment: All insulating materials and housings shall meet fire-retardant benchmarks with zero toxic emissions in accordance with national safety codes.`,
+  ];
+  resolvedGaps
+    .filter((g) => g.parameter.toLowerCase().includes('surge') || g.parameter.toLowerCase().includes('safety') || g.parameter.toLowerCase().includes('dielectric') || g.parameter.toLowerCase().includes('protection'))
+    .forEach((g) => {
+      safetyClauses.push(`5.${safetyClauses.length + 1} [Adopted Safety Clause] ${g.suggestedClause}`);
+    });
+  const section5: StructuredSpecificationClause = {
+    sectionNumber: 5,
+    title: 'Safety Requirements & Fail-Safe Controls',
+    clauses: safetyClauses,
+  };
+
+  // 6. Installation Requirements
+  const installClauses = [
+    `6.1 Site Erection & Commissioning: Supply shall include all necessary mounting hardware, vibration dampeners, and termination lugs suitable for standard municipal/industrial infrastructure.`,
+    `6.2 Earthing & Grounding: Outdoor metallic enclosures and structural poles shall be bonded to earth in strict adherence to IS 3043: 2018 (Code of Practice for Earthing) maintaining loop impedance < 5 Ohms.`,
+    `6.3 Environmental Clearance: Installation shall ensure adequate heat dissipation clearance and protection from standing rainwater.`,
+  ];
+  const section6: StructuredSpecificationClause = {
+    sectionNumber: 6,
+    title: 'Installation, Earthing & Commissioning Requirements',
+    clauses: installClauses,
+  };
+
+  // 7. Certification Requirements
+  const certClauses = [
+    `7.1 Statutory Regulatory Order: ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification}).`,
+    `7.2 Certification Status: ${primaryStandard.qco.isCompulsory ? 'COMPULSORY STATUTORY REQUIREMENT' : 'VOLUNTARY BENCHMARK'}.`,
+    `7.3 Certification Scheme: ${primaryStandard.qco.scheme}.`,
+    `7.4 Mandatory Tender Eligibility: Bidders must possess a valid BIS license (ISI Mark) or valid Compulsory Registration Scheme (CRS) R-number as on the date of technical bid opening. Bids without verified BIS credentials shall be rejected without technical evaluation.`,
+  ];
+  const section7: StructuredSpecificationClause = {
+    sectionNumber: 7,
+    title: 'Certification & Quality Control Order (QCO) Compliance',
+    clauses: certClauses,
+  };
+
+  // 8. Inspection / Acceptance Criteria
+  const inspectClauses = [
+    `8.1 Pre-Dispatch Inspection (PDI): The Buyer or nominated third-party inspection agency (e.g. RITES, EIL, BIS) reserves the right to witness acceptance tests at the manufacturer works prior to dispatch.`,
+    `8.2 Rejection Threshold: If any sample fails to meet specified benchmarks during batch sampling under ${primaryStandard.schemesOfTesting}, the entire production lot shall be rejected at supplier cost.`,
+    `8.3 Delivery Acceptance: Consignments delivered at project site shall be subject to physical verification of intact factory seals and tamper-proof batch markings.`,
+  ];
+  const section8: StructuredSpecificationClause = {
+    sectionNumber: 8,
+    title: 'Inspection, Surveillance & Acceptance Criteria',
+    clauses: inspectClauses,
+  };
+
+  // 9. Documentation Requirements
+  const docClauses = [
+    `9.1 Manufacturer Test Certificate (MTC): Every dispatch consignment shall be accompanied by an original MTC certifying physical and chemical batch conformity.`,
+    `9.2 Standard Mark Authorization: A certified copy of the valid BIS endorsement letter covering the specific manufacturing location and model number.`,
+    `9.3 Operating Manuals: Comprehensive Operation & Maintenance (O&M) manuals, circuit diagrams, and warranty documentation (minimum 36 months warranty) in English and Hindi.`,
+  ];
+  if (additionalClauses.length > 0) {
+    additionalClauses.forEach((c) => {
+      docClauses.push(`9.${docClauses.length + 1} ${c}`);
+    });
+  }
+  const section9: StructuredSpecificationClause = {
+    sectionNumber: 9,
+    title: 'Documentation & Delivery Deliverables',
+    clauses: docClauses,
+  };
+
+  return [section1, section2, section3, section4, section5, section6, section7, section8, section9];
+}
+
 export function buildOfficialTenderSpecificationClause(
   result: RecommendationResult,
   additionalClauses: string[] = [],
-  language: SupportedLanguage = 'en'
+  _language: SupportedLanguage = 'en'
 ): string {
-  const { extractedRequirement, primaryStandard, relatedStandards, specificationGaps } = result;
-
+  const sections = build9SectionSpecification(result, additionalClauses);
   const now = new Date().toLocaleDateString('en-IN', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
 
-  if (!primaryStandard) {
-    if (language === 'hi') {
-      return `================================================================================
-भारत सरकार / सार्वजनिक क्षेत्र खरीद सूचना (GOVERNMENT OF INDIA PROCUREMENT NOTICE)
-मानकसेतु (MaanakSetu) - बीआईएस स्मार्टस्पेक एआई इंजन द्वारा तैयार | दिनांक: ${now}
-================================================================================
+  const lines: string[] = [
+    '================================================================================',
+    'GOVERNMENT OF INDIA / PUBLIC SECTOR ENTERPRISE PROCUREMENT SPECIFICATION',
+    `ManakSetu - AI Procurement Standards Copilot | Date: ${now}`,
+    '================================================================================',
+    '',
+    `TENDER ITEM: ${result.extractedRequirement.product.toUpperCase()}`,
+    `APPLICATION: ${result.extractedRequirement.application}`,
+    `PRIMARY BIS STANDARD: ${result.primaryStandard ? result.primaryStandard.isNumber : 'NOT MANDATORY / CLASSIFICATION REQUIRED'}`,
+    `CERTIFICATION STATUS: ${result.primaryStandard ? (result.primaryStandard.qco.isCompulsory ? 'COMPULSORY QCO IN FORCE' : 'VOLUNTARY BENCHMARK') : 'N/A'}`,
+    '',
+    '--------------------------------------------------------------------------------',
+  ];
 
-निविदा मद (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-स्थिति: कोई अनिवार्य भारतीय मानक चिन्हित नहीं हुआ
-मानकसेतु सुरक्षा प्रणाली ने इस आवश्यकता को किसी असंबद्ध मानक से जोड़ने से रोक दिया।
-कृपया जांचें कि क्या यह मद राज्य विशिष्ट पीडब्ल्यूडी विनिर्देशों द्वारा शासित है अथवा तकनीकी वर्गीकरण हेतु बीआईएस मानकीकरण निदेशालय से संपर्क करें।`;
-    }
+  sections.forEach((sec) => {
+    lines.push(`SECTION ${sec.sectionNumber}: ${sec.title.toUpperCase()}`);
+    lines.push('--------------------------------------------------------------------------------');
+    sec.clauses.forEach((cl) => lines.push(cl));
+    lines.push('');
+  });
 
-    if (language === 'te') {
-      return `================================================================================
-భారత ప్రభుత్వం / పబ్లిక్ సెక్టార్ సేకరణ నోటీసు (GOVERNMENT OF INDIA PROCUREMENT NOTICE)
-మానక్ సేతు (MaanakSetu) - బీఐఎస్ స్మార్ట్‌స్పెక్ ఏఐ ఇంజిన్ | తేదీ: ${now}
-================================================================================
+  lines.push('================================================================================');
+  lines.push('Formulated for direct insertion into GeM Custom Parameters / Schedule of Technical Requirements (STR).');
+  lines.push('================================================================================');
 
-టెండర్ అంశం (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-స్థితి: నిర్దిష్ట భారతీయ ప్రమాణం గుర్తించబడలేదు
-ఈ అవసరానికి సరిపోలని ప్రమాణాలను కేటాయించకుండా భద్రతా నిబంధనలు నిరోధించాయి.
-దయచేసి సాంకేతిక వర్గీకరణ కొరకు సంబంధిత శాఖను లేదా బీఐఎస్ కార్యాలయాన్ని సంప్రదించండి.`;
-    }
-
-    if (language === 'ta') {
-      return `================================================================================
-இந்திய அரசு / பொதுத்துறை கொள்முதல் அறிவிப்பு (GOVERNMENT OF INDIA PROCUREMENT NOTICE)
-மானக் சேது (MaanakSetu) - BIS ஸ்மார்ட்ஸ்பெக் AI இயந்திரம் | தேதி: ${now}
-================================================================================
-
-டெண்டர் பொருள் (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-நிலை: கட்டாய இந்தியத் தரநிலை எதுவும் அடையாளம் காணப்படவில்லை
-பொருந்தாத தரநிலையை இணைப்பதைத் தடுக்க பாதுகாப்பு விதிகள் செயல்படுத்தப்பட்டுள்ளன.
-தயவுசெய்து தொழில்நுட்ப வகைப்பாட்டிற்கு BIS தரநிலைப்படுத்தல் இயக்குநரகத்தைத் தொடர்பு கொள்ளவும்.`;
-    }
-
-    return `================================================================================
-GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT NOTICE
-Generated via MaanakSetu - BIS SmartSpec AI Engine | Date: ${now}
-================================================================================
-
-TENDER ITEM: ${extractedRequirement.product.toUpperCase()}
-STATUS: NO MANDATORY INDIAN STANDARD IDENTIFIED
-MaanakSetu guardrails prevented defaulting this requirement to an unrelated standard.
-Please verify whether this item is governed by state-specific PWD specifications or contact the BIS Standardization Directorate for technical classification.`;
-  }
-
-  const resolvedGapClausesHi = specificationGaps
-    .filter((g) => g.isResolved)
-    .map((g) => `   - [हल किया गया विनिर्देश अंतर] ${g.parameter}: ${g.suggestedClause}`)
-    .join('\n');
-
-  const resolvedGapClausesTe = specificationGaps
-    .filter((g) => g.isResolved)
-    .map((g) => `   - [పరిష్కరించిన లోపం] ${g.parameter}: ${g.suggestedClause}`)
-    .join('\n');
-
-  const resolvedGapClausesTa = specificationGaps
-    .filter((g) => g.isResolved)
-    .map((g) => `   - [சரிசெய்யப்பட்ட இடைவெளி] ${g.parameter}: ${g.suggestedClause}`)
-    .join('\n');
-
-  const resolvedGapClausesEn = specificationGaps
-    .filter((g) => g.isResolved)
-    .map((g) => `   - [SPEC GAP RESOLVED] ${g.parameter}: ${g.suggestedClause}`)
-    .join('\n');
-
-  const relatedCitations = relatedStandards
-    .map((r, i) => `   2.${i + 1} ${r.standard.isNumber} - ${r.standard.title}`)
-    .join('\n');
-
-  // HINDI REPORT
-  if (language === 'hi') {
-    return `================================================================================
-भारत सरकार / सार्वजनिक क्षेत्र खरीद विनिर्देश खंड (GOVERNMENT OF INDIA PROCUREMENT SPECIFICATION)
-मानकसेतु (MaanakSetu) - बीआईएस स्मार्टस्पेक एआई इंजन द्वारा तैयार | दिनांक: ${now}
-================================================================================
-
-निविदा मद (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-प्रयोजन / उपयोग (APPLICATION): ${extractedRequirement.application}
-प्राथमिक लागू बीआईएस मानक (PRIMARY BIS STANDARD): ${primaryStandard.isNumber}
-
-1. अनिवार्य लागू भारतीय मानक (MANDATORY APPLICABLE INDIAN STANDARDS):
-   1.1 आपूर्ति की गई सामग्री पूर्णतः लागू संशोधनों सहित ${primaryStandard.isNumber} के नवीनतम संस्करण के अनुरूप होनी चाहिए 
-       (सक्रिय संशोधन: ${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'शून्य / Nil'})।
-   1.2 किसी भी परिस्थिति में पुराने अथवा निरस्त मानकों (Superseded Standards) के तहत आपूर्ति स्वीकार नहीं की जाएगी।
-
-2. मानकीय एवं संबद्ध संदर्भ मानक (NORMATIVE & ALLIED SUBSYSTEM STANDARDS):
-${relatedCitations || '   (कोई अतिरिक्त मानक निर्दिष्ट नहीं)'}
-
-3. गुणवत्ता नियंत्रण आदेश (QCO) एवं वैधानिक प्रमाणन खंड (STATUTORY CERTIFICATION):
-   3.1 प्रमाणन स्थिति: ${primaryStandard.qco.isCompulsory ? 'अनिवार्य वैधानिक आवश्यकता (COMPULSORY STATUTORY REQUIREMENT)' : 'मानक विनिर्देश (VOLUNTARY SPECIFICATION)'}
-   3.2 प्रमाणन योजना: ${primaryStandard.qco.scheme}
-   3.3 विनियामक आदेश: ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification})
-   3.4 अनिवार्य शर्त: निविदा खुलने की तिथि पर बोलीदाता के पास वैध बीआईएस लाइसेंस (ISI Mark) / सीआरएस पंजीकरण संख्या होना अनिवार्य है।
-       बिना वैध बीआईएस प्रमाण पत्र वाली बोलियों को तकनीकी मूल्यांकन के दौरान सीधे निरस्त कर दिया जाएगा।
-
-4. तकनीकी विनिर्देश एवं मापदंड (TECHNICAL BENCHMARKS & SPECIFICATIONS):
-   - निर्धारित क्षमता / शक्ति (Rated Power / Capacity): ${extractedRequirement.power || extractedRequirement.capacity || 'मात्राओं की अनुसूची के अनुसार'}
-   - आपूर्ति वोल्टेज (Nominal Voltage & Supply): ${extractedRequirement.voltage || '230 V AC, 50 Hz'}
-   - पर्यावरण सुरक्षा रेटिंग (Protection Rating): ${extractedRequirement.protectionRating || 'IS 12063 के अनुसार न्यूनतम IP66'}
-   - जीवनकाल एवं सहनशीलता (Lifetime & Endurance): ${extractedRequirement.lifetime || 'न्यूनतम 50,000 कार्य घंटे'}
-${resolvedGapClausesHi ? `\n${resolvedGapClausesHi}` : ''}
-${additionalClauses.length > 0 ? `\n\nअतिरिक्त निविदा शर्तें:\n${additionalClauses.map((c, i) => `   4.${i + 1} ${c}`).join('\n')}` : ''}
-
-5. परीक्षण, निरीक्षण एवं स्वीकृति व्यवस्था (TESTING, INSPECTION & ACCEPTANCE):
-   5.1 निर्माता को बीआईएस-अनुमोदित या एनएबीएल-मान्यता प्राप्त प्रयोगशाला से पिछले 3 वर्षों के भीतर जारी वैध टाइप टेस्ट प्रमाण पत्र प्रस्तुत करना होगा।
-   5.2 परीक्षण और निरीक्षण योजना (STI): आपूर्तिकर्ता को ${primaryStandard.schemesOfTesting} का पूर्णतः पालन करना होगा।
-   5.3 प्रेषण-पूर्व निरीक्षण (PDI) क्रेता अथवा अधिकृत तृतीय-पक्ष निरीक्षण एजेंसी (RITES / EIL / BIS) द्वारा किया जा सकता है।
-
-================================================================================
-GeM कस्टम पैरामीटर / तकनीकी आवश्यकताओं की अनुसूची (STR) में सीधे उपयोग हेतु तैयार।
-================================================================================`;
-  }
-
-  // TELUGU REPORT
-  if (language === 'te') {
-    return `================================================================================
-భారత ప్రభుత్వం / పబ్లిక్ సెక్టార్ సేకరణ సాంకేతిక నిబంధనలు (GOVERNMENT OF INDIA PROCUREMENT)
-మానక్ సేతు (MaanakSetu) - బీఐఎస్ స్మార్ట్‌స్పెక్ ఏఐ ఇంజిన్ | తేదీ: ${now}
-================================================================================
-
-టెండర్ అంశం (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-వినియోగం (APPLICATION): ${extractedRequirement.application}
-ప్రధాన భారతీయ ప్రమాణం (PRIMARY BIS STANDARD): ${primaryStandard.isNumber}
-
-1. తప్పనిసరి వర్తించే భారతీయ ప్రమాణాలు:
-   1.1 సరఫరా చేయబడే వస్తువులు అన్ని సవరణలతో కూడిన ${primaryStandard.isNumber} తాజా వెర్షన్‌కు అనుగుణంగా ఉండాలి 
-       (సవరణలు: ${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'ఏమీ లేవు'}).
-   1.2 పాతబడిన లేదా రద్దు చేయబడిన ప్రమాణాల కింద సరఫరా ఏ పరిస్థితుల్లోనూ ఆమోదించబడదు.
-
-2. అనుబంధ మరియు పరీక్షా ప్రమాణాలు:
-${relatedCitations || '   (నిర్దిష్ట వివరాలు లేవు)'}
-
-3. క్వాలిటీ కంట్రోల్ ఆర్డర్ (QCO) మరియు చట్టబద్ధమైన ధృవీకరణ:
-   3.1 సర్టిఫికేషన్ స్థితి: ${primaryStandard.qco.isCompulsory ? 'తప్పనిసరి చట్టబద్ధ నిబంధన (COMPULSORY)' : 'స్వచ్ఛంద ప్రమాణం (VOLUNTARY)'}
-   3.2 స్కీమ్: ${primaryStandard.qco.scheme}
-   3.3 ఆర్డర్ వివరాలు: ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification})
-   3.4 నిబంధన: టెండర్ తెరిచే తేదీ నాటికి బిడ్డర్లు చెల్లుబాటు అయ్యే బీఐఎస్ లైసెన్స్ / రిజిస్ట్రేషన్ కలిగి ఉండాలి.
-
-4. సాంకేతిక స్పెసిఫికేషన్లు & పారామితులు:
-   - సామర్థ్యం (Rated Power/Capacity): ${extractedRequirement.power || extractedRequirement.capacity || 'షెడ్యూల్ ప్రకారం'}
-   - సరఫరా వోల్టేజ్ (Supply Voltage): ${extractedRequirement.voltage || '230 V AC, 50 Hz'}
-   - ప్రొటెక్షన్ రేటింగ్ (Protection Rating): ${extractedRequirement.protectionRating || 'కనీసం IP66 (IS 12063)'}
-   - జీవితకాలం (Lifetime): ${extractedRequirement.lifetime || 'కనీసం 50,000 పని గంటలు'}
-${resolvedGapClausesTe ? `\n${resolvedGapClausesTe}` : ''}
-
-5. పరీక్ష మరియు నాణ్యత తనిఖీ వ్యవస్థ:
-   5.1 గత 3 సంవత్సరాలలో అధీకృత ల్యాబ్ నుండి పొందిన టైప్ టెస్ట్ సర్టిఫికెట్లను సమర్పించాలి.
-   5.2 టెస్టింగ్ మరియు ఇన్‌స్పెక్షన్ స్కీమ్ (STI): ${primaryStandard.schemesOfTesting} ఖచ్చితంగా పాటించాలి.
-
-================================================================================
-GeM పోర్టల్ కస్టమ్ పారామీటర్లలో ఉపయోగించడానికి రూపొందించబడింది.
-================================================================================`;
-  }
-
-  // TAMIL REPORT
-  if (language === 'ta') {
-    return `================================================================================
-இந்திய அரசு / பொதுத்துறை கொள்முதல் விவரக்குறிப்பு விதி (GOVERNMENT OF INDIA PROCUREMENT)
-மானக் சேது (MaanakSetu) - BIS ஸ்மார்ட்ஸ்பெக் AI இயந்திரம் | தேதி: ${now}
-================================================================================
-
-டெண்டர் பொருள் (TENDER ITEM): ${extractedRequirement.product.toUpperCase()}
-பயன்பாடு (APPLICATION): ${extractedRequirement.application}
-முதன்மை BIS தரநிலை (PRIMARY BIS STANDARD): ${primaryStandard.isNumber}
-
-1. கட்டாய இந்தியத் தரநிலைகள்:
-   1.1 விநியோகிக்கப்படும் பொருட்கள் அனைத்தும் ${primaryStandard.isNumber} தரநிலையின் சமீபத்திய பதிப்பிற்கு இணங்க வேண்டும்
-       (செயலில் உள்ள திருத்தங்கள்: ${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'இல்லை'}).
-   1.2 காலாவதியான அல்லது மாற்றப்பட்ட தரநிலைகள் எக்காரணம் கொண்டும் ஏற்றுக்கொள்ளப்படாது.
-
-2. தொடர்புடைய மற்றும் துணை தரநிலைகள்:
-${relatedCitations || '   (குறிப்பிடப்படவில்லை)'}
-
-3. தரக் கட்டுப்பாட்டு ஆணை (QCO) மற்றும் சட்டப்பூர்வ சான்றிதழ்:
-   3.1 சான்றிதழ் நிலை: ${primaryStandard.qco.isCompulsory ? 'கட்டாய சட்டப்பூர்வ தேவை (COMPULSORY)' : 'விருப்பத் தரநிலை (VOLUNTARY)'}
-   3.2 திட்டம்: ${primaryStandard.qco.scheme}
-   3.3 ஒழுங்குமுறை ஆணை: ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification})
-   3.4 கட்டாய விதி: டெண்டர் திறக்கும் தேதியில் ஏலதாரர்கள் செல்லுபடியாகும் BIS உரிமம் வைத்திருக்க வேண்டும்.
-
-4. தொழில்நுட்ப விவரக்குறிப்புகள்:
-   - மதிப்பிடப்பட்ட திறன் (Power / Capacity): ${extractedRequirement.power || extractedRequirement.capacity || 'அட்டவணைப்படி'}
-   - மின்னழுத்தம் (Supply Voltage): ${extractedRequirement.voltage || '230 V AC, 50 Hz'}
-   - பாதுகாப்பு மதிப்பீடு (Protection Rating): ${extractedRequirement.protectionRating || 'குறைந்தபட்சம் IP66'}
-   - ஆயுட்காலம் (Lifetime): ${extractedRequirement.lifetime || 'குறைந்தபட்சம் 50,000 மணிநேரம்'}
-${resolvedGapClausesTa ? `\n${resolvedGapClausesTa}` : ''}
-
-5. சோதனை மற்றும் ஆய்வு நடைமுறைகள்:
-   5.1 அங்கீகரிக்கப்பட்ட ஆய்வகத்திலிருந்து கடந்த 3 ஆண்டுகளுக்குள் பெறப்பட்ட சோதனை சான்றிதழ்களை சமர்ப்பிக்க வேண்டும்.
-   5.2 சோதனை மற்றும் ஆய்வுத் திட்டம் (STI): ${primaryStandard.schemesOfTesting} பின்பற்றப்பட வேண்டும்.
-
-================================================================================
-GeM மின்-கொள்முதல் தளத்தில் நேரடியாக பயன்படுத்த ஏற்றது.
-================================================================================`;
-  }
-
-  // ENGLISH REPORT (DEFAULT)
-  const customAdditions = additionalClauses.length > 0
-    ? `\n\n4. ADDITIONAL PROCUREMENT STIPULATIONS:\n${additionalClauses.map((c, i) => `   4.${i + 1} ${c}`).join('\n')}`
-    : '';
-
-  return `================================================================================
-GOVERNMENT OF INDIA / PUBLIC SECTOR PROCUREMENT SPECIFICATION CLAUSE
-Generated via MaanakSetu - BIS SmartSpec AI Engine | Date: ${now}
-================================================================================
-
-TENDER ITEM: ${extractedRequirement.product.toUpperCase()}
-APPLICATION: ${extractedRequirement.application}
-PRIMARY BIS STANDARD: ${primaryStandard.isNumber}
-
-1. MANDATORY APPLICABLE INDIAN STANDARDS:
-   1.1 The supplied items shall strictly conform to the latest edition of ${primaryStandard.isNumber} 
-       including all amendments in force (Amendment(s): ${primaryStandard.versionChain.amendments.map((a) => a.number).join(', ') || 'Nil'}).
-   1.2 Legacy or superseded revisions of standards shall not be accepted under any circumstances.
-
-2. NORMATIVE & ALLIED REFERENCE STANDARDS (MANDATORY SUBSYSTEM COMPLIANCE):
-${relatedCitations || '   (None specified)'}
-
-3. REGULATORY QUALITY CONTROL ORDER (QCO) & BIS CERTIFICATION CLAUSE:
-   3.1 Certification Status: ${primaryStandard.qco.isCompulsory ? 'COMPULSORY STATUTORY REQUIREMENT' : 'VOLUNTARY / STANDARD SPECIFICATION'}
-   3.2 Scheme: ${primaryStandard.qco.scheme}
-   3.3 Regulatory Order: ${primaryStandard.qco.orderName} (${primaryStandard.qco.gazetteNotification})
-   3.4 Mandatory Clause: Bidders must possess a valid BIS license / CRS registration number as of the 
-       date of tender opening. Bids without verified BIS credentials shall be summarily rejected at the 
-       technical evaluation stage without further clarification.
-
-4. TECHNICAL BENCHMARKS & SPECIFICATION CLAUSES:
-   - Rated Power / Capacity: ${extractedRequirement.power || extractedRequirement.capacity || 'As specified in schedule of quantities'}
-   - Nominal Voltage & Supply: ${extractedRequirement.voltage || '230 V AC, 50 Hz'}
-   - Environmental Enclosure Rating: ${extractedRequirement.protectionRating || 'IP66 minimum as per IS 12063'}
-   - Lifetime & Endurance: ${extractedRequirement.lifetime || 'Minimum 50,000 burning hours'}
-${resolvedGapClausesEn ? `\n${resolvedGapClausesEn}` : ''}
-${customAdditions}
-
-5. TESTING, INSPECTION & ACCEPTANCE REGIME:
-   5.1 The manufacturer shall furnish authentic Type Test Certificates from a BIS-approved or 
-       NABL-accredited test laboratory conducted within the preceding three (3) years.
-   5.2 Scheme of Testing and Inspection (STI): Supplier must adhere to ${primaryStandard.schemesOfTesting}.
-   5.3 Pre-dispatch inspection (PDI) may be conducted by the Buyer or an authorized third-party inspection agency (RITES / EIL / BIS).
-
-================================================================================
-Generated for insertion into GeM Custom Parameters / Schedule of Technical Requirements (STR).
-================================================================================`;
+  return lines.join('\n');
 }

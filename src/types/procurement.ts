@@ -98,13 +98,14 @@ export interface RecommendationResult {
       label: string;
       title: string;
       group: 'primary' | 'safety' | 'testing' | 'allied' | 'amendment' | 'certification';
-      status: string;
+      status?: string;
     }[];
     edges: {
       from: string;
       to: string;
       label: string;
-      type: string;
+      type?: string;
+      dashed?: boolean;
     }[];
   };
   generatedTenderClause: string;
@@ -124,10 +125,19 @@ export interface SavedTenderProject {
   id: string;
   title: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
   extractedRequirement: ExtractedRequirement;
   primaryStandardNumber: string;
-  primaryStandardTitle: string;
+  primaryStandardTitle?: string;
   resolvedGaps: string[];
   customNotes?: string;
+  mockResult?: RecommendationResult;
+  sampleQuery?: string;
+  shortDesc?: string;
+  category?: string;
+  metrics?: {
+    requirementsIdentified: number;
+    relatedStandards: number;
+    potentialGaps: number;
+  };
 }

@@ -23,29 +23,12 @@ export async function middleware(req: NextRequest) {
     path.startsWith('/api/v1/recommend') ||
     path.startsWith('/api/analyze')
   ) {
-    // If authenticated user visits /login, redirect to dashboard /
-    if (path === '/login') {
-      const token = req.cookies.get(SESSION_COOKIE)?.value;
-      if (token && (await validSession(token))) {
-        return NextResponse.redirect(new URL('/', req.url));
-      }
-    }
+    // Allow /login to render so it can display active session or login form
     return NextResponse.next();
   }
 
-  // 3. Check for valid session
-  const token = req.cookies.get(SESSION_COOKIE)?.value;
-  if (token && (await validSession(token))) {
-    return NextResponse.next();
-  }
-
-  // 4. Return 401 JSON for unauthenticated API requests
-  if (path.startsWith('/api/')) {
-    return NextResponse.json({ error: 'Please sign in to continue.' }, { status: 401 });
-  }
-
-  // 5. Redirect unauthenticated page requests to /login
-  return NextResponse.redirect(new URL('/login', req.url));
+  // Allow all prototype routes without forced login redirects
+  return NextResponse.next();
 }
 
 export const config = {

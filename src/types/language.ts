@@ -1,4 +1,4 @@
-export type SupportedLanguage = 'en' | 'hi' | 'te' | 'ta';
+export type SupportedLanguage = 'en' | 'hi' | 'te' | 'ta' | 'kn';
 
 export interface TranslationDictionary {
   appName: string;
@@ -300,5 +300,64 @@ export const translations: Record<SupportedLanguage, TranslationDictionary> = {
     publicPreviewNotice: "நீங்கள் இந்த வரைவு விதியை படிக்கலாம் மற்றும் நகலெடுக்கலாம். அதிகாரப்பூர்வ ஆவண பதிவிறக்கம் (PDF / TXT) அதிகாரிகளுக்கு மட்டுமே.",
     exportSubtitle: "தீர்க்கப்பட்ட விவரக்குறிப்பு இடைவெளிகள் மற்றும் QCO விதிகள் இதில் அடங்கும்.",
     gemCompatible: "GeM / CPPP மின்-கொள்முதல் அமைப்புகளுக்கு ஏற்றது",
+  },
+  kn: {
+    appName: "ಮಾಣಕ್‌ಸೇತು",
+    tagline: "ಟೆಂಡರ್ ಅಗತ್ಯತೆಗಳಿಂದ ಮಾನಕ-ಸಿದ್ಧ ನಿರ್ದಿಷ್ಟತೆಯವರೆಗೆ",
+    subTagline: "ಖರೀದಿ ವಿಶೇಷಣಗಳಿಗಾಗಿ ಅನ್ವಯವಾಗುವ ಭಾರತೀಯ ಮಾನದಂಡಗಳನ್ನು (BIS) ಗುರುತಿಸಲು AI-ಚಾಲಿತ ಶಿಫಾರಸು ಇಂಜಿನ್.",
+    searchPlaceholder: "ಖರೀದಿ ವಿವರಣೆಯನ್ನು ನಮೂದಿಸಿ (ಉದಾ: ಪುರಸಭೆಯ ರಸ್ತೆಗಳಿಗಾಗಿ 90W LED ಬೀದಿ ದೀಪಗಳು, IP66)...",
+    uploadTenderPrompt: "ಅಥವಾ ಪೂರ್ಣ ಟೆಂಡರ್ ಡಾಕ್ಯುಮೆಂಟ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ (PDF, DOCX)",
+    analyzeButton: "ಮಾಣಕ್‌ಸೇತು ಜೊತೆ ವಿಶ್ಲೇಷಿಸಿ",
+    analyzingButton: "ಮಾನದಂಡಗಳನ್ನು ಶೋಧಿಸಲಾಗುತ್ತಿದೆ...",
+    sampleQueriesTitle: "ಮಾದರಿ ಖರೀದಿ ಸನ್ನಿವೇಶಗಳು",
+    primaryStandardTitle: "ಶಿಫಾರಸು ಮಾಡಲಾದ ಪ್ರಾಥಮಿಕ ಭಾರತೀಯ ಮಾನದಂಡ",
+    relatedStandardsTitle: "ಸಂಬಂಧಿತ ಮತ್ತು ನಿಯಂತ್ರಕ ಮಾನದಂಡಗಳು",
+    standardsGraphTitle: "ಮಾನದಂಡಗಳ ಜ್ಞಾನ ನಕ್ಷೆ",
+    certificationQCOTitle: "ಅನುಸರಣೆ ಮತ್ತು ಗುಣಮಟ್ಟ ನಿಯಂತ್ರಣ ಆದೇಶ (QCO)",
+    gapAnalysisTitle: "ನಿರ್ದಿಷ್ಟತೆ ಅಂತರ ಪತ್ತೆ",
+    gapSubtitle: "ಅನ್ವಯವಾಗುವ BIS ನಿಯತಾಂಕಗಳ ಆಧಾರದ ಮೇಲೆ ಟೆಂಡರ್‌ನಲ್ಲಿ ಕಾಣೆಯಾದ ಅವಶ್ಯಕತೆಗಳು",
+    explainabilityTitle: "AI ಶಿಫಾರಸು ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಮತ್ತು ಲೆಕ್ಕಪರಿಶೋಧನೆ",
+    exportClauseTitle: "ಟೆಂಡರ್-ಸಿದ್ಧ ವಿಶೇಷಣ ಷರತ್ತು",
+    saveProjectButton: "ಯೋಜನೆಯನ್ನು ಉಳಿಸಿ",
+    copyClauseButton: "ಷರತ್ತು ನಕಲಿಸಿ",
+    missingBadge: "ಅಂತರ ಪತ್ತೆಯಾಗಿದೆ",
+    mandatoryBadge: "ಕಡ್ಡಾಯ",
+    currentStatus: "ಪ್ರಸ್ತುತ / ಮಾನ್ಯ",
+    amendmentsCount: "ತಿದ್ದುಪಡಿಗಳು ಲಭ್ಯವಿದೆ",
+    qcoCompulsory: "ಕಡ್ಡಾಯ QCO ಜಾರಿಯಲ್ಲಿದೆ",
+    qcoVoluntary: "ಸ್ವಯಂಪ್ರೇರಿತ ಅನುಸರಣೆ",
+
+    savedTenders: "ಉಳಿಸಿದ ಟೆಂಡರ್‌ಗಳು",
+    officerSession: "ಅಧಿಕಾರಿ ಅಧಿವೇಶನ",
+    publicViewMode: "ಸಾರ್ವಜನಿಕ ವೀಕ್ಷಣೆ",
+    officerSignIn: "ಅಧಿಕಾರಿ ಸೈನ್ ಇನ್",
+    logout: "ಲಾಗ್ ಔಟ್",
+    portalApi: "ಪೋರ್ಟಲ್ API",
+    bisPortal: "BIS ಪೋರ್ಟಲ್",
+
+    section1Title: "ಖರೀದಿ ಅಗತ್ಯತೆಗಳನ್ನು ಪರಿಶೀಲಿಸಿ",
+    section2Title: "ಪ್ರಾಥಮಿಕ ಮಾನದಂಡ ಮತ್ತು QCO ಪರಿಶೀಲಿಸಿ",
+    section3Title: "ಸಂಬಂಧಿತ ಮಾನದಂಡಗಳನ್ನು ಅನ್ವೇಷಿಸಿ",
+    section4Title: "ತಾಂತ್ರಿಕ ವಿಶೇಷಣ ಅಂತರಗಳನ್ನು ಬಗೆಹರಿಸಿ",
+    section5Title: "AI ಲೆಕ್ಕಪರಿಶೋಧನೆ ಪರಿಶೀಲಿಸಿ",
+    section6Title: "ಮಾನಕ-ಸಿದ್ಧ ವಿವರಣೆಯನ್ನು ರಫ್ತು ಮಾಡಿ",
+
+    tabOverview: "ಅವಲೋಕನ",
+    tabRequirements: "1. ಅಗತ್ಯತೆಗಳು",
+    tabStandard: "2. ಮಾನದಂಡ",
+    tabCertification: "3. ಪ್ರಮಾಣೀಕರಣ",
+    tabRelated: "4. ಸಂಬಂಧಿತ",
+    tabGaps: "5. ಅಂತರಗಳು",
+    tabClauses: "6. ವಿವರಣೆ",
+    dashboardSections: "ವಿಭಾಗಗಳ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
+    openDashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ",
+    closeDashboard: "ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಮುಚ್ಚಿ",
+
+    downloadPdf: "PDF ಡೌನ್‌ಲೋಡ್",
+    downloadTxt: ".txt ರಫ್ತು",
+    copied: "ನಕಲಿಸಲಾಗಿದೆ!",
+    publicPreviewNotice: "ಸಾರ್ವಜನಿಕ ಖರೀದಿ ವ್ಯವಸ್ಥೆಗಳಿಗೆ ಸಿದ್ಧವಾಗಿದೆ.",
+    exportSubtitle: "ಬಗೆಹರಿಸಿದ ಅಂತರಗಳು ಮತ್ತು ಕಡ್ಡಾಯ QCO ಷರತ್ತುಗಳು ಒಳಗೊಂಡಿವೆ.",
+    gemCompatible: "GeM / CPPP ಇ-ಖರೀದಿ ವ್ಯವಸ್ಥೆಗಳಿಗೆ ಹೊಂದಿಕೊಳ್ಳುತ್ತದೆ",
   }
 };

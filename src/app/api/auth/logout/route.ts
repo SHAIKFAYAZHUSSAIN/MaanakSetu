@@ -12,7 +12,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid request.' }, { status: 403 });
     }
   }
+  const isJson =
+    req.headers.get('accept')?.includes('application/json') ||
+    req.headers.get('content-type')?.includes('application/json');
+  const response = isJson
+    ? NextResponse.json({ success: true, message: 'Logged out successfully' })
+    : NextResponse.redirect(new URL('/login', req.url), 303);
+  response.cookies.set(SESSION_COOKIE, '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: req.nextUrl.protocol === 'https:',
+    path: '/',
+    maxAge: 0,
+  });
+  return response;
+}
+
+export async function GET(req: NextRequest) {
   const response = NextResponse.redirect(new URL('/login', req.url), 303);
-  response.cookies.set(SESSION_COOKIE, '', { httpOnly: true, sameSite: 'lax', secure: req.nextUrl.protocol === 'https:', path: '/', maxAge: 0 });
+  response.cookies.set(SESSION_COOKIE, '', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: req.nextUrl.protocol === 'https:',
+    path: '/',
+    maxAge: 0,
+  });
   return response;
 }

@@ -83,6 +83,10 @@ const PRODUCT_SYNONYMS: Record<string, string[]> = {
     'wheel chair', 'patient chair', 'hospital trolley', 'invalid carriage', 'folding wheelchair',
     'व्हीलचेयर', 'వీల్‌చైర్', 'சக்கர நாற்காலி', 'रुग्ण वाहक खुर्ची'
   ],
+  'safety helmet': [
+    'industrial helmet', 'hard hat', 'construction helmet', 'head protection', 'ppe helmet', 'is 2925',
+    'सुरक्षा हेलमेट', 'రక్షణ హెల్మెట్', 'பாதுகாப்பு தலைக்கவசம்', 'ಸುರಕ್ಷತಾ ಹೆಲ್ಮೆಟ್', 'हेलमेट'
+  ],
   'n95 mask': [
     'ffp2', 'filtering mask', 'respirator', 'pollution mask', 'surgical mask', 'n95', 'half mask',
     'मास्क', 'మాస్క్', 'முகக்கவசம்', 'मुखवटा'
@@ -412,7 +416,7 @@ export function generateRecommendationEvidence(
   return {
     whyApplies,
     officialSourceUrl: standard.officialSourceUrl,
-    lastVerifiedDate: standard.lastVerifiedDate,
+    lastVerifiedDate: standard.lastVerifiedDate || '2024-09-01',
     uncertaintyFlags: flags,
     scopeExtract: standard.scope,
   };

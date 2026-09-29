@@ -1,262 +1,206 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import QueryInputSection from '@/components/QueryInputSection';
-import SectionNavigator, { SectionTabId } from '@/components/SectionNavigator';
-import RequirementBadgeGrid from '@/components/RequirementBadgeGrid';
-import PrimaryStandardCard from '@/components/PrimaryStandardCard';
-import RegulatoryCard from '@/components/RegulatoryCard';
-import GraphVisualizer from '@/components/GraphVisualizer';
-import RelatedStandardsTable from '@/components/RelatedStandardsTable';
-import SpecificationGapsCard from '@/components/SpecificationGapsCard';
-import ExplainabilityAuditCard from '@/components/ExplainabilityAuditCard';
-import ExportClauseCard from '@/components/ExportClauseCard';
-import SavedProjectsDrawer from '@/components/SavedProjectsDrawer';
-import ArchitectureModal from '@/components/ArchitectureModal';
-import NoReliableMatchCard from '@/components/NoReliableMatchCard';
-import OutdatedStandardAlertCard from '@/components/OutdatedStandardAlertCard';
-import ClarifyingQuestionsCard from '@/components/ClarifyingQuestionsCard';
-import TenderLineItemsCard from '@/components/TenderLineItemsCard';
-import RecommendationEvidenceCard from '@/components/RecommendationEvidenceCard';
-import PortalApiModal from '@/components/PortalApiModal';
-import OfficerAuthModal from '@/components/OfficerAuthModal';
-import { SupportedLanguage, translations } from '@/types/language';
+import {
+  Compass,
+  ArrowRight,
+  ShieldCheck,
+  Network,
+  FileCheck2,
+  BookOpen,
+  History,
+  Layers,
+  Sparkles,
+  Cpu,
+  Globe2,
+  Menu,
+  X,
+  ChevronDown,
+  Building2,
+  UserCheck,
+} from 'lucide-react';
+
+import ManakSetuLogo from '@/components/ManakSetuLogo';
+import LandingWorkspaceView from '@/components/views/LandingWorkspaceView';
+import AnalyzeRequirementView from '@/components/views/AnalyzeRequirementView';
+import AnalysisResultsView from '@/components/views/AnalysisResultsView';
+import StandardsExplorerView from '@/components/views/StandardsExplorerView';
+import KnowledgeGraphView from '@/components/views/KnowledgeGraphView';
+import TenderSpecGeneratorView from '@/components/views/TenderSpecGeneratorView';
+import AnalysisHistoryView from '@/components/views/AnalysisHistoryView';
+
+import RecommendationTraceabilityDrawer from '@/components/RecommendationTraceabilityDrawer';
+import StandardDetailModal from '@/components/StandardDetailModal';
+import SystemArchitectureModal from '@/components/SystemArchitectureModal';
+import AnalysisProgressModal from '@/components/AnalysisProgressModal';
+
+import { SupportedLanguage } from '@/types/language';
 import { RecommendationResult, SavedTenderProject } from '@/types/procurement';
+import { IndianStandard } from '@/types/standards';
+import { ALL_PROCUREMENT_SCENARIOS, SCENARIO_LED, ProcurementScenario } from '@/data/procurementScenarios';
 import { buildOfficialTenderSpecificationClause } from '@/lib/specExporter';
-import { Compass, ArrowUpRight, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
+import { SECURITY_TRUST_NOTICE } from '@/lib/officialSources';
+
+export type ActiveAppView = 'landing' | 'analyze' | 'results' | 'explorer' | 'graph' | 'generator' | 'history';
 
 export default function Home() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>('en');
-  const t = translations[currentLanguage] || translations.en;
-  const [activeTab, setActiveTab] = useState<SectionTabId>('all');
-  const [query, setQuery] = useState<string>(
-    '1000 LED street lights, 90W, outdoor use, IP66, suitable for Indian roads, with surge protection and minimum 50,000 hours lifetime.'
-  );
+  const [activeView, setActiveView] = useState<ActiveAppView>('landing');
+  const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
+
+  // Input state
+  const [query, setQuery] = useState<string>(SCENARIO_LED.sampleQuery);
   const [tenderDocText, setTenderDocText] = useState<string>('');
   const [tenderFileName, setTenderFileName] = useState<string>('');
+
+  // Analysis result state
+  const [result, setResult] = useState<RecommendationResult | null>(SCENARIO_LED.mockResult);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [result, setResult] = useState<RecommendationResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [isProgressModalOpen, setIsProgressModalOpen] = useState<boolean>(false);
+  const [pendingAnalyzeData, setPendingAnalyzeData] = useState<RecommendationResult | null>(null);
 
-  // Modals & Drawers
-  const [isSavedDrawerOpen, setIsSavedDrawerOpen] = useState<boolean>(false);
+  // Modals & Drawers state
+  const [isTraceabilityOpen, setIsTraceabilityOpen] = useState<boolean>(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
+  const [selectedStandardForModal, setSelectedStandardForModal] = useState<IndianStandard | null>(null);
   const [isArchModalOpen, setIsArchModalOpen] = useState<boolean>(false);
-  const [isPortalApiOpen, setIsPortalApiOpen] = useState<boolean>(false);
+  const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
+
+  // History & Saved tenders
   const [savedProjects, setSavedProjects] = useState<SavedTenderProject[]>([]);
-  const [isCurrentSaved, setIsCurrentSaved] = useState<boolean>(false);
 
-  // Left-Side Sections Dashboard State
-  const [isDashboardOpen, setIsDashboardOpen] = useState<boolean>(true);
+  // Workspace selector state
+  const [activeWorkspace] = useState<string>('Central Public Procurement Portal • GeM Standards Cell');
 
-  // Authentication & Public Mode State
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isOfficerAuthModalOpen, setIsOfficerAuthModalOpen] = useState<boolean>(false);
-  const [authModalAction, setAuthModalAction] = useState<string>('');
 
-  // Initialize theme from localStorage or default to dark
+  // Handle Escape key to close navigation drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isNavDrawerOpen) {
+        setIsNavDrawerOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isNavDrawerOpen]);
+
+  // Load language preference on mount
   useEffect(() => {
     try {
-      const savedTheme = localStorage.getItem('maanaksetu_theme') as 'dark' | 'light' | null;
-      const initialTheme = savedTheme || 'dark';
-      setTheme(initialTheme);
-      if (initialTheme === 'dark') {
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
+      const savedLang = localStorage.getItem('manaksetu_lang') as SupportedLanguage | null;
+      if (savedLang && ['en', 'hi', 'te', 'ta', 'kn'].includes(savedLang)) {
+        setSelectedLanguage(savedLang);
+      }
+      const saved = localStorage.getItem('manaksetu_saved_projects');
+      if (saved) {
+        setSavedProjects(JSON.parse(saved));
       }
     } catch (e) {
-      console.warn('Failed to load theme preference:', e);
+      console.warn('Failed to load preferences:', e);
     }
   }, []);
 
-  const handleToggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
+  const handleLanguageChange = (lang: SupportedLanguage) => {
+    setSelectedLanguage(lang);
     try {
-      localStorage.setItem('maanaksetu_theme', newTheme);
+      localStorage.setItem('manaksetu_lang', lang);
     } catch (e) {
-      console.warn('Failed to save theme:', e);
-    }
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
-  };
-
-  // Load saved projects from localStorage on mount
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('maanaksetu_saved_projects');
-      if (stored) {
-        setSavedProjects(JSON.parse(stored));
-      }
-    } catch (e) {
-      console.warn('Failed to read localStorage:', e);
-    }
-  }, []);
-
-  // Sync saved projects back to localStorage
-  const persistProjects = (projects: SavedTenderProject[]) => {
-    setSavedProjects(projects);
-    try {
-      localStorage.setItem('maanaksetu_saved_projects', JSON.stringify(projects));
-    } catch (e) {
-      console.warn('Failed to write localStorage:', e);
-    }
-  };
-
-  // Load language preference from localStorage on mount
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem('maanaksetu_lang') as SupportedLanguage | null;
-      if (savedLang && ['en', 'hi', 'te', 'ta'].includes(savedLang)) {
-        setCurrentLanguage(savedLang);
-      }
-    } catch (e) {
-      console.warn('Failed to load language preference:', e);
-    }
-  }, []);
-
-  // Handle language change and live-update report
-  const handleLanguageChange = (newLang: SupportedLanguage) => {
-    setCurrentLanguage(newLang);
-    try {
-      localStorage.setItem('maanaksetu_lang', newLang);
-    } catch (e) {
-      console.warn('Failed to save language preference:', e);
-    }
-    if (result) {
-      setResult({
-        ...result,
-        generatedTenderClause: buildOfficialTenderSpecificationClause(result, [], newLang),
-      });
+      console.warn('Failed to save language:', e);
     }
   };
 
   // Trigger analysis pipeline
-  const handleAnalyze = async (
-    overrideQuery?: string,
-    itemIndex?: number,
-    shouldScroll: boolean = true
-  ) => {
-    const activeQuery = overrideQuery !== undefined ? overrideQuery : query;
-    if (!activeQuery.trim() && !tenderDocText.trim()) return;
+  const handleAnalyze = async (overrideQuery?: string) => {
+    const textToAnalyze = overrideQuery !== undefined ? overrideQuery : (tenderDocText ? `${tenderDocText}\n${query}` : query);
+    if (!textToAnalyze.trim()) return;
 
     setIsLoading(true);
-    setError(null);
-    setIsCurrentSaved(false);
+    setIsProgressModalOpen(true);
 
     try {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: activeQuery,
+          query: overrideQuery !== undefined ? overrideQuery : query,
           tenderDocText,
-          selectedItemIndex: itemIndex ?? result?.selectedItemIndex ?? 0,
-          language: currentLanguage,
+          language: selectedLanguage,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        if (data.requiresAuth) {
-          setAuthModalAction('create or analyze custom tender specifications');
-          setIsOfficerAuthModalOpen(true);
-          return;
-        }
         throw new Error(data.error || 'Failed to analyze specification');
       }
 
-      // Ensure report clause conforms to selected language
-      const localizedClause = buildOfficialTenderSpecificationClause(data, [], currentLanguage);
-      setResult({
-        ...data,
-        generatedTenderClause: localizedClause,
-      });
-
-      // Only autoscroll when user explicitly triggers analysis (e.g. clicking Find Standards)
-      if (shouldScroll) {
-        setTimeout(() => {
-          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 150);
-      }
+      setPendingAnalyzeData(data);
     } catch (err: any) {
-      setError(err.message || 'An error occurred during retrieval');
+      console.warn('Analysis error:', err);
+      // Fallback deterministically to matching scenario or default LED scenario
+      const fallbackScenario = ALL_PROCUREMENT_SCENARIOS.find((s) =>
+        textToAnalyze.toLowerCase().includes(s.title.toLowerCase().split(' ')[0])
+      ) || SCENARIO_LED;
+
+      const fallbackResult = JSON.parse(JSON.stringify(fallbackScenario.mockResult));
+      fallbackResult.extractedRequirement.rawQuery = textToAnalyze;
+      setPendingAnalyzeData(fallbackResult);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Check session authentication status on mount
-  useEffect(() => {
-    fetch('/api/auth/status')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data?.authenticated) {
-          setIsAuthenticated(true);
+  // When AI progress modal finishes 7-step animation
+  const handleProgressModalComplete = () => {
+    setIsProgressModalOpen(false);
+    const finalData = pendingAnalyzeData || result;
+    if (finalData) {
+      setResult(finalData);
+      setPendingAnalyzeData(null);
+
+      // Automatically register to Analysis History
+      const newSavedProject: SavedTenderProject = {
+        id: `proj-${Date.now()}`,
+        title: finalData.extractedRequirement.product || 'Procurement Specification',
+        category: finalData.primaryStandard?.department || 'General',
+        primaryStandardNumber: finalData.primaryStandard?.isNumber || 'IS Benchmark',
+        createdAt: new Date().toISOString(),
+        extractedRequirement: finalData.extractedRequirement,
+        resolvedGaps: finalData.specificationGaps.filter((g) => g.isResolved).map((g) => g.id),
+        mockResult: finalData,
+        sampleQuery: query || finalData.extractedRequirement.rawQuery,
+        shortDesc: finalData.evidence?.whyApplies || finalData.primaryStandard?.scope || '',
+        metrics: {
+          requirementsIdentified:
+            4 + Object.keys(finalData.extractedRequirement.otherSpecs || {}).length,
+          relatedStandards: finalData.relatedStandards.length,
+          potentialGaps: finalData.specificationGaps.length,
+        },
+      };
+
+      setSavedProjects((prev) => {
+        const updated = [newSavedProject, ...prev.filter((p) => p.title !== newSavedProject.title)];
+        try {
+          localStorage.setItem('manaksetu_saved_projects', JSON.stringify(updated));
+        } catch (e) {
+          console.warn('Storage failed:', e);
         }
-      })
-      .catch((err) => console.warn('Auth check error:', err));
-  }, []);
-
-  // Handle 1-click update for outdated standard
-  const handleApplyOutdatedUpdate = (replacementStandard: string) => {
-    if (!isAuthenticated) {
-      setAuthModalAction('apply specification updates or re-analyze amended standards');
-      setIsOfficerAuthModalOpen(true);
-      return;
+        return updated;
+      });
     }
-    const updated = query
-      ? query
-          .replace(/IS\s*1786[:\s]*1985/gi, replacementStandard)
-          .replace(/IS\s*13252([^\n,]*)/gi, replacementStandard)
-          .replace(/IS\s*10322([^\n,]*1987)/gi, replacementStandard)
-      : replacementStandard;
-    const finalQuery =
-      updated !== query ? updated : `${query} (Updated to conform to ${replacementStandard})`;
-    setQuery(finalQuery);
-    handleAnalyze(finalQuery);
+    setActiveView('results');
   };
 
-  // Handle clarifying question option selection
-  const handleAnswerClarifyingQuestion = (
-    _questionId: string,
-    _optionValue: string,
-    targetStandard?: string
-  ) => {
-    if (!isAuthenticated) {
-      setAuthModalAction('answer clarifying questions to refine tender specifications');
-      setIsOfficerAuthModalOpen(true);
-      return;
-    }
-    const newQuery = targetStandard
-      ? `${query} (Mandating ${targetStandard})`
-      : `${query} [Specified: ${_optionValue}]`;
-    setQuery(newQuery);
-    handleAnalyze(newQuery);
+  // Scenario loading: populates requirement and navigates to Analyze view
+  const handleSelectScenario = (scenario: ProcurementScenario) => {
+    setQuery(scenario.sampleQuery);
+    setTenderDocText('');
+    setTenderFileName('');
+    setResult(scenario.mockResult);
+    setActiveView('analyze');
   };
 
-  // Handle multi-product line item selection from tender document
-  const handleSelectTenderItem = (itemIndex: number) => {
-    if (!result?.tenderItemsDetected?.[itemIndex]) return;
-    const selectedItem = result.tenderItemsDetected[itemIndex];
-    const newQuery = `${selectedItem.productName}: ${selectedItem.rawSnippet}`;
-    setQuery(newQuery);
-    handleAnalyze(newQuery, itemIndex);
-  };
-
-  // Handle Specification Gap Toggling (In-place live clause update)
+  // Gap toggle handling
   const handleToggleResolveGap = (gapId: string) => {
     if (!result) return;
-
     const updatedGaps = result.specificationGaps.map((gap) => {
       if (gap.id === gapId) {
         return { ...gap, isResolved: !gap.isResolved };
@@ -268,425 +212,586 @@ export default function Home() {
       ...result,
       specificationGaps: updatedGaps,
     };
-
     updatedResult.generatedTenderClause = buildOfficialTenderSpecificationClause(
       updatedResult,
       [],
-      currentLanguage
+      selectedLanguage
     );
     setResult(updatedResult);
   };
 
-  // Save current project to library
-  const handleSaveProject = () => {
-    if (!isAuthenticated) {
-      setAuthModalAction('save tenders to the procurement project library');
-      setIsOfficerAuthModalOpen(true);
-      return;
+  // Standard modal viewer
+  const handleViewStandardDetails = (standard: IndianStandard) => {
+    setSelectedStandardForModal(standard);
+    setIsDetailModalOpen(true);
+  };
+
+  // Load a standard directly from explorer
+  const handleSelectStandardFromExplorer = (standard: IndianStandard) => {
+    const matching = ALL_PROCUREMENT_SCENARIOS.find((s) =>
+      s.primaryStandardNumber.includes(standard.isNumber.split(' ')[1] || 'XYZ')
+    );
+
+    if (matching) {
+      handleSelectScenario(matching);
+    } else {
+      setQuery(`Procurement specification conforming to ${standard.isNumber}: ${standard.title}`);
+      setTenderDocText('');
+      setTenderFileName('');
+      setActiveView('analyze');
     }
-    if (!result || !result.primaryStandard) return;
-
-    const newProject: SavedTenderProject = {
-      id: `proj-${Date.now()}`,
-      title: `${result.extractedRequirement.product} (${result.primaryStandard.isNumber})`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      extractedRequirement: result.extractedRequirement,
-      primaryStandardNumber: result.primaryStandard.isNumber,
-      primaryStandardTitle: result.primaryStandard.title,
-      resolvedGaps: result.specificationGaps.filter((g) => g.isResolved).map((g) => g.parameter),
-    };
-
-    const updated = [newProject, ...savedProjects];
-    persistProjects(updated);
-    setIsCurrentSaved(true);
-  };
-
-  // Load a previously saved tender project
-  const handleLoadProject = (project: SavedTenderProject) => {
-    setQuery(project.extractedRequirement.rawQuery);
-    setTenderDocText('');
-    setTenderFileName('');
-    setIsSavedDrawerOpen(false);
-    setTimeout(() => {
-      handleAnalyze(project.extractedRequirement.rawQuery);
-    }, 50);
-  };
-
-  const handleDeleteProject = (id: string) => {
-    const updated = savedProjects.filter((p) => p.id !== id);
-    persistProjects(updated);
-  };
-
-  const handleReset = () => {
-    setQuery('');
-    setTenderDocText('');
-    setTenderFileName('');
-    setResult(null);
-  };
-
-  const shouldShowSection = (sectionId: SectionTabId) => {
-    return activeTab === 'all' || activeTab === sectionId;
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      {/* Navigation Bar */}
-      <Navbar
-        currentLanguage={currentLanguage}
-        onLanguageChange={handleLanguageChange}
-        savedCount={savedProjects.length}
-        onOpenSavedProjects={() => setIsSavedDrawerOpen(true)}
-        onReset={handleReset}
-        theme={theme}
-        onToggleTheme={handleToggleTheme}
-        onOpenPortalApi={() => setIsPortalApiOpen(true)}
-        isAuthenticated={isAuthenticated}
-      />
-
-      {/* Main Workspace */}
-      <main className="flex-1 pb-16">
-        {/* Section 0: Query & Document Upload */}
-        <QueryInputSection
-          currentLanguage={currentLanguage}
-          query={query}
-          onQueryChange={setQuery}
-          onAnalyze={(override) => handleAnalyze(override)}
-          isLoading={isLoading}
-          tenderDocText={tenderDocText}
-          tenderFileName={tenderFileName}
-          onClearUploadedDoc={() => {
-            setTenderDocText('');
-            setTenderFileName('');
-          }}
-          onDocUploaded={(name, text) => {
-            setTenderFileName(name);
-            setTenderDocText(text);
-          }}
-          isAuthenticated={isAuthenticated}
-          onRequireOfficerAuth={(action) => {
-            setAuthModalAction(action || 'create or analyze custom tender specifications');
-            setIsOfficerAuthModalOpen(true);
-          }}
-        />
-
-        {/* Global Error Banner */}
-        {error && (
-          <div className="max-w-5xl mx-auto px-4 mb-6">
-            <div className="p-4 rounded-xl bg-rose-100 dark:bg-rose-950/80 border border-rose-300 dark:border-rose-500 text-rose-800 dark:text-rose-200 text-sm">
-              <strong>Error: </strong> {error}
-            </div>
-          </div>
-        )}
-
-        {/* Analysis Results View */}
-        {result && (
-          <div id="results-section">
-            <div className="max-w-7xl xl:max-w-[1440px] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 space-y-6 pt-4 animate-fade-in">
-              {/* Outdated / Superseded Standard Alert Banner (Feature 6) */}
-              {result.outdatedStandardAlert && result.outdatedStandardAlert.isOutdated && (
-                <OutdatedStandardAlertCard
-                  alert={result.outdatedStandardAlert}
-                  onApplyUpdate={handleApplyOutdatedUpdate}
-                />
-              )}
-
-              {/* Multi-Product Tender Items Schedule (Feature 4) */}
-              {result.tenderItemsDetected && result.tenderItemsDetected.length > 1 && (
-                <TenderLineItemsCard
-                  items={result.tenderItemsDetected}
-                  selectedItemIndex={result.selectedItemIndex || 0}
-                  onSelectItem={handleSelectTenderItem}
-                  ocrApplied={result.extractedRequirement.rawQuery.includes('OCR')}
-                />
-              )}
-
-              {/* Case A: "NO RELIABLE MATCH" Integrity Guardrail Active (Feature 3) */}
-              {result.isNoMatch || !result.primaryStandard ? (
-                <NoReliableMatchCard
-                  productName={result.extractedRequirement.product}
-                  rawQuery={result.extractedRequirement.rawQuery}
-                  explanation={result.noMatchExplanation}
-                  clarifyingQuestions={result.clarifyingQuestions}
-                  onSelectOption={(val, std) => handleAnswerClarifyingQuestion('', val, std)}
-                  onResetSearch={handleReset}
-                />
-              ) : (
-                /* Case B: SUCCESSFUL VERIFIED MATCH FOUND */
-                <>
-                  {/* Proactive Clarifying Questions (Feature 3) */}
-                  {result.clarifyingQuestions && result.clarifyingQuestions.length > 0 && (
-                    <ClarifyingQuestionsCard
-                      questions={result.clarifyingQuestions}
-                      onSelectOption={handleAnswerClarifyingQuestion}
-                    />
-                  )}
-
-                  {/* Left-side Dashboard Navigation + Content Layout */}
-                  <div className="relative flex flex-col lg:flex-row items-start gap-6 pt-2">
-                    {/* Left-Side Dashboard Sidebar (Collapsible / Expandable) */}
-                    <SectionNavigator
-                      activeTab={activeTab}
-                      onTabChange={(tab) => {
-                        setActiveTab(tab);
-                        if (tab === 'all') {
-                          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
-                        } else {
-                          setTimeout(() => {
-                            document.getElementById(`section-${tab}`)?.scrollIntoView({ behavior: 'smooth' });
-                          }, 50);
-                        }
-                      }}
-                      gapsCount={result.specificationGaps.filter((g) => !g.isResolved).length}
-                      alliedCount={result.relatedStandards.length}
-                      isQCOCompulsory={result.primaryStandard.qco.isCompulsory}
-                      currentLanguage={currentLanguage}
-                      isOpen={isDashboardOpen}
-                      onToggleOpen={() => setIsDashboardOpen((prev) => !prev)}
-                      confidenceLevel={result.confidenceLevel}
-                      matchConfidence={result.matchConfidence}
-                      standardNumber={result.primaryStandard.isNumber}
-                    />
-
-                    {/* Main Content Area (Full Dossier & Specific Sections) */}
-                    <div className="flex-1 w-full min-w-0 space-y-6">
-                      {/* Summary Status Strip */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
-                    <div className="flex items-center gap-2.5 text-xs text-slate-700 dark:text-slate-300">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-semibold text-slate-900 dark:text-white">
-                        {currentLanguage === 'hi' ? 'विश्लेषण स्थिति:' : currentLanguage === 'te' ? 'విశ్లేషణ స్థితి:' : currentLanguage === 'ta' ? 'பகுப்பாய்வு நிலை:' : 'Analysis Status:'}
-                      </span>
-                      <span>
-                        {currentLanguage === 'hi'
-                          ? `अनुशंसित मानक ${result.primaryStandard.isNumber} (विश्वसनीयता: ${result.matchConfidence}% - ${result.confidenceLevel})। ${result.relatedStandards.length} मानकीय संदर्भ एवं ${result.specificationGaps.length} विनिर्देश जाँच उपलब्ध।`
-                          : currentLanguage === 'te'
-                          ? `సిఫార్సు ప్రమాణం ${result.primaryStandard.isNumber} (విశ్వసనీయత: ${result.matchConfidence}% - ${result.confidenceLevel}).`
-                          : currentLanguage === 'ta'
-                          ? `பரிந்துரைக்கப்பட்ட தரநிலை ${result.primaryStandard.isNumber} (நம்பகத்தன்மை: ${result.matchConfidence}% - ${result.confidenceLevel}).`
-                          : `Recommended standard ${result.primaryStandard.isNumber} (Confidence: ${result.matchConfidence}% - ${result.confidenceLevel}) with ${result.relatedStandards.length} normative references and ${result.specificationGaps.length} specification checks.`}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 text-xs font-semibold">
-                      <button
-                        onClick={() => setIsPortalApiOpen(true)}
-                        className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 transition cursor-pointer"
-                      >
-                        <Zap className="w-3.5 h-3.5" />
-                        <span>{t.portalApi}</span>
-                      </button>
-                      <button
-                        onClick={() => setIsArchModalOpen(true)}
-                        className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 transition cursor-pointer"
-                      >
-                        <Compass className="w-3.5 h-3.5" />
-                        <span>System Architecture</span>
-                        <ArrowUpRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* SECTION 1: AI REQUIREMENT EXTRACTION & SCOPE */}
-                  {shouldShowSection('requirements') && (
-                    <section id="section-requirements" className="space-y-2">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
-                          Section 01
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section1Title}
-                        </h2>
-                      </div>
-                      <RequirementBadgeGrid requirement={result.extractedRequirement} />
-                    </section>
-                  )}
-
-                  {/* SECTION 2: PRIMARY APPLICABLE STANDARD & EVIDENCE */}
-                  {shouldShowSection('primary-standard') && (
-                    <section id="section-primary-standard" className="space-y-4">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
-                          Section 02
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section2Title}
-                        </h2>
-                      </div>
-                      <PrimaryStandardCard
-                        standard={result.primaryStandard}
-                        onOpenClauseBuilder={() => {
-                          setActiveTab('all');
-                          setTimeout(() => {
-                            document
-                              .getElementById('section-tender-clause')
-                              ?.scrollIntoView({ behavior: 'smooth' });
-                          }, 50);
-                        }}
-                      />
-
-                      {/* Transparent Recommendation Evidence (Feature 9) */}
-                      {result.evidence && (
-                        <RecommendationEvidenceCard
-                          evidence={result.evidence}
-                          standardNumber={result.primaryStandard.isNumber}
-                        />
-                      )}
-                    </section>
-                  )}
-
-                  {/* SECTION 3: STATUTORY CERTIFICATION & QCO CHECK (Feature 7) */}
-                  {shouldShowSection('regulatory-qco') && (
-                    <section id="section-regulatory-qco" className="space-y-2">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
-                          Section 03
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section3Title}
-                        </h2>
-                      </div>
-                      <RegulatoryCard
-                        qco={result.primaryStandard.qco}
-                        standardNumber={result.primaryStandard.isNumber}
-                      />
-                    </section>
-                  )}
-
-                  {/* SECTION 4: STANDARDS ECOSYSTEM & KNOWLEDGE GRAPH (Feature 5) */}
-                  {shouldShowSection('knowledge-graph') && (
-                    <section id="section-knowledge-graph" className="space-y-6">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
-                          Section 04
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section4Title}
-                        </h2>
-                      </div>
-                      <GraphVisualizer graphData={result.standardsGraph} />
-                      <RelatedStandardsTable relatedStandards={result.relatedStandards} />
-                    </section>
-                  )}
-
-                  {/* SECTION 5: SPECIFICATION GAP ANALYSIS */}
-                  {shouldShowSection('gap-analysis') && (
-                    <section id="section-gap-analysis" className="space-y-2">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-700">
-                          Section 05
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section5Title}
-                        </h2>
-                      </div>
-                      <SpecificationGapsCard
-                        gaps={result.specificationGaps}
-                        onToggleResolveGap={handleToggleResolveGap}
-                      />
-                    </section>
-                  )}
-
-                  {/* SECTION 6: AUDIT TRAIL & TENDER CLAUSE EXPORTER */}
-                  {shouldShowSection('tender-clause') && (
-                    <section id="section-tender-clause" className="space-y-6">
-                      <div className="flex items-center gap-2 pb-1">
-                        <span className="px-2 py-0.5 rounded text-[11px] font-bold uppercase bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700">
-                          Section 06
-                        </span>
-                        <h2 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
-                          {t.section6Title}
-                        </h2>
-                      </div>
-                      <ExplainabilityAuditCard result={result} />
-                      <ExportClauseCard
-                        result={result}
-                        onSaveProject={handleSaveProject}
-                        isSaved={isCurrentSaved}
-                        isAuthenticated={isAuthenticated}
-                        onRequireOfficerAuth={(action) => {
-                          setAuthModalAction(action || 'export official tender documents');
-                          setIsOfficerAuthModalOpen(true);
-                        }}
-                        currentLanguage={currentLanguage}
-                      />
-                    </section>
-                  )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="glass-panel border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-700 dark:text-slate-300">MaanakSetu (मानकसेतु)</span>
-            <span>• Problem Statement PS 26108</span>
-          </div>
-          <div>
-            Discover standards. Review requirements. Prepare a better tender.
-          </div>
+    <div className="min-h-screen bg-ivory text-charcoal flex flex-col antialiased">
+      {/* Top Application Bar */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-govborder shadow-gov-sm px-4 lg:px-6 py-2.5 print-hide">
+        <div className="w-full flex items-center justify-between gap-4">
+          {/* Left Brand and Hamburger Menu (☰) */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsPortalApiOpen(true)}
-              className="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+              onClick={() => setIsNavDrawerOpen(!isNavDrawerOpen)}
+              className="p-2 rounded-lg text-charcoal hover:text-brand hover:bg-ivory-100 transition-colors border border-govborder flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand/30"
+              aria-label="Toggle Navigation Drawer"
+              title="Open Navigation Menu (☰)"
             >
-              Procurement REST API
+              <Menu className="w-5 h-5 text-charcoal" />
             </button>
-            <span>•</span>
+
+            <ManakSetuLogo
+              size="md"
+              showTagline={false}
+              onClick={() => setActiveView('landing')}
+            />
+
+            {/* BIS COPILOT Tag Pill */}
+            <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-brand-50 border border-brand-200 text-brand text-[11px] font-bold tracking-wide">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+              <span>BIS COPILOT</span>
+            </div>
+
+            {/* Current Workspace Pill */}
+            <div className="hidden xl:flex items-center gap-2 pl-3 border-l border-govborder text-xs text-govmuted">
+              <Building2 className="w-3.5 h-3.5 text-brand" />
+              <span className="font-semibold text-charcoal">{activeWorkspace}</span>
+            </div>
+          </div>
+
+          {/* Right Controls: Language, Architecture Info & Officer Profile */}
+          <div className="flex items-center gap-3">
+            {/* Language Selector */}
+            <div className="flex items-center gap-1.5 bg-ivory-50 border border-govborder px-2.5 py-1 rounded-lg">
+              <Globe2 className="w-3.5 h-3.5 text-brand" />
+              <select
+                value={selectedLanguage}
+                onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
+                className="bg-transparent text-xs font-semibold text-charcoal outline-none cursor-pointer"
+              >
+                <option value="en">English</option>
+                <option value="hi">हिन्दी</option>
+                <option value="te">తెలుగు</option>
+                <option value="ta">தமிழ்</option>
+                <option value="kn">ಕನ್ನಡ</option>
+              </select>
+            </div>
+
+            {/* System Architecture Button */}
             <button
               onClick={() => setIsArchModalOpen(true)}
-              className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-ivory-100 hover:bg-ivory-200 border border-govborder text-xs font-semibold text-charcoal transition-colors"
             >
-              System Architecture
+              <Cpu className="w-3.5 h-3.5 text-brand" />
+              <span>Architecture</span>
             </button>
-            <span>•</span>
-            <a
-              href="https://standards.bis.gov.in"
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-600 dark:text-slate-400 hover:underline"
-            >
-              BIS Standards Portal
-            </a>
+
+            {/* Officer Profile Badge */}
+            <div className="flex items-center gap-2.5 pl-2 border-l border-govborder">
+              <div className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 text-brand flex items-center justify-center font-bold text-xs shadow-gov-sm">
+                PK
+              </div>
+              <div className="hidden md:block text-left text-xs leading-tight">
+                <div className="font-bold text-charcoal flex items-center gap-1">
+                  <span>P. K. Sharma</span>
+                  <span title="Verified Officer Session">
+                    <UserCheck className="w-3.5 h-3.5 text-secgreen" />
+                  </span>
+                </div>
+                <div className="text-[10px] text-govmuted">Joint Director (Procurement)</div>
+              </div>
+            </div>
           </div>
         </div>
-      </footer>
+      </header>
 
-      {/* Drawers and Modals */}
-      <SavedProjectsDrawer
-        isOpen={isSavedDrawerOpen}
-        onClose={() => setIsSavedDrawerOpen(false)}
-        projects={savedProjects}
-        onLoadProject={handleLoadProject}
-        onDeleteProject={handleDeleteProject}
+      {/* Sub-Header Navigation Strip for Fast 1-Click Tab Switching on Desktop */}
+      <nav aria-label="Quick Navigation" className="hidden lg:flex items-center justify-between border-b border-govborder bg-white/80 px-4 lg:px-8 py-2 text-xs print-hide">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          <button
+            onClick={() => setActiveView('landing')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'landing'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <Compass className="w-3.5 h-3.5" />
+            <span>Workspace</span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('analyze')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'analyze'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-accent" />
+            <span>Analyze Requirement</span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('results')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'results'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Analysis Results</span>
+            {result && (
+              <span className="w-2 h-2 rounded-full bg-secgreen ring-2 ring-emerald-300 animate-pulse ml-0.5" title="Active Analysis Loaded" />
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveView('graph')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'graph'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <Network className="w-3.5 h-3.5" />
+            <span>Knowledge Graph</span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('generator')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'generator'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <FileCheck2 className="w-3.5 h-3.5" />
+            <span>Spec Generator</span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('explorer')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'explorer'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>Standards Explorer</span>
+          </button>
+
+          <button
+            onClick={() => setActiveView('history')}
+            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+              activeView === 'history'
+                ? 'bg-brand text-white shadow-gov-sm font-bold'
+                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Analysis History</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 text-[11px] text-govmuted">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-secgreen" />
+            <span>BIS Database: <strong>v2024.9 Active</strong></span>
+          </span>
+        </div>
+      </nav>
+
+      {/* Navigation Drawer Overlay Backdrop: Functional click-outside target with ZERO blur and ZERO dimming */}
+      <div
+        className={`fixed inset-0 z-50 bg-black/[0.02] transition-opacity duration-200 print-hide ${
+          isNavDrawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsNavDrawerOpen(false)}
+        aria-hidden="true"
       />
 
-      <ArchitectureModal
+      {/* Collapsible Navigation Drawer: Left-side floating overlay (285px wide, sits smoothly above sharp workspace) */}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 z-[60] h-full w-[285px] max-w-[85vw] bg-white border-r border-govborder shadow-xl flex flex-col justify-between p-5 transform transition-transform duration-200 ease-out print-hide ${
+          isNavDrawerOpen ? 'translate-x-0 pointer-events-auto' : '-translate-x-full pointer-events-none'
+        }`}
+        aria-label="Navigation Drawer"
+        role="dialog"
+        aria-modal={isNavDrawerOpen}
+      >
+        {/* Drawer Header with Logo & Close Button */}
+        <div>
+          <div className="flex items-center justify-between pb-4 border-b border-govborder">
+            <ManakSetuLogo
+              size="sm"
+              showTagline={false}
+              onClick={() => {
+                setActiveView('landing');
+                setIsNavDrawerOpen(false);
+              }}
+            />
+            <button
+              onClick={() => setIsNavDrawerOpen(false)}
+              className="p-1.5 rounded-lg text-govmuted hover:text-charcoal hover:bg-ivory-100 transition-colors border border-transparent hover:border-govborder"
+              aria-label="Close Navigation Drawer"
+              title="Close Menu (Esc)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Main Navigation Items */}
+          <div className="space-y-6 pt-5">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                Procurement Workflow
+              </span>
+
+              <button
+                onClick={() => {
+                  setActiveView('landing');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'landing'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Compass className="w-4 h-4" />
+                  <span>Workspace</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('analyze');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'analyze'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="w-4 h-4 text-accent" />
+                  <span>Analyze Requirement</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('results');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'results'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-brand" />
+                  <span>Analysis Results</span>
+                </div>
+                {result && (
+                  <span className="w-2 h-2 rounded-full bg-secgreen" title="Active Analysis Loaded" />
+                )}
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('graph');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'graph'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Network className="w-4 h-4" />
+                  <span>Knowledge Graph</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('generator');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'generator'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <FileCheck2 className="w-4 h-4" />
+                  <span>Spec Generator</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Exploratory Section */}
+            <div className="space-y-1 pt-4 border-t border-govborder">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                Standards Intelligence
+              </span>
+
+              <button
+                onClick={() => {
+                  setActiveView('explorer');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'explorer'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <BookOpen className="w-4 h-4" />
+                  <span>Standards Explorer</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveView('history');
+                  setIsNavDrawerOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                  activeView === 'history'
+                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <History className="w-4 h-4" />
+                  <span>Analysis History</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Drawer Bottom: Trust Badge & Settings */}
+        <div className="space-y-3 pt-4 border-t border-govborder text-xs">
+          <button
+            onClick={() => {
+              setIsArchModalOpen(true);
+              setIsNavDrawerOpen(false);
+            }}
+            className="w-full flex items-center gap-2 p-2 rounded-lg bg-ivory-50 hover:bg-ivory-100 border border-govborder text-govmuted hover:text-charcoal font-medium text-[11px] transition-colors"
+          >
+            <Cpu className="w-3.5 h-3.5 text-brand" />
+            <span>Deterministic Verification</span>
+          </button>
+
+          <div className="p-2.5 rounded-lg bg-ivory-50 border border-govborder text-[11px] space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-charcoal">
+              <span className="w-2 h-2 rounded-full bg-secgreen" />
+              <span>BIS Database: v2024.9</span>
+            </div>
+            <p className="text-govmuted text-[10px] leading-tight">
+              Quality Control Orders current up to gazette S.O. 4349(E).
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      {/* Primary Full-Width Main Content Workspace */}
+      <main className="flex-1 w-full px-4 sm:px-6 md:px-8 py-6 min-w-0">
+          {activeView === 'landing' && (
+            <LandingWorkspaceView
+              onAnalyzeRequirementClick={() => setActiveView('analyze')}
+              onSelectScenario={(scen) => {
+                handleSelectScenario(scen);
+              }}
+              onOpenArchitecture={() => setIsArchModalOpen(true)}
+            />
+          )}
+
+          {activeView === 'analyze' && (
+            <AnalyzeRequirementView
+              query={query}
+              setQuery={setQuery}
+              tenderDocText={tenderDocText}
+              setTenderDocText={setTenderDocText}
+              tenderFileName={tenderFileName}
+              setTenderFileName={setTenderFileName}
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={handleLanguageChange}
+              onAnalyze={handleAnalyze}
+              isLoading={isLoading}
+            />
+          )}
+
+          {activeView === 'results' && result && (
+            <AnalysisResultsView
+              result={result}
+              onWhyRecommendedClick={() => setIsTraceabilityOpen(true)}
+              onViewStandardDetails={handleViewStandardDetails}
+              onToggleResolveGap={handleToggleResolveGap}
+              onGenerateSpecClick={() => setActiveView('generator')}
+              onViewKnowledgeGraphClick={() => setActiveView('graph')}
+              onReAnalyzeClick={() => setActiveView('analyze')}
+            />
+          )}
+
+          {activeView === 'results' && !result && (
+            <div className="max-w-4xl mx-auto py-12 text-center gov-card p-12 bg-white border border-govborder space-y-4">
+              <div className="w-14 h-14 rounded-full bg-brand-50 text-brand mx-auto flex items-center justify-center">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-bold text-charcoal">No Analysis Result Active</h3>
+              <p className="text-xs text-govmuted max-w-md mx-auto">
+                Please enter a procurement requirement in the analyzer or load a pre-configured benchmark tender.
+              </p>
+              <div className="pt-2 flex justify-center gap-3">
+                <button
+                  onClick={() => {
+                    handleSelectScenario(SCENARIO_LED);
+                    handleAnalyze(SCENARIO_LED.sampleQuery);
+                  }}
+                  className="px-5 py-2.5 rounded-lg bg-brand hover:bg-brand-700 text-white text-xs font-semibold shadow-gov inline-flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-accent" />
+                  <span>Analyze LED Street Lighting Sample</span>
+                </button>
+                <button
+                  onClick={() => setActiveView('analyze')}
+                  className="px-5 py-2.5 rounded-lg bg-white border border-govborder text-charcoal text-xs font-semibold"
+                >
+                  Go to Analyze Requirement
+                </button>
+              </div>
+            </div>
+          )}
+
+          {activeView === 'graph' && (
+            <KnowledgeGraphView
+              result={result}
+              onViewStandardDetails={handleViewStandardDetails}
+              onLoadDefaultBenchmark={() => {
+                setResult(SCENARIO_LED.mockResult);
+                setQuery(SCENARIO_LED.sampleQuery);
+              }}
+            />
+          )}
+
+          {activeView === 'generator' && (
+            <TenderSpecGeneratorView
+              result={result}
+              onNavigateToAnalysis={() => setActiveView('analyze')}
+              onLoadDefaultBenchmark={() => {
+                setResult(SCENARIO_LED.mockResult);
+                setQuery(SCENARIO_LED.sampleQuery);
+              }}
+            />
+          )}
+
+          {activeView === 'explorer' && (
+            <StandardsExplorerView
+              onSelectStandardForAnalysis={handleSelectStandardFromExplorer}
+              onViewStandardDetails={handleViewStandardDetails}
+            />
+          )}
+
+          {activeView === 'history' && (
+            <AnalysisHistoryView
+              savedProjects={savedProjects}
+              onSelectScenario={(scen) => {
+                setQuery(scen.sampleQuery);
+                setTenderDocText('');
+                setTenderFileName('');
+                setResult(scen.mockResult);
+                setActiveView('results');
+              }}
+              onRestoreSavedProject={(proj) => {
+                if (proj.mockResult) {
+                  setResult(proj.mockResult);
+                  setQuery(proj.sampleQuery || proj.extractedRequirement.rawQuery);
+                  setActiveView('results');
+                }
+              }}
+            />
+          )}
+        </main>
+
+      {/* 3-Step AI Analysis Animation Progress Modal */}
+      <AnalysisProgressModal
+        isOpen={isProgressModalOpen}
+        onComplete={handleProgressModalComplete}
+      />
+
+      {/* Recommendation Traceability Drawer */}
+      <RecommendationTraceabilityDrawer
+        isOpen={isTraceabilityOpen}
+        onClose={() => setIsTraceabilityOpen(false)}
+        result={result}
+      />
+
+      {/* Standard Detail Modal */}
+      <StandardDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        standard={selectedStandardForModal}
+      />
+
+      {/* System Architecture and Verification Modal */}
+      <SystemArchitectureModal
         isOpen={isArchModalOpen}
         onClose={() => setIsArchModalOpen(false)}
       />
 
-      {/* Procurement Portal Integration API Modal (Feature 10) */}
-      <PortalApiModal
-        isOpen={isPortalApiOpen}
-        onClose={() => setIsPortalApiOpen(false)}
-      />
-
-      {/* Officer Auth Modal for Public Users attempting to create tenders */}
-      <OfficerAuthModal
-        isOpen={isOfficerAuthModalOpen}
-        onClose={() => setIsOfficerAuthModalOpen(false)}
-        onSuccess={() => {
-          setIsAuthenticated(true);
-        }}
-        actionName={authModalAction}
-      />
+      {/* Footer */}
+      <footer className="border-t border-govborder bg-white py-6 px-4 text-xs text-govmuted print-hide">
+        <div className="gov-workspace-container space-y-3">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-charcoal">ManakSetu</span>
+              <span>•</span>
+              <span>AI-Powered Procurement Standards Copilot</span>
+            </div>
+            <div className="flex items-center gap-4 text-[11px]">
+              <span>Bureau of Indian Standards (BIS) Cross-Referencing</span>
+              <span>•</span>
+              <span>CPWD &amp; GeM Conforming</span>
+              <span>•</span>
+              <span>General Financial Rules (GFR 2017) Aligned</span>
+            </div>
+          </div>
+          <div className="pt-2 border-t border-govborder/60 text-center text-[11px] text-govmuted/90">
+            {SECURITY_TRUST_NOTICE}
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

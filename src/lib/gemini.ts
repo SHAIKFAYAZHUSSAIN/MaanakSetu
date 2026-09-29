@@ -208,6 +208,17 @@ function heuristicExtract(text: string): ExtractedRequirement {
     domain = 'Healthcare & Medical Devices';
     application = 'Patient Mobility and Hospital Transport';
   } else if (
+    lower.includes('helmet') ||
+    lower.includes('hard hat') ||
+    lower.includes('हेलमेट') ||
+    lower.includes('హెల్మెట్') ||
+    lower.includes('தலைக்கவசம்') ||
+    lower.includes('ಹೆಲ್ಮೆಟ್')
+  ) {
+    product = 'Industrial Safety Helmet';
+    domain = 'Healthcare & Safety PPE';
+    application = 'Occupational Head Protection for Construction & Industrial Worksites';
+  } else if (
     lower.includes('n95') ||
     lower.includes('mask') ||
     lower.includes('ffp2') ||

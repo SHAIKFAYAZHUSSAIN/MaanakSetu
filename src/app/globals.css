@@ -3,118 +3,120 @@
 @tailwind utilities;
 
 :root {
-  --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --bg-ivory: #F7F5EF;
+  --bg-surface: #FFFFFF;
+  --brand-emerald: #0F766E;
+  --sec-green: #15803D;
+  --accent-gold: #D97706;
+  --text-charcoal: #17201D;
+  --text-muted: #64706B;
+  --border-gov: #DDE3DE;
 }
 
-/* Light Mode Defaults */
-html.light body,
-body {
-  background-color: #f8fafc;
-  color: #0f172a;
+html, body {
+  background-color: #F7F5EF;
+  color: #17201D;
   font-family: var(--font-inter);
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark Mode Overrides */
-html.dark body {
-  background-color: #0b1120;
-  color: #f1f5f9;
+/* Institutional Ivory Gradient Background */
+.bg-ivory-gradient {
+  background: linear-gradient(180deg, #F7F5EF 0%, #FAF8F4 50%, #F0FDF4 100%);
 }
 
-/* Glassmorphism Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+.bg-hero-pattern {
+  background-color: #F7F5EF;
+  background-image: radial-gradient(#DDE3DE 0.75px, transparent 0.75px), radial-gradient(#DDE3DE 0.75px, #F7F5EF 0.75px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
 }
 
-html.dark .glass-panel {
-  background: rgba(17, 24, 39, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+/* Enterprise Gov Cards */
+.gov-card {
+  background-color: #FFFFFF;
+  border: 1px solid #DDE3DE;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px -1px rgba(23, 32, 29, 0.05), 0 1px 3px -1px rgba(23, 32, 29, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.glass-card {
-  background: #ffffff;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+.gov-card-interactive:hover {
+  border-color: #0F766E;
+  box-shadow: 0 8px 24px -4px rgba(15, 118, 110, 0.12), 0 2px 6px -2px rgba(23, 32, 29, 0.04);
+  transform: translateY(-1px);
 }
 
-html.dark .glass-card {
-  background: rgba(30, 41, 59, 0.65);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.3);
+/* Responsive Professional Enterprise Workspace Container */
+.gov-workspace-container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 100%;
 }
 
-.glass-card-hover {
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+@media (min-width: 1280px) {
+  .gov-workspace-container {
+    max-width: 1280px;
+  }
 }
 
-.glass-card-hover:hover {
-  transform: translateY(-2px);
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.12);
+@media (min-width: 1440px) {
+  .gov-workspace-container {
+    max-width: 1480px;
+  }
 }
 
-html.dark .glass-card-hover:hover {
-  border-color: rgba(96, 165, 250, 0.35);
-  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(59, 130, 246, 0.2);
+@media (min-width: 1600px) {
+  .gov-workspace-container {
+    max-width: 1520px;
+  }
 }
 
-/* Glowing Accents */
-.glow-saffron {
-  box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25);
+/* Subtle Gov Focus */
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid #0F766E;
+  outline-offset: 2px;
 }
 
-.glow-blue {
-  box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.25);
-}
-
-.glow-green {
-  box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
-}
-
-/* Custom Scrollbars */
+/* Clean Institutional Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-html.dark ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #EFECE2;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-html.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #C8D1CE;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #0F766E;
 }
 
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-/* Presentation polish: readable supporting copy and visible keyboard focus. */
-#results-section .glass-card .text-xs { font-size: 0.8125rem; line-height: 1.6; }
-#results-section section { scroll-margin-top: 9rem; }
-button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid #60a5fa; outline-offset: 4px; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+/* Print Styles for PDF / Tender Export */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  .no-print, header, aside, nav, .print-hide {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .gov-card {
+    box-shadow: none !important;
+    border: 1px solid #CCCCCC !important;
+    page-break-inside: avoid;
+  }
 }

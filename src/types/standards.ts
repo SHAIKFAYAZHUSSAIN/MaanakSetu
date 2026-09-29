@@ -98,7 +98,7 @@ export interface IndianStandard {
   testingLaboratoriesAvailable: number;
   schemesOfTesting: string;
   officialSourceUrl: string;
-  lastVerifiedDate: string; // YYYY-MM-DD
-  applicabilityEvidence: string;
+  lastVerifiedDate?: string; // YYYY-MM-DD
+  applicabilityEvidence?: string;
   uncertaintyNotes?: string;
 }

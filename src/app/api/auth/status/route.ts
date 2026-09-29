@@ -10,5 +10,8 @@ export async function GET(req: NextRequest) {
     authenticated: isAuth,
     role: isAuth ? 'officer' : 'guest',
     email: isAuth ? (process.env.AUTH_LOGIN_EMAIL || 'officer@maanaksetu.demo') : null,
+    officerName: isAuth ? 'P. K. Sharma' : null,
+    officerDesignation: isAuth ? 'Joint Director (Procurement)' : null,
+    officerDepartment: isAuth ? 'GeM & CPPP Standards Scrutiny Cell' : null,
   });
 }
