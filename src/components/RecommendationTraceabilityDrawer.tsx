@@ -162,7 +162,7 @@ export default function RecommendationTraceabilityDrawer({
           </div>
 
           <div className="p-2 rounded bg-ivory-50 text-[10px] text-govmuted leading-normal">
-            <strong>Traceability Protocol:</strong> Click &ldquo;Open official source&rdquo; to query active BIS registers directly. ManakSetu does not display simulated or fake verification dates.
+            <strong>Traceability Protocol:</strong> Click &ldquo;Open official source&rdquo; to query active BIS registers directly. MaanakSetu does not display simulated or fake verification dates.
           </div>
         </div>
       ),

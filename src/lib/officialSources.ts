@@ -178,7 +178,7 @@ export interface SourceProvenance {
  * Standard Security / Trust Notice
  */
 export const SECURITY_TRUST_NOTICE =
-  'ManakSetu provides standards intelligence and procurement decision support. Official BIS and regulatory sources should be consulted for final verification before procurement issuance.';
+  'MaanakSetu provides standards intelligence and procurement decision support. Official BIS and regulatory sources should be consulted for final verification before procurement issuance.';
 
 /**
  * Honest Verification Status Text (Do not display fake dates)
@@ -208,7 +208,7 @@ export function getStandardProvenance(
  */
 export function getDemoKnowledgeBaseProvenance(): SourceProvenance {
   return {
-    sourceName: 'ManakSetu Demonstration Knowledge Base',
+    sourceName: 'MaanakSetu Demonstration Knowledge Base',
     sourceUrl: OFFICIAL_PORTALS.BIS_STANDARDS_PORTAL.url,
     classification: 'DEMO KNOWLEDGE BASE',
     statusText: 'REQUIRES OFFICIAL VERIFICATION',

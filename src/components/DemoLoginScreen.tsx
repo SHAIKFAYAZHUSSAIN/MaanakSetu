@@ -113,7 +113,7 @@ export default function DemoLoginScreen({ onLoginSuccess }: DemoLoginScreenProps
               
               <div className="flex items-center justify-center gap-2">
                 <h1 className="text-xl font-extrabold tracking-tight text-charcoal dark:text-white">
-                  MANAKSETU
+                  MaanakSetu
                 </h1>
                 <span className="px-2 py-0.5 rounded bg-brand-50 dark:bg-brand-900/40 text-brand dark:text-brand-300 text-[10px] font-bold border border-brand-200 dark:border-brand-700">
                   BIS COPILOT

@@ -104,7 +104,7 @@ export default function ManakSetuLogo({
       <div className="flex flex-col">
         <div className="flex items-center gap-2">
           <span className={`font-bold tracking-tight text-charcoal leading-none ${textClasses[size]}`}>
-            Manak<span className="text-brand">Setu</span>
+            Maanak<span className="text-brand">Setu</span>
           </span>
           <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-brand-50 text-brand border border-brand-200">
             BIS Copilot

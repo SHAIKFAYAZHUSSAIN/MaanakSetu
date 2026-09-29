@@ -121,7 +121,7 @@ export default function AnalyzeRequirementView({
         </h2>
         <p className="text-sm text-govmuted max-w-2xl font-normal">
           Enter an item description, upload tender schedule of requirements, or provide a natural language specification.
-          ManakSetu identifies mandatory Indian Standards, QCO orders, and specification gaps.
+          MaanakSetu identifies mandatory Indian Standards, QCO orders, and specification gaps.
         </p>
       </div>
 
@@ -208,7 +208,7 @@ export default function AnalyzeRequirementView({
                 </h4>
                 <p className="text-xs text-govmuted max-w-sm mx-auto mb-3 font-normal">
                   Supported formats: <strong>PDF</strong>, <strong>DOCX</strong>, <strong>TXT</strong> up to 25MB.
-                  ManakSetu parses multiple line items and schedules automatically.
+                  MaanakSetu parses multiple line items and schedules automatically.
                 </p>
                 <button
                   type="button"

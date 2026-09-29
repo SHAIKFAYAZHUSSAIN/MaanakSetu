@@ -74,7 +74,7 @@ export default function SystemArchitectureModal({ isOpen, onClose }: SystemArchi
             </div>
             <div>
               <h3 className="text-lg font-bold text-charcoal">System Architecture & Verification Methodology</h3>
-              <p className="text-xs text-govmuted">How ManakSetu ensures traceable, hallucination-free recommendations</p>
+              <p className="text-xs text-govmuted">How MaanakSetu ensures traceable, hallucination-free recommendations</p>
             </div>
           </div>
           <button
@@ -91,7 +91,7 @@ export default function SystemArchitectureModal({ isOpen, onClose }: SystemArchi
           <div className="p-4 rounded-lg bg-brand-50 border border-brand-200 text-brand space-y-1">
             <span className="font-bold block text-sm">Core Engineering Principle: Evidence Over Generative Guesswork</span>
             <p className="text-govmuted text-xs leading-relaxed font-normal">
-              Public procurement cannot tolerate AI hallucinations. ManakSetu links every recommendation to a verified
+              Public procurement cannot tolerate AI hallucinations. MaanakSetu links every recommendation to a verified
               clause in the active BIS standards database and official government gazette notifications.
             </p>
           </div>

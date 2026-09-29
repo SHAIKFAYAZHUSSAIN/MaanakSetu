@@ -76,7 +76,7 @@ export default function TenderSpecGeneratorView({
     const element = document.createElement('a');
     const file = new Blob([fullTextClause], { type: 'text/plain;charset=utf-8' });
     element.href = URL.createObjectURL(file);
-    element.download = `ManakSetu_Spec_${primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    element.download = `MaanakSetu_Spec_${primaryStandard.isNumber.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -146,7 +146,7 @@ export default function TenderSpecGeneratorView({
             Schedule of Technical Requirements & Standards Compliance
           </h3>
           <div className="text-xs text-brand font-semibold">
-            Drafted via ManakSetu AI Standards Copilot • Reference No: MS-2026/{primaryStandard.isNumber.split(' ')[1] || 'TNDR'}
+            Drafted via MaanakSetu AI Standards Copilot • Reference No: MS-2026/{primaryStandard.isNumber.split(' ')[1] || 'TNDR'}
           </div>
           <div className="text-[11px] text-govmuted font-mono pt-1">
             Date of Generation: {todayStr} • Status: Standards-Aware Draft

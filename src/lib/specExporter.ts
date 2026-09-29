@@ -181,7 +181,7 @@ export function buildOfficialTenderSpecificationClause(
   const lines: string[] = [
     '================================================================================',
     'GOVERNMENT OF INDIA / PUBLIC SECTOR ENTERPRISE PROCUREMENT SPECIFICATION',
-    `ManakSetu - AI Procurement Standards Copilot | Date: ${now}`,
+    `MaanakSetu - AI Procurement Standards Copilot | Date: ${now}`,
     '================================================================================',
     '',
     `TENDER ITEM: ${result.extractedRequirement.product.toUpperCase()}`,

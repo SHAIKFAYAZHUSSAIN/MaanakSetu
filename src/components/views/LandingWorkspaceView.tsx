@@ -35,7 +35,7 @@ export default function LandingWorkspaceView({
 
         {/* Subheading */}
         <p className="text-lg md:text-xl text-govmuted max-w-3xl mx-auto leading-relaxed font-normal">
-          ManakSetu analyzes tender requirements and maps them to applicable Indian Standards, allied references,
+          MaanakSetu analyzes tender requirements and maps them to applicable Indian Standards, allied references,
           certifications and regulatory requirements.
         </p>
 

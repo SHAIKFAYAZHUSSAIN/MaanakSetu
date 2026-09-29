@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'ManakSetu — From Tender Requirement to Standards-Ready Specification',
+  title: 'MaanakSetu — From Tender Requirement to Standards-Ready Specification',
   description:
     'AI procurement standards copilot for identifying applicable Indian Standards (IS), normative references, revision currency, and compulsory BIS/QCO regulatory compliance for government departments and PSUs.',
   keywords: [
-    'ManakSetu',
+    'MaanakSetu',
     'Bureau of Indian Standards',
     'Indian Standards',
     'BIS',

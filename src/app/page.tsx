@@ -861,7 +861,7 @@ export default function Home() {
         <div className="gov-workspace-container space-y-3">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-bold text-charcoal">ManakSetu</span>
+              <span className="font-bold text-charcoal">MaanakSetu</span>
               <span>•</span>
               <span>AI-Powered Procurement Standards Copilot</span>
             </div>
