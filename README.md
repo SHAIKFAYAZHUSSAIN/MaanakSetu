@@ -7,9 +7,34 @@
 [![Next.js 14](https://img.shields.io/badge/Next.js-14.2%20(App%20Router)-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.5-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSHAIKFAYAZHUSSAIN%2FMaanakSetu)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 > **"Transforming unstructured tender requirements into authoritative, standards-ready procurement specifications grounded in the Bureau of Indian Standards (BIS) Act, 2016 and General Financial Rules (GFR 2017) Rule 144(i)."**
+
+---
+
+## 🚀 Instant Deployment on Vercel
+
+MaanakSetu is fully pre-configured for zero-friction Vercel deployment:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FSHAIKFAYAZHUSSAIN%2FMaanakSetu)
+
+### Option A: 1-Click Web Deployment (Recommended)
+1. Navigate to **[vercel.com/new](https://vercel.com/new)**.
+2. Select your repository: **`SHAIKFAYAZHUSSAIN/MaanakSetu`**.
+3. Framework Preset: **`Next.js`** (auto-detected).
+4. *(Optional)* Add Environment Variables:
+   - `AUTH_LOGIN_EMAIL`: `officer@maanaksetu.demo`
+   - `AUTH_LOGIN_PASSWORD`: `password@123`
+   - `AUTH_SESSION_SECRET`: `HRZsCZkVletaAsT9VHHxxzv7aRXOvGe0I4RtzZHz25o6J1g3jDYQgN03iPIR8sJY`
+5. Click **Deploy**. Vercel will build and assign a live production URL (`https://maanaksetu.vercel.app`).
+
+### Option B: Terminal CLI Deployment
+```bash
+npx vercel login
+npx vercel --prod
+```
 
 ---
 
