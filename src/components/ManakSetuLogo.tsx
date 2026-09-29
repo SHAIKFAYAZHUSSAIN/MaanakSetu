@@ -102,10 +102,21 @@ export default function ManakSetuLogo({
 
       {/* Product Name & Tagline */}
       <div className="flex flex-col">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <span className={`font-bold tracking-tight text-charcoal leading-none ${textClasses[size]}`}>
             Maanak<span className="text-brand">Setu</span>
           </span>
+          {/* Official Ministry / Department Photo / Emblem */}
+          <div
+            className="inline-flex items-center rounded-md overflow-hidden bg-white/95 dark:bg-white/90 p-0.5 border border-govborder/80 shadow-2xs"
+            title="Department of Consumer Affairs • Bureau of Indian Standards"
+          >
+            <img
+              src="/official-emblem.png"
+              alt="Department of Consumer Affairs"
+              className="h-6 w-auto object-contain"
+            />
+          </div>
         </div>
         {showTagline && (
           <span className="text-xs text-govmuted tracking-normal mt-0.5 font-normal">

@@ -75,6 +75,9 @@ export default function Home() {
   const [isArchModalOpen, setIsArchModalOpen] = useState<boolean>(false);
   const [isNavDrawerOpen, setIsNavDrawerOpen] = useState<boolean>(false);
 
+  // Officer role state
+  const [officerRole, setOfficerRole] = useState<string>('Procurement Officer');
+
   // History & Saved tenders
   const [savedProjects, setSavedProjects] = useState<SavedTenderProject[]>([]);
 
@@ -106,8 +109,12 @@ export default function Home() {
         document.documentElement.classList.remove('dark');
       }
 
-      // 2. Demo Auth
+      // 2. Demo Auth & Role
       const demoAuth = localStorage.getItem('manaksetu_demo_officer_logged_in');
+      const savedRole = localStorage.getItem('manaksetu_officer_role');
+      if (savedRole) {
+        setOfficerRole(savedRole);
+      }
       if (demoAuth === 'false') {
         setIsLoggedIn(false);
       } else if (demoAuth === 'true') {
@@ -296,8 +303,18 @@ export default function Home() {
     }
   };
 
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    try {
+      const savedRole = localStorage.getItem('manaksetu_officer_role');
+      if (savedRole) {
+        setOfficerRole(savedRole);
+      }
+    } catch {}
+  };
+
   if (isAuthChecked && !isLoggedIn) {
-    return <DemoLoginScreen onLoginSuccess={() => setIsLoggedIn(true)} />;
+    return <DemoLoginScreen onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (
@@ -378,17 +395,24 @@ export default function Home() {
 
             {/* Officer Profile Badge with Sign Out */}
             <div className="flex items-center gap-2 pl-2 border-l border-govborder">
-              <div className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 text-brand flex items-center justify-center font-bold text-xs shadow-gov-sm">
-                PK
+              <div
+                className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 text-brand flex items-center justify-center font-bold text-xs shadow-gov-sm"
+                title={`${officerRole || 'Procurement Officer'} • Demo Account`}
+              >
+                {officerRole === 'Technical Scrutiny Officer'
+                  ? 'TS'
+                  : officerRole === 'Competent Financial Authority'
+                  ? 'CA'
+                  : 'PO'}
               </div>
               <div className="hidden md:block text-left text-xs leading-tight">
                 <div className="font-bold text-charcoal flex items-center gap-1">
-                  <span>P. K. Sharma</span>
-                  <span title="Verified Officer Session">
+                  <span>{officerRole || 'Procurement Officer'}</span>
+                  <span title="Verified Demo Account">
                     <UserCheck className="w-3.5 h-3.5 text-secgreen" />
                   </span>
                 </div>
-                <div className="text-[10px] text-govmuted">Joint Director (Procurement)</div>
+                <div className="text-[10px] font-semibold text-brand tracking-wide uppercase">Demo Account</div>
               </div>
               <button
                 onClick={handleSignOut}

@@ -243,7 +243,7 @@ export default function DemoLoginScreen({ onLoginSuccess }: DemoLoginScreenProps
             {/* Small Footer Notice */}
             <div className="mt-4 text-center">
               <span className="text-[11px] text-govmuted dark:text-[#94A39D] font-medium">
-                Demo environment • Procurement Officer
+                DEMO ACCOUNT • {role}
               </span>
             </div>
           </div>

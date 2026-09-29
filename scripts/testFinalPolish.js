@@ -171,7 +171,7 @@ async function testFinalPolish() {
         return {
           loggedIn,
           hasWorkspace: text.includes('Turn procurement requirements into'),
-          hasOfficerProfile: text.includes('P. K. Sharma'),
+          hasOfficerProfile: text.includes('Procurement Officer') && text.includes('Demo Account'),
           hasMaanakButton: !!document.querySelector('button[aria-label*="Maanak"]'),
           hasThemeToggle: !!document.querySelector('button[aria-label*="Switch to"]')
         };
