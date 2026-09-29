@@ -33,35 +33,85 @@ interface MaanakChatbotProps {
   result: RecommendationResult | null;
   activeView: string;
   onNavigateToView?: (view: string) => void;
+  role?: string;
 }
+
+const getRoleAwareGreeting = (r?: string) => {
+  if (r === 'Technical Scrutiny Officer') {
+    return {
+      text: "Hello. I'm Maanak. I can help you review technical requirements, standards mappings, compliance checks and specification gaps.",
+      actionChips: [
+        'Review technical parameters',
+        'Check standards mapping',
+        'Verify compliance status',
+        'Explain specification gaps',
+        'Find official BIS source',
+      ],
+    };
+  }
+  if (r === 'Competent Financial Authority') {
+    return {
+      text: "Hello. I'm Maanak. I can help you review the procurement case, technical scrutiny status, verification status and available supporting documents.",
+      actionChips: [
+        'Review case summary',
+        'Check technical scrutiny status',
+        'Verify compliance status',
+        'Financial information status',
+        'Available supporting documents',
+      ],
+    };
+  }
+  return {
+    text: "Hello. I'm Maanak, your procurement standards assistant. I can help you analyze requirements, understand standards, identify gaps and prepare procurement specifications.",
+    actionChips: [
+      'Explain this analysis',
+      'Why was this standard recommended?',
+      'Check compliance',
+      'Explain specification gaps',
+      'Help generate specification',
+      'Find official BIS source',
+    ],
+  };
+};
 
 export default function MaanakChatbot({
   result,
   activeView,
   onNavigateToView,
+  role = 'Procurement Officer',
 }: MaanakChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'init-1',
-      sender: 'maanak',
-      text: "Hello. I'm Maanak, your BIS procurement copilot. I can help you understand tender requirements, standards, compliance checks, specification gaps, and procurement specifications.",
-      timestamp: 'Just now',
-      actionChips: [
-        'Explain this analysis',
-        'Why was this standard recommended?',
-        'Check compliance',
-        'Explain specification gaps',
-        'Help generate specification',
-        'Find official BIS source',
-      ],
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const greeting = getRoleAwareGreeting(role);
+    return [
+      {
+        id: 'init-1',
+        sender: 'maanak',
+        text: greeting.text,
+        timestamp: 'Just now',
+        actionChips: greeting.actionChips,
+      },
+    ];
+  });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Update greeting when role changes
+  useEffect(() => {
+    const greeting = getRoleAwareGreeting(role);
+    setMessages([
+      {
+        id: `init-${Date.now()}`,
+        sender: 'maanak',
+        text: greeting.text,
+        timestamp: 'Just now',
+        actionChips: greeting.actionChips,
+      },
+    ]);
+  }, [role]);
 
   // Auto scroll to bottom of messages
   useEffect(() => {
@@ -99,20 +149,14 @@ export default function MaanakChatbot({
   };
 
   const handleClearChat = () => {
+    const greeting = getRoleAwareGreeting(role);
     setMessages([
       {
         id: `init-${Date.now()}`,
         sender: 'maanak',
-        text: "Hello. I'm Maanak, your BIS procurement copilot. I can help you understand tender requirements, standards, compliance checks, specification gaps, and procurement specifications.",
+        text: greeting.text,
         timestamp: 'Just now',
-        actionChips: [
-          'Explain this analysis',
-          'Why was this standard recommended?',
-          'Check compliance',
-          'Explain specification gaps',
-          'Help generate specification',
-          'Find official BIS source',
-        ],
+        actionChips: greeting.actionChips,
       },
     ]);
   };
@@ -247,6 +291,64 @@ export default function MaanakChatbot({
         link: {
           label: 'BIS Standards Portal — Verify Standard ↗',
           url: OFFICIAL_PORTALS.BIS_STANDARDS_PORTAL.url,
+        },
+      };
+    }
+
+    // Role-specific action chip: Review technical parameters
+    if (q.includes('review technical parameter') || q.includes('technical parameter')) {
+      return {
+        id: `res-${Date.now()}`,
+        sender: 'maanak',
+        text: 'Technical scrutiny cross-checks core engineering parameters (operating voltage, thermal limits, surge withstand levels, ingress protection IP66, luminous efficacy, and color temperature) against BIS test procedures to ensure full tender defensibility.',
+        timestamp,
+      };
+    }
+
+    // Role-specific action chip: Check standards mapping
+    if (q.includes('check standards mapping') || q.includes('standards mapping')) {
+      return {
+        id: `res-${Date.now()}`,
+        sender: 'maanak',
+        text: 'Standards mapping links each identified requirement to its governing Bureau of Indian Standards code (e.g., IS 10322 Part 5/Sec 3 for luminaires, IS 16107 Part 2 for LED modules). Allied safety, driver, and EMC standards are also mapped.',
+        timestamp,
+        link: {
+          label: 'Verify on BIS Standards Portal ↗',
+          url: OFFICIAL_PORTALS.BIS_STANDARDS_PORTAL.url,
+        },
+      };
+    }
+
+    // Role-specific action chip: Review case summary / Check technical scrutiny status
+    if (q.includes('review case summary') || q.includes('case summary') || q.includes('scrutiny status')) {
+      return {
+        id: `res-${Date.now()}`,
+        sender: 'maanak',
+        text: 'The procurement case is structured with identified requirements, validated standards mappings, verified test parameters, and a generated conforming specification clause ready for competent authority decision.',
+        timestamp,
+      };
+    }
+
+    // Role-specific action chip: Financial information status
+    if (q.includes('financial information') || q.includes('financial info') || q.includes('budget')) {
+      return {
+        id: `res-${Date.now()}`,
+        sender: 'maanak',
+        text: 'Financial Information: Demo data / Not provided. In this demonstration environment, estimated tender monetary values and budget heads are not simulated to avoid unverified figures.',
+        timestamp,
+      };
+    }
+
+    // Role-specific action chip: Available supporting documents
+    if (q.includes('supporting document') || q.includes('documents')) {
+      return {
+        id: `res-${Date.now()}`,
+        sender: 'maanak',
+        text: 'Supporting documents available for review include the generated 9-Clause BIS Technical Specification, Technical Scrutiny Sign-Off, and official BIS Standards Portal reference links.',
+        timestamp,
+        link: {
+          label: 'GeM Portal Reference ↗',
+          url: OFFICIAL_PORTALS.GEM_PORTAL.url,
         },
       };
     }

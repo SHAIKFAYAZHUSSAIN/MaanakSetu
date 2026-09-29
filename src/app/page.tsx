@@ -21,6 +21,8 @@ import {
   Sun,
   Moon,
   LogOut,
+  Clock,
+  Scale,
 } from 'lucide-react';
 
 import ManakSetuLogo from '@/components/ManakSetuLogo';
@@ -33,6 +35,8 @@ import StandardsExplorerView from '@/components/views/StandardsExplorerView';
 import KnowledgeGraphView from '@/components/views/KnowledgeGraphView';
 import TenderSpecGeneratorView from '@/components/views/TenderSpecGeneratorView';
 import AnalysisHistoryView from '@/components/views/AnalysisHistoryView';
+import TechnicalScrutinyView from '@/components/views/TechnicalScrutinyView';
+import FinancialAuthorityView from '@/components/views/FinancialAuthorityView';
 
 import RecommendationTraceabilityDrawer from '@/components/RecommendationTraceabilityDrawer';
 import StandardDetailModal from '@/components/StandardDetailModal';
@@ -46,7 +50,16 @@ import { ALL_PROCUREMENT_SCENARIOS, SCENARIO_LED, ProcurementScenario } from '@/
 import { buildOfficialTenderSpecificationClause } from '@/lib/specExporter';
 import { SECURITY_TRUST_NOTICE } from '@/lib/officialSources';
 
-export type ActiveAppView = 'landing' | 'analyze' | 'results' | 'explorer' | 'graph' | 'generator' | 'history';
+export type ActiveAppView =
+  | 'landing'
+  | 'analyze'
+  | 'results'
+  | 'explorer'
+  | 'graph'
+  | 'generator'
+  | 'history'
+  | 'scrutiny'
+  | 'approval';
 
 export default function Home() {
   const [activeView, setActiveView] = useState<ActiveAppView>('landing');
@@ -114,6 +127,11 @@ export default function Home() {
       const savedRole = localStorage.getItem('manaksetu_officer_role');
       if (savedRole) {
         setOfficerRole(savedRole);
+        if (savedRole === 'Technical Scrutiny Officer') {
+          setActiveView('scrutiny');
+        } else if (savedRole === 'Competent Financial Authority') {
+          setActiveView('approval');
+        }
       }
       if (demoAuth === 'false') {
         setIsLoggedIn(false);
@@ -155,7 +173,7 @@ export default function Home() {
 
   const handleSignOut = () => {
     try {
-      localStorage.removeItem('manaksetu_demo_officer_logged_in');
+      localStorage.setItem('manaksetu_demo_officer_logged_in', 'false');
     } catch (e) {}
     setIsLoggedIn(false);
   };
@@ -303,12 +321,17 @@ export default function Home() {
     }
   };
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (selectedRole?: string) => {
     setIsLoggedIn(true);
     try {
-      const savedRole = localStorage.getItem('manaksetu_officer_role');
-      if (savedRole) {
-        setOfficerRole(savedRole);
+      const roleToUse = selectedRole || localStorage.getItem('manaksetu_officer_role') || 'Procurement Officer';
+      setOfficerRole(roleToUse);
+      if (roleToUse === 'Technical Scrutiny Officer') {
+        setActiveView('scrutiny');
+      } else if (roleToUse === 'Competent Financial Authority') {
+        setActiveView('approval');
+      } else {
+        setActiveView('landing');
       }
     } catch {}
   };
@@ -336,7 +359,15 @@ export default function Home() {
             <ManakSetuLogo
               size="md"
               showTagline={false}
-              onClick={() => setActiveView('landing')}
+              onClick={() => {
+                if (officerRole === 'Technical Scrutiny Officer') {
+                  setActiveView('scrutiny');
+                } else if (officerRole === 'Competent Financial Authority') {
+                  setActiveView('approval');
+                } else {
+                  setActiveView('landing');
+                }
+              }}
             />
 
             {/* Current Workspace Pill */}
@@ -430,92 +461,212 @@ export default function Home() {
       {/* Sub-Header Navigation Strip for Fast 1-Click Tab Switching on Desktop */}
       <nav aria-label="Quick Navigation" className="hidden lg:flex items-center justify-between border-b border-govborder bg-white/80 px-4 lg:px-8 py-2 text-xs print-hide">
         <div className="flex items-center gap-1.5 overflow-x-auto">
-          <button
-            onClick={() => setActiveView('landing')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'landing'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <Compass className="w-3.5 h-3.5" />
-            <span>Workspace</span>
-          </button>
+          {officerRole === 'Technical Scrutiny Officer' ? (
+            <>
+              <button
+                onClick={() => setActiveView('scrutiny')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'scrutiny'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Scrutiny Dashboard</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('analyze')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'analyze'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-accent" />
-            <span>Analyze Requirement</span>
-          </button>
+              <button
+                onClick={() => setActiveView('scrutiny')}
+                className="px-3 py-1.5 rounded-lg font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all flex items-center gap-1.5"
+              >
+                <Clock className="w-3.5 h-3.5 text-sky-600" />
+                <span>Pending Reviews</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('results')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'results'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Analysis Results</span>
-            {result && (
-              <span className="w-2 h-2 rounded-full bg-secgreen ring-2 ring-emerald-300 animate-pulse ml-0.5" title="Active Analysis Loaded" />
-            )}
-          </button>
+              <button
+                onClick={() => setActiveView('scrutiny')}
+                className="px-3 py-1.5 rounded-lg font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all flex items-center gap-1.5"
+              >
+                <FileCheck2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Technical Reviews</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('graph')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'graph'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <Network className="w-3.5 h-3.5" />
-            <span>Knowledge Graph</span>
-          </button>
+              <button
+                onClick={() => setActiveView('explorer')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'explorer'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Standards Verification</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('generator')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'generator'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <FileCheck2 className="w-3.5 h-3.5" />
-            <span>Spec Generator</span>
-          </button>
+              <button
+                onClick={() => setActiveView('generator')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'generator'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <FileCheck2 className="w-3.5 h-3.5" />
+                <span>Specification Review</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('explorer')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'explorer'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>Standards Explorer</span>
-          </button>
+              <button
+                onClick={() => setActiveView('history')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'history'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Review History</span>
+              </button>
+            </>
+          ) : officerRole === 'Competent Financial Authority' ? (
+            <>
+              <button
+                onClick={() => setActiveView('approval')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'approval'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <Scale className="w-3.5 h-3.5" />
+                <span>Approval Dashboard</span>
+              </button>
 
-          <button
-            onClick={() => setActiveView('history')}
-            className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
-              activeView === 'history'
-                ? 'bg-brand text-white shadow-gov-sm font-bold'
-                : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-            }`}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>Analysis History</span>
-          </button>
+              <button
+                onClick={() => setActiveView('approval')}
+                className="px-3 py-1.5 rounded-lg font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all flex items-center gap-1.5"
+              >
+                <Clock className="w-3.5 h-3.5 text-sky-600" />
+                <span>Pending Decisions</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('approval')}
+                className="px-3 py-1.5 rounded-lg font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all flex items-center gap-1.5"
+              >
+                <Building2 className="w-3.5 h-3.5 text-brand" />
+                <span>Procurement Cases</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('history')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'history'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Decision History</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setActiveView('landing')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'landing'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Workspace</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('analyze')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'analyze'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-accent" />
+                <span>Analyze Requirement</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('results')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'results'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Analysis Results</span>
+                {result && (
+                  <span className="w-2 h-2 rounded-full bg-secgreen ring-2 ring-emerald-300 animate-pulse ml-0.5" title="Active Analysis Loaded" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveView('graph')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'graph'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <Network className="w-3.5 h-3.5" />
+                <span>Knowledge Graph</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('generator')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'generator'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <FileCheck2 className="w-3.5 h-3.5" />
+                <span>Spec Generator</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('explorer')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'explorer'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <BookOpen className="w-3.5 h-3.5" />
+                <span>Standards Explorer</span>
+              </button>
+
+              <button
+                onClick={() => setActiveView('history')}
+                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
+                  activeView === 'history'
+                    ? 'bg-brand text-white shadow-gov-sm font-bold'
+                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                }`}
+              >
+                <History className="w-3.5 h-3.5" />
+                <span>Analysis History</span>
+              </button>
+
+              <button
+                onClick={() => setIsArchModalOpen(true)}
+                className="px-3 py-1.5 rounded-lg font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all flex items-center gap-1.5"
+              >
+                <Cpu className="w-3.5 h-3.5" />
+                <span>Verification</span>
+              </button>
+            </>
+          )}
         </div>
 
         <div className="flex items-center gap-3 text-[11px] text-govmuted">
@@ -551,7 +702,13 @@ export default function Home() {
               size="sm"
               showTagline={false}
               onClick={() => {
-                setActiveView('landing');
+                if (officerRole === 'Technical Scrutiny Officer') {
+                  setActiveView('scrutiny');
+                } else if (officerRole === 'Competent Financial Authority') {
+                  setActiveView('approval');
+                } else {
+                  setActiveView('landing');
+                }
                 setIsNavDrawerOpen(false);
               }}
             />
@@ -567,140 +724,326 @@ export default function Home() {
 
           {/* Main Navigation Items */}
           <div className="space-y-6 pt-5">
-            <div className="space-y-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
-                Procurement Workflow
-              </span>
+            {officerRole === 'Technical Scrutiny Officer' ? (
+              <>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Technical Scrutiny Workflow
+                  </span>
 
-              <button
-                onClick={() => {
-                  setActiveView('landing');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'landing'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Compass className="w-4 h-4" />
-                  <span>Workspace</span>
+                  <button
+                    onClick={() => {
+                      setActiveView('scrutiny');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'scrutiny'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShieldCheck className="w-4 h-4 text-brand" />
+                      <span>Scrutiny Dashboard</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('scrutiny');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="w-4 h-4 text-sky-600" />
+                      <span>Pending Reviews</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('scrutiny');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FileCheck2 className="w-4 h-4 text-emerald-600" />
+                      <span>Technical Reviews</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
 
-              <button
-                onClick={() => {
-                  setActiveView('analyze');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'analyze'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Sparkles className="w-4 h-4 text-accent" />
-                  <span>Analyze Requirement</span>
+                <div className="space-y-1 pt-4 border-t border-govborder">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Verification &amp; Standards
+                  </span>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('explorer');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'explorer'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <BookOpen className="w-4 h-4" />
+                      <span>Standards Verification</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('generator');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'generator'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FileCheck2 className="w-4 h-4" />
+                      <span>Specification Review</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('history');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'history'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <History className="w-4 h-4" />
+                      <span>Review History</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
+              </>
+            ) : officerRole === 'Competent Financial Authority' ? (
+              <>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Approval &amp; Decision Workflow
+                  </span>
 
-              <button
-                onClick={() => {
-                  setActiveView('results');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'results'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-brand" />
-                  <span>Analysis Results</span>
+                  <button
+                    onClick={() => {
+                      setActiveView('approval');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'approval'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Scale className="w-4 h-4 text-brand" />
+                      <span>Approval Dashboard</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('approval');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Clock className="w-4 h-4 text-sky-600" />
+                      <span>Pending Decisions</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('approval');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold text-charcoal hover:bg-ivory-100 hover:text-brand transition-all"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Building2 className="w-4 h-4 text-brand" />
+                      <span>Procurement Cases</span>
+                    </div>
+                  </button>
                 </div>
-                {result && (
-                  <span className="w-2 h-2 rounded-full bg-secgreen" title="Active Analysis Loaded" />
-                )}
-              </button>
 
-              <button
-                onClick={() => {
-                  setActiveView('graph');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'graph'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Network className="w-4 h-4" />
-                  <span>Knowledge Graph</span>
+                <div className="space-y-1 pt-4 border-t border-govborder">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Records &amp; Archives
+                  </span>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('history');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'history'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <History className="w-4 h-4" />
+                      <span>Decision History</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Procurement Workflow
+                  </span>
 
-              <button
-                onClick={() => {
-                  setActiveView('generator');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'generator'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <FileCheck2 className="w-4 h-4" />
-                  <span>Spec Generator</span>
+                  <button
+                    onClick={() => {
+                      setActiveView('landing');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'landing'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Compass className="w-4 h-4" />
+                      <span>Workspace</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('analyze');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'analyze'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Sparkles className="w-4 h-4 text-accent" />
+                      <span>Analyze Requirement</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('results');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'results'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <ShieldCheck className="w-4 h-4 text-brand" />
+                      <span>Analysis Results</span>
+                    </div>
+                    {result && (
+                      <span className="w-2 h-2 rounded-full bg-secgreen" title="Active Analysis Loaded" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('graph');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'graph'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Network className="w-4 h-4" />
+                      <span>Knowledge Graph</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('generator');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'generator'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FileCheck2 className="w-4 h-4" />
+                      <span>Spec Generator</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
-            </div>
 
-            {/* Exploratory Section */}
-            <div className="space-y-1 pt-4 border-t border-govborder">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
-                Standards Intelligence
-              </span>
+                {/* Exploratory Section */}
+                <div className="space-y-1 pt-4 border-t border-govborder">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-govmuted px-3 block mb-2">
+                    Standards Intelligence
+                  </span>
 
-              <button
-                onClick={() => {
-                  setActiveView('explorer');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'explorer'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <BookOpen className="w-4 h-4" />
-                  <span>Standards Explorer</span>
+                  <button
+                    onClick={() => {
+                      setActiveView('explorer');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'explorer'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <BookOpen className="w-4 h-4" />
+                      <span>Standards Explorer</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setActiveView('history');
+                      setIsNavDrawerOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
+                      activeView === 'history'
+                        ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
+                        : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <History className="w-4 h-4" />
+                      <span>Analysis History</span>
+                    </div>
+                  </button>
                 </div>
-              </button>
-
-              <button
-                onClick={() => {
-                  setActiveView('history');
-                  setIsNavDrawerOpen(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-gov text-xs font-semibold transition-all ${
-                  activeView === 'history'
-                    ? 'bg-brand-50 text-brand font-bold border border-brand-200 shadow-gov-sm'
-                    : 'text-charcoal hover:bg-ivory-100 hover:text-brand'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <History className="w-4 h-4" />
-                  <span>Analysis History</span>
-                </div>
-              </button>
-            </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -731,6 +1074,19 @@ export default function Home() {
 
       {/* Primary Full-Width Main Content Workspace */}
       <main className="flex-1 w-full px-4 sm:px-6 md:px-8 py-6 min-w-0">
+          {activeView === 'scrutiny' && (
+            <TechnicalScrutinyView
+              onOpenPdf={() => setActiveView('generator')}
+            />
+          )}
+
+          {activeView === 'approval' && (
+            <FinancialAuthorityView
+              onOpenPdf={() => setActiveView('generator')}
+              onNavigateToSpec={() => setActiveView('generator')}
+            />
+          )}
+
           {activeView === 'landing' && (
             <LandingWorkspaceView
               onAnalyzeRequirementClick={() => setActiveView('analyze')}
@@ -902,6 +1258,7 @@ export default function Home() {
         result={result}
         activeView={activeView}
         onNavigateToView={(v) => setActiveView(v as ActiveAppView)}
+        role={officerRole}
       />
     </div>
   );
