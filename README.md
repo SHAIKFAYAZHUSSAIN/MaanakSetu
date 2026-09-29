@@ -1,5 +1,5 @@
 # 🇮🇳 MaanakSetu (मानकसेतु)
-### *Next-Generation AI Procurement Recommendation & Standards Compliance Engine*
+### *AI-Powered Procurement Recommendation, Standards Intelligence & Statutory Compliance Copilot*
 
 [![Smart India Hackathon 2026](https://img.shields.io/badge/SIH%202026-Problem%20Statement%20SIH262108-orange?style=for-the-badge&logo=target)](https://sih.gov.in/)
 [![Bureau of Indian Standards](https://img.shields.io/badge/Organization-Bureau%20of%20Indian%20Standards%20(BIS)-blue?style=for-the-badge&logo=shield)](https://www.bis.gov.in/)
@@ -9,32 +9,95 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-> **"Bridging public procurement and authoritative Indian Standards with AI precision, deterministic quality compliance, and zero hallucination."**
+> **"Transforming unstructured tender requirements into authoritative, standards-ready procurement specifications grounded in the Bureau of Indian Standards (BIS) Act, 2016 and General Financial Rules (GFR 2017) Rule 144(i)."**
 
 ---
 
-## 📌 Executive Overview: Problem Statement SIH262108
+## ⚡ Quick Start for Evaluators (5-Minute Walkthrough)
 
-Public procurement in India accounts for over **₹20 to ₹25 Lakh Crores (~20% of GDP)** annually across platforms like the **Government e-Marketplace (GeM)**, **CPWD**, **Indian Railways (IREPS)**, **Defense (DGQA)**, and state-level e-procurement portals.
+Evaluators and technical judges can immediately inspect and test the full application locally:
 
-Under **Rule 144(i) of the General Financial Rules (GFR 2017)** and **Central Vigilance Commission (CVC) guidelines**, all government purchasing entities are legally obligated to specify **authoritative Indian Standards (IS)** established by the **Bureau of Indian Standards (BIS)** wherever they exist.
+### 1. Launch Application
+```bash
+npm install
+npm run dev
+```
+Open **`http://localhost:3000`** in any modern web browser.
 
-### 🔴 The Operational Crisis in Public Procurement
-Despite statutory mandates, procurement officers and tender drafting committees face massive hurdles:
+### 2. Demo Officer Credentials
+| Parameter | Value | Notes |
+|:---|:---|:---|
+| **URL** | `http://localhost:3000` | Gated demo login screen |
+| **Role** | `Procurement Officer` | Dropdown with Officer & Scrutiny roles |
+| **Username** | `procurement.officer` | Or click **"Auto-Fill Demo"** button |
+| **Password** | `Demo@1234` | Fully validated client-side session |
+| **Session** | Local browser storage | Sign out anytime via header profile badge |
 
-1. **Information Asymmetry & Catalog Density:** BIS administers **22,000+ active standards** across dozens of Technical Committees (*Electrotechnical ETD, Civil CED, Mechanical MED, Chemical PCD, Textiles TXD, etc.*). Identifying the exact standard for a complex product description is daunting.
-2. **Superseded & Outdated Standards Risk:** Tender documents frequently reference deprecated, revoked, or obsolete standards (e.g. citing *IS 10322:1987* instead of *IS 10322 (Part 5/Sec 3):2012 Amd 2:2024*). This triggers legal challenges, supplier arbitrations, and audit objections by the **CAG (Comptroller & Auditor General)**.
-3. **Ignorance of Compulsory QCO Orders:** Over 700+ products are governed by mandatory **Quality Control Orders (QCOs)** issued under **Section 16 of the BIS Act, 2016** (mandating Scheme-I ISI Mark or Scheme-II CRS). Procuring non-QCO compliant items violates federal law (attracting penalties under Section 29).
-4. **Specification Omissions & Loopholes:** Buyers often describe commercial requirements (*e.g. "90W LED Street Light"*) while missing indispensable safety and durability parameters (*e.g. Surge Protection Level ≥ 10kV as per IS 16074, IP66 Ingress Protection, IK09 Impact Resistance*), leaving the door wide open for inferior supplies.
-5. **The "Generic AI" Trap:** Off-the-shelf LLMs (ChatGPT, Claude) hallucinate non-existent Indian standard numbers, quote repealed specifications, fail to verify live Gazette notifications, and lack the transparent mathematical audit trails demanded by public vigilance bodies.
+---
+
+## 🎯 Evaluator Feature Tour: What to Test
+
+```
+                  ┌────────────────────────────────────────────────────────┐
+                  │                 EVALUATION CHECKLIST                   │
+                  └───────────────────────────┬────────────────────────────┘
+                                              │
+         ┌────────────────────────────────────┼────────────────────────────────────┐
+         │                                    │                                    │
+         ▼                                    ▼                                    ▼
+┌──────────────────┐               ┌───────────────────────┐             ┌─────────────────────┐
+│ 1. Demo Login    │               │ 2. Standards Analysis │             │ 3. Maanak AI Bot    │
+│ • procurement.   │               │ • LED Street Light    │             │ • Fixed bottom-right│
+│   officer        │               │ • IS 10322 Match      │             │ • Context-aware     │
+│ • Auto-fill demo │               │ • QCO Mandate         │             │ • Grounded advice   │
+│ • Sign-out icon  │               │ • 4 Spec Gaps         │             │ • Zero hallucination│
+└──────────────────┘               └───────────────────────┘             └─────────────────────┘
+         │                                    │                                    │
+         ├────────────────────────────────────┴────────────────────────────────────┤
+         ▼                                                                         ▼
+┌─────────────────────────────────┐                       ┌────────────────────────────────────┐
+│ 4. Dark Mode Toggle             │                       │ 5. GFR 144(i) PDF Exporter         │
+│ • ☀ Light / ☾ Dark in header    │                       │ • Formal 5-page Government Schedule│
+│ • Deep slate-teal palette       │                       │ • 45 clickable verified BIS links  │
+│ • System-wide coherent styling  │                       │ • Restrained footnotes & approvals │
+└─────────────────────────────────┘                       └────────────────────────────────────┘
+```
+
+1. **Procurement Officer Demo Login**: Sign in using `procurement.officer` / `Demo@1234` or click the 1-click **"Auto-Fill Demo"** button. Test invalid credentials to verify security notice.
+2. **Responsive Full-Width Workspace**: Notice the expanded enterprise layout (~88–95% viewport width utilization), eliminating excessive right margins on large displays (1280px to 1600px+).
+3. **Left Navigation Drawer (☰)**: Click the hamburger button. The drawer floats smoothly on the left at `285px` width without blurring or dimming the underlying workspace.
+4. **Standards Analysis & Recommendation**: Click **"Try a Sample Tender"** or **"Analysis Results"** to view the **IS 10322 (Part 5/Sec 3): 2012** recommendation for municipal LED street lighting.
+5. **Traceability Drawer ("Why recommended?")**: Click **"Why recommended?"** on the primary card to inspect the **4-step vertical decision chain**:
+   $$\text{Tender Requirement} \longrightarrow \text{Extracted Concept} \longrightarrow \text{Recommended Indian Standard} \longrightarrow \text{Official BIS Source}$$
+6. **Maanak Procurement Copilot Chatbot**: Click `[ ✦ ] Maanak` in the bottom-right corner. Try clicking quick action chips:
+   - `[ Explain this analysis ]` → Generates real-time summary of active tender parameters.
+   - `[ Check compliance ]` → Explains DPIIT Quality Control Orders and mandatory ISI/CRS marks.
+   - `[ Find official BIS source ]` → Returns canonical government verification URLs.
+7. **Coherent Enterprise Dark Mode**: Click `☾ Dark` in the top-right header to experience the institutional slate-charcoal theme across all cards, modals, and the chatbot.
+8. **Statutory GFR 144(i) Tender Schedule PDF**: Go to the **Spec Generator** tab and click **"Download PDF"**. Inspect the formal 5-page government procurement schedule containing **45 active, clickable hyperlinks** pointing strictly to verified official government portals.
+
+---
+
+## 📌 Problem Statement SIH262108: Context & Challenge
+
+Public procurement in India accounts for over **₹20 to ₹25 Lakh Crores (~20% of GDP)** annually across portals like the **Government e-Marketplace (GeM)**, **Central Public Procurement Portal (CPPP)**, **CPWD**, **Indian Railways (IREPS)**, and Defense bodies.
+
+Under **Rule 144(i) of the General Financial Rules (GFR 2017)** and **Central Vigilance Commission (CVC) guidelines**, all purchasing officers are legally required to cite authoritative **Indian Standards (IS)** established by the **Bureau of Indian Standards (BIS)**.
+
+### 🔴 The Operational Crisis
+1. **Catalog Density & Navigation Barrier:** BIS administers **22,000+ active standards** across 15 Division Councils (*Electrotechnical ETD, Civil CED, Mechanical MED, Petroleum/Chemical PCD, Electronics LITD, etc.*). Identifying the right standard is complex and time-consuming.
+2. **Superseded & Outdated Standards:** Tenders frequently cite obsolete standards (e.g. *IS 10322:1987* instead of *IS 10322 (Part 5/Sec 3):2012 Amd 2:2024*), leading to bidder disputes, supplier arbitration, and CAG audit objections.
+3. **Mandatory Quality Control Orders (QCOs):** Over 700+ products are governed by compulsory QCOs under **Section 16 of the BIS Act, 2016** (mandating Scheme-I ISI Mark or Scheme-II CRS). Procuring non-QCO compliant items violates federal law, attracting penalties under Section 29.
+4. **Specification Loopholes:** Tenders often specify basic commercial terms (*e.g., "90W LED Street Light"*) while missing indispensable safety and durability parameters (*Surge Withstand ≥ 10kV as per IS 16074, IP66 Ingress, THD < 10%*).
+5. **The "Generic AI" Trap:** Off-the-shelf LLMs (ChatGPT, Claude) regularly hallucinate non-existent Indian Standard numbers, quote repealed specifications, fail to verify Gazette notifications, and lack audit trails required by vigilance bodies.
 
 ---
 
 ## 💡 The Solution: MaanakSetu (मानकसेतु)
 
-**MaanakSetu** is an enterprise-grade, domain-grounded **AI Recommendation and Procurement Intelligence Engine** purpose-built to solve **SIH262108**.
+**MaanakSetu** is an enterprise-grade **AI Recommendation and Procurement Intelligence Engine** purpose-built to solve **SIH262108**.
 
-Operating at the intersection of **Hybrid Semantic Retrieval (RAG)**, **Knowledge Graph Traversal**, **Regulatory Gazette Verification**, and **Automated Specification Gap Analysis**, MaanakSetu transforms unstructured tender text, multi-item bill-of-quantities (BOQ), or plain-language queries into **legally unassailable, QCO-compliant tender clauses in under 2 seconds**.
+Operating at the intersection of **Deterministic Hybrid Search**, **Normative Knowledge Graph Traversal**, **Gazette QCO Verification**, and **Automated Specification Gap Analysis**, MaanakSetu transforms unstructured requirements or tender schedules into **legally unassailable, QCO-compliant tender clauses in under 2 seconds**.
 
 ```
                 ┌──────────────────────────────────────────────────────────┐
@@ -45,8 +108,8 @@ Operating at the intersection of **Hybrid Semantic Retrieval (RAG)**, **Knowledg
          │                                    │                                    │
          ▼                                    ▼                                    ▼
 ┌──────────────────┐               ┌───────────────────────┐             ┌─────────────────────┐
-│  Multilingual    │               │  Hybrid Re-Ranking    │             │   Knowledge Graph   │
-│  Tender Parser   │──────────────▶│  Deterministic RAG    │────────────▶│  Normative Network  │
+│  Multilingual    │               │  Deterministic RAG    │             │   Knowledge Graph   │
+│  Tender Parser   │──────────────▶│  Hybrid Re-Ranking    │────────────▶│  Normative Network  │
 │ (8+ Languages &  │               │ (Domain, Scope, QCO,  │             │ (Safety, Testing,   │
 │   PDF / DOCX)    │               │  Version Chain Score) │             │  Allied Standards)  │
 └──────────────────┘               └───────────────────────┘             └──────────┬──────────┘
@@ -64,174 +127,141 @@ Operating at the intersection of **Hybrid Semantic Retrieval (RAG)**, **Knowledg
 
 ---
 
-## ✨ Key Architectural Innovations & Features
+## ✨ Key System Innovations & Features
 
 ### 1. 🔍 Multilingual & Multi-Item Document Parsing
-* **Vernacular Procurement Ingestion:** Natively understands procurement descriptions in **8+ Indian Languages** (*English, Hindi, Telugu, Tamil, Bengali, Kannada, Marathi, Gujarati*).
-* **Multi-Product Schedule / BOQ Extraction:** Automatically identifies, segments, and enumerates individual line items from complex multi-page tender schedules (PDF, DOCX, TXT) and allows item-by-item standards resolution.
+* **Vernacular Procurement Ingestion:** Understands tender schedules in **8+ Indian Languages** (*English, Hindi, Telugu, Tamil, Kannada, etc.*).
+* **Multi-Format Parsing:** Ingests unstructured tender schedules (PDF, DOCX, TXT) and automatically extracts engineering specifications (*rated power, voltage, ingress protection, surge immunity*).
 
 ### 2. ⚡ Deterministic Hybrid Retrieval & Multi-Factor Scoring
-MaanakSetu eliminates LLM hallucinations by coupling vector embeddings with deterministic catalog filtering and a transparent multi-factor re-ranking formula:
+Couples vector embeddings with deterministic catalog filtering and a transparent multi-factor re-ranking formula:
 
 $$\text{Final Score} = 0.25 \cdot \text{SemanticSim} + 0.35 \cdot \text{ProductMatch} + 0.20 \cdot \text{ScopeSim} + 0.15 \cdot \text{ParamMatch} + 0.10 \cdot \text{VersionBonus} + 0.10 \cdot \text{QCOBonus}$$
 
-* **Zero-Hallucination Guardrail:** Strict confidence scoring with automatic thresholding. Unstandardized or out-of-scope commercial goods (catering, general civil labor, unregulated consumables) trigger a clear **"No Reliable Match"** status with interactive clarifying questions rather than generating fake standards.
+* **Zero-Hallucination Guardrail:** Strict confidence scoring with automatic thresholding. Out-of-scope commercial goods (catering, civil labor) trigger a clear **"No Reliable Match"** status with interactive clarifying questions rather than generating fake standards.
 
 ### 3. 🕸️ Normative Knowledge Graph Engine
 An interactive, force-directed topological graph visualizer that uncovers hidden standards dependencies:
 * **Primary Standard** (Core Specification)
-* **Subsystem & Safety Standards** (e.g., driver safety, fire resistance, dielectric strength)
-* **Normative Test Methods** (IS/ISO/IEC test procedures required for pre-dispatch inspection)
+* **Subsystem & Safety Standards** (e.g., driver safety IS 15885, light engine IS 16103)
+* **Normative Test Methods** (e.g., ingress protection IS/IEC 60529, surge immunity IS 16074)
 * **Certification Schemes** (Scheme-I ISI Mark vs. Scheme-II Compulsory Registration)
 
 ### 4. ⚠️ "Superseded Standard Sentinel" & Version Chain Tracking
-* Automatically flags obsolete standard citations (e.g. *IS 456:1978*, *IS 1180:1989*, *IS 2062:1999*, *IS 10322:1987*).
-* Instantly surfaces the active replacement, gazetted enforcement year, and active amendments (e.g., *Amendment 1: 2018*, *Amendment 2: 2024*), safeguarding the buyer against procedural disputes.
+* Automatically flags obsolete standard citations (e.g. *IS 10322:1987*, *IS 456:1978*, *IS 1180:1989*).
+* Instantly surfaces the active replacement, gazetted enforcement year, and active amendments (e.g., *Amendment 1: 2018*, *Amendment 2: 2024*).
 
 ### 5. 🛠️ Specification Gap Analysis & Remediation
 * Compares user-provided tender specs against mandatory benchmarks in the Indian Standard.
-* Detects omitted parameters (*e.g., Total Harmonic Distortion < 10%, Surge Withstand ≥ 10kV, IP66 Ingress, BEE Star Energy Rating*).
+* Detects omitted parameters (*Total Harmonic Distortion < 10%, Surge Withstand ≥ 10kV, IP66 Ingress*).
 * Provides 1-click clause insertion to immediately plug vulnerabilities in the tender text.
 
-### 6. 📜 Ready-to-Copy GeM / CPPP Tender Clause Exporter
+### 6. 📜 Ready-to-Copy GeM / CPPP Tender Clause Exporter & PDF
 * Automatically builds comprehensive, legally binding procurement clauses conforming to **GFR Rule 144(i)**.
 * Includes mandatory BIS certification requirements, test certificate stipulations, Scheme verification links, and penalty clauses under **Section 29 of the BIS Act, 2016**.
-* Exportable in **Raw Text (.txt)** or **Professional Government Tender PDF format**.
+* Exportable in **Raw Text (.txt)** or **Official Government Tender PDF format** (5-page tagged PDF with embedded hyperlinks and approval block).
 
-### 7. 🔌 Open Integration REST API & Playground
-* Full REST API (`/api/v1/recommend`) with CORS enabled for direct integration into:
-  * **Government e-Marketplace (GeM)**
-  * **Central Public Procurement Portal (CPPP / e-Procure)**
-  * **CPWD e-Tendering System**
-  * **IREPS (Indian Railways e-Procurement System)**
-* Embedded, interactive API playground with ready cURL, Python, and JavaScript snippets.
-
----
-
-## 📊 Comprehensive Domain Coverage
-
-MaanakSetu's grounded repository spans **24+ major Indian Standard categories** across key Technical Departments:
-
-| Department | Sector / Domain | Key Indian Standards Covered | Mandatory QCO Status |
-|:---|:---|:---|:---|
-| **ETD 24** | **Lighting & Luminaires** | IS 10322 (Part 5/Sec 3): 2012, IS 16102 (Part 1/2) | **Compulsory Scheme-II (CRS)** |
-| **ETD 16** | **Power Distribution & Transformers** | IS 1180 (Part 1): 2014, IS 2026 (Part 1-5) | **Compulsory Scheme-I (ISI Mark)** |
-| **ETD 32** | **Solar & Renewable Energy** | IS 14286: 2010 / IS/IEC 61215, IS 16221 | **Compulsory MNRE / CRS Order** |
-| **ETD 35** | **Wires, Cables & Conductors** | IS 694: 2010, IS 7098 (Part 1 & 2) | **Compulsory Scheme-I (ISI Mark)** |
-| **CED 02** | **Cement & Concrete** | IS 269: 2015, IS 456: 2000, IS 1489 | **Compulsory Scheme-I (ISI Mark)** |
-| **CED 07** | **Structural Steel & Rebars** | IS 1786: 2008 (Fe 500D), IS 2062: 2011 | **Compulsory Ministry of Steel QCO** |
-| **CED 50** | **Plumbing & Water Supply Pipes** | IS 4984: 2016 (HDPE), IS 4985 (uPVC) | **Compulsory Scheme-I (ISI Mark)** |
-| **MED 20** | **Pumps & Motors** | IS 8034: 2002, IS 9079, IS 12615 | **BEE & BIS Mandatory Compliance** |
-| **MHD 12** | **Healthcare & Medical Equipment** | IS 13450 / IEC 60601, IS 16289 (Surgical Masks) | **CDSCO & BIS Quality Mandate** |
-| **LITD 10** | **IT, Surveillance & Electronics** | IS 13252 (Part 1): 2010, IS 16833 (Vehicle Tracking) | **Compulsory MeitY CRS Scheme** |
-| **CED 22** | **Fire Safety & Disaster Response** | IS 15683: 2018 (Extinguishers), IS 2189 | **Compulsory Scheme-I (ISI Mark)** |
-| **TXD 14** | **Protective Uniforms & Textiles** | IS 15809: 2017 (High-Vis), IS 15748 | **MoT Mandatory QCO In Force** |
+### 7. 🔗 Official Source Links & Provenance Whitelist
+The application restricts external linking strictly to **5 approved government domains** across 9 designated portals:
+- `standards.bis.gov.in` (BIS Standards Portal — primary verification source)
+- `bis.gov.in` (BIS Official Portal, QCO Compulsory Certification, Product Certification, BIS CARE)
+- `manakonline.in` (BIS e-BIS / Manakonline stakeholder portal)
+- `crsbis.in` (BIS Compulsory Registration Scheme for electronics/IT)
+- `gem.gov.in` (Government e-Marketplace procurement context)
 
 ---
 
-## 🔄 End-to-End Recommendation Pipeline (Mermaid)
+## 📊 Pre-Configured Benchmark Scenarios
 
-```mermaid
-flowchart TD
-    A[Procurement Officer / GeM Input] -->|Tender Specs / Multi-item BOQ / Query| B[MaanakSetu Intake Engine]
-    B --> C{Input Type?}
-    C -->|Document PDF/DOCX| D[Line Item Segmentation & Parsing]
-    C -->|Direct Text / Vernacular| E[Multilingual NLP & Language ID]
-    D --> E
-    E --> F[Structured Attribute Extraction<br/>Power, Voltage, Capacity, Ingress, Temp]
-    
-    F --> G[Outdated Standard Sentinel<br/>RegEx & Gazette Database Check]
-    G -->|Outdated Standard Detected| G1[Alert: Migration Path & Active Amendments]
-    G -->|Clean Spec| H[Hybrid Retrieval Engine]
-    G1 --> H
+MaanakSetu includes interactive procurement benchmark scenarios ready for 1-click evaluation:
 
-    H --> I[Dense Vector Retrieval + Sparse BM25 Keyword Search]
-    I --> J[Domain Filtering: ETD / CED / MED / TXD / LITD]
-    J --> K[Deterministic Multi-Factor Re-Ranking Formula]
-    
-    K --> L{Match Score >= 24?}
-    L -->|No Match / Low Confidence| M[No Reliable Match Guardrail<br/>Clarifying Questions Form]
-    L -->|Reliable Match Found| N[Primary Standard Resolution]
-
-    N --> O[Knowledge Graph Expansion<br/>Safety, Subsystems, Normative Test Methods]
-    N --> P[QCO Verification Engine<br/>Scheme-I ISI / Scheme-II CRS Gazette Status]
-    N --> Q[Spec Gap Analysis<br/>Benchmark Omissions & Remediation]
-
-    O --> R[Unified Procurement Intelligence Dossier]
-    P --> R
-    Q --> R
-
-    R --> S[Outputs: Interactive Web UI]
-    R --> T[Outputs: GeM / CPPP Clause Exporter]
-    R --> U[Outputs: REST API JSON /api/v1/recommend]
-```
+| Domain / Sector | Procurement Item | Primary Standard | Key Allied Standards | Statutory QCO Mandate |
+|:---|:---|:---|:---|:---|
+| **ETD 24 (Lighting)** | **LED Street Lighting Fixture** | **IS 10322 (Part 5/Sec 3): 2012** | IS 15885, IS 16103, IS 16074, IS/IEC 60529 | **Compulsory Scheme-I / CRS (DPIIT)** |
+| **MED 20 (Pumps)** | **Submersible Water Pump Sets** | **IS 9079: 2018** | IS 8034, IS 9283, IS 12615 | **BEE Star Rating & BIS Mandatory** |
+| **ETD 32 (Solar)** | **Solar PV Grid-Tied Inverters** | **IS 16221 (Part 2): 2015** | IS/IEC 61683, IS/IEC 60068, IS 16169 | **MNRE Solar QCO / CRS Mandate** |
+| **CED 02 (Civil)** | **Structural Portland Cement** | **IS 269: 2015** | IS 456, IS 1489, IS 383, IS 4031 | **Compulsory Scheme-I ISI Mark** |
+| **LITD 10 (IT)** | **IP CCTV Surveillance Cameras** | **IS 13252 (Part 1): 2010** | IS 16833, IS/IEC 62676 | **MeitY CRS Compulsory Order** |
 
 ---
 
-## ⚖️ Why MaanakSetu Beats Generic LLMs & Manual Searching
+## 🏛️ Statutory & Legal Framework Grounding
 
-| Evaluation Vector | Manual BIS Search Portal | Generic LLM (ChatGPT / Claude) | **MaanakSetu Engine (SIH262108)** |
-|:---|:---|:---|:---|
-| **Natural Language Understanding** | ❌ Fails on descriptive or colloquial queries | ⚠️ Understands text, but guesses standards | ✅ **Context-aware multilingual extraction** |
-| **Standard Accuracy & Hallucination**| ✅ Exact database, but difficult to navigate | ❌ **High risk of fictional IS numbers** | ✅ **100% Grounded in BIS Database (Zero Hallucination)** |
-| **Version & Amendment Tracking** | ⚠️ Requires manual inspection of amendments | ❌ Cites outdated & superseded editions | ✅ **Automatic supersession sentinel & active amendment alerts** |
-| **Mandatory QCO Detection** | ❌ Separate ministerial notifications | ❌ Blind to Gazette QCO notifications | ✅ **Live Scheme-I & Scheme-II QCO enforcement status** |
-| **Normative Dependency Mapping** | ❌ Must download and read individual PDFs | ❌ Cannot traverse standard citation trees | ✅ **Interactive Force-Directed Knowledge Graph** |
-| **Specification Gap Discovery** | ❌ None | ⚠️ Generic engineering advice | ✅ **Deterministic missing parameter detection** |
-| **Audit Trail for CVC / CAG** | ❌ No reasoning provided | ❌ Black-box statistical text output | ✅ **Mathematical scoring breakdown & regulatory citation** |
-| **Tender Clause Generation** | ❌ None | ⚠️ Incomplete or non-compliant clauses | ✅ **GFR Rule 144(i) compliant GeM / CPPP clauses** |
-| **Enterprise Portal Integration** | ❌ No open public REST API | ⚠️ Costly token billing, no standard schema | ✅ **CORS-enabled REST API with Swagger/Playground** |
+MaanakSetu is engineered in strict alignment with Government of India public procurement laws:
+
+1. **General Financial Rules (GFR 2017) — Rule 144(i):**
+   * *Mandate:* "The technical specifications should, to the extent practicable, be based on national standards, having regard to the aspects of performance, quality, and environmental friendliness."
+   * *MaanakSetu alignment:* Automatically prepopulates verified national standards and generates auditable compliance clauses.
+2. **Bureau of Indian Standards Act, 2016:**
+   * *Section 16:* Power of Central Government to notify mandatory Quality Control Orders (QCOs).
+   * *Section 17:* Prohibition on manufacturing, importing, selling, or procuring non-conforming items.
+   * *Section 29:* Penalties (imprisonment up to 2 years or fines) for non-compliant public procurement.
+3. **Central Vigilance Commission (CVC) Tender Guidelines:**
+   * Mandates that technical parameters must not be biased towards proprietary vendors and must conform to open national standards.
+4. **Comptroller & Auditor General (CAG) Audit Traceability:**
+   * Generates deterministic mathematical match scores and complete evidence trails to eliminate post-tender audit queries.
 
 ---
 
-## 🚀 Quick Start & Installation
+## 📁 Project Repository Structure
 
-### Prerequisites
-* **Node.js**: `v18.18.0` or higher
-* **npm**: `v9.0.0` or higher
-* *(Optional)* **Google Gemini API Key** for enhanced deep extraction (MaanakSetu includes an offline heuristic extraction engine that runs seamlessly without an API key).
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/SHAIKFAYAZHUSSAIN/MaanakSetu.git
-cd MaanakSetu
 ```
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Configure Environment Variables
-Create a `.env.local` file in the project root:
-```env
-# Optional: Enhance extraction with Gemini 1.5 Flash
-GEMINI_API_KEY=your_gemini_api_key_here
-
-# Application Configuration
-NEXT_PUBLIC_APP_NAME="MaanakSetu"
-NEXT_PUBLIC_PORTAL_ENV="development"
-```
-*(Note: If `GEMINI_API_KEY` is omitted, MaanakSetu's built-in heuristic and semantic matching engine operates autonomously with full offline capability).*
-
-### 4. Run the Development Server
-```bash
-npm run dev
-```
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
-
-### 5. Production Build
-```bash
-npm run build
-npm run start
+MaanakSetu/
+├── public/                                  # Static assets, emblems & logos
+├── scripts/
+│   ├── generatePdfCdp.js                    # Headless Chrome CDP tagged PDF generator
+│   ├── verifyLayoutAndSidebar.js            # Automated width & drawer verification suite
+│   ├── verifyLinks.js                       # Whitelisted domain compliance scanner
+│   └── testFinalPolish.js                   # 20-point automated end-to-end test suite
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── analyze/route.ts             # Main AI & heuristic recommendation pipeline
+│   │   │   ├── export-pdf/route.ts          # Server-side HTML/PDF schedule endpoint
+│   │   │   ├── upload/route.ts              # Multi-format document parser (PDF, DOCX)
+│   │   │   └── v1/recommend/route.ts        # GeM / CPPP RESTful Integration API
+│   │   ├── globals.css                      # Enterprise styling, container & dark theme
+│   │   ├── layout.tsx                       # Root layout with font & metadata
+│   │   ├── login/page.tsx                   # Unified demo login route
+│   │   └── page.tsx                         # Core procurement copilot workstation
+│   ├── components/
+│   │   ├── DemoLoginScreen.tsx              # Procurement officer demo login screen
+│   │   ├── MaanakChatbot.tsx                # Context-aware grounded procurement AI copilot
+│   │   ├── ManakSetuLogo.tsx                # Institutional SVG emblem branding
+│   │   ├── RecommendationTraceabilityDrawer.tsx # 4-step vertical decision chain panel
+│   │   ├── StandardDetailModal.tsx          # Full-scope standard & amendment modal
+│   │   ├── SystemArchitectureModal.tsx      # System design & verification architecture
+│   │   ├── AnalysisProgressModal.tsx        # 7-stage deterministic pipeline animation
+│   │   └── views/
+│   │       ├── LandingWorkspaceView.tsx     # Institutional landing & benchmark scenarios
+│   │       ├── AnalyzeRequirementView.tsx   # Text & PDF document input interface
+│   │       ├── AnalysisResultsView.tsx      # Primary cards, metrics, gaps, QCOs
+│   │       ├── KnowledgeGraphView.tsx       # Interactive force-directed topology visualizer
+│   │       ├── TenderSpecGeneratorView.tsx  # 9-clause GFR 144(i) schedule generator
+│   │       ├── StandardsExplorerView.tsx    # BIS catalog explorer with sector filters
+│   │       └── AnalysisHistoryView.tsx      # Saved audit dossiers & session history
+│   ├── data/
+│   │   ├── procurementScenarios.ts          # Benchmark test cases (LED, Pumps, Solar)
+│   │   └── standardsKnowledgeBase.ts        # Curated 24+ domain BIS standards database
+│   ├── lib/
+│   │   ├── officialSources.ts               # Approved domains whitelist & portal registry
+│   │   ├── pdfTemplate.ts                   # Official 5-page Government PDF template
+│   │   ├── specExporter.ts                  # GFR 144(i) clause formatter
+│   │   ├── hybridSearch.ts                  # Deterministic multi-factor scoring engine
+│   │   └── gemini.ts                        # Multilingual NLP & fallback parser
+│   └── types/
+│       ├── language.ts                      # Multilingual translations
+│       ├── procurement.ts                   # Result, gap, project & audit types
+│       └── standards.ts                     # BIS standard, QCO & graph models
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+└── README.md
 ```
 
 ---
 
-## 🔌 Procurement Portal Integration API
+## 🔌 GeM & CPPP Integration REST API
 
 MaanakSetu exposes a high-throughput, low-latency REST API designed for immediate integration into government procurement software like **GeM**, **CPWD e-Tender**, and **IREPS**.
 
@@ -248,7 +278,7 @@ curl -X POST "http://localhost:3000/api/v1/recommend" \
   -H "Content-Type: application/json" \
   -H "X-Procurement-Portal: GeM" \
   -d '{
-    "query": "Procure 1000 LED street lights, 90W, outdoor highway use, IP66 with surge protection",
+    "query": "Procure 1000 LED street lighting fixtures, 90W, outdoor municipal use, IP66 with surge protection",
     "portal": "Government e-Marketplace (GeM)"
   }'
 ```
@@ -256,44 +286,34 @@ curl -X POST "http://localhost:3000/api/v1/recommend" \
 ### Sample Response (Truncated)
 ```json
 {
-  "query": "Procure 1000 LED street lights, 90W, outdoor highway use, IP66 with surge protection",
+  "query": "Procure 1000 LED street lighting fixtures, 90W, outdoor municipal use, IP66 with surge protection",
   "portal": "Government e-Marketplace (GeM)",
-  "timestamp": "2026-09-27T06:04:12.345Z",
+  "timestamp": "2026-09-29T09:45:00.000Z",
   "matchStatus": "MATCH_FOUND",
-  "confidenceScore": 92,
+  "confidenceScore": 96,
   "confidenceLevel": "High",
   "primaryStandard": {
     "isNumber": "IS 10322 (Part 5/Sec 3): 2012",
     "title": "Luminaires - Particular Requirements - Luminaires for Road and Street Lighting",
     "department": "Electrotechnical Department (ETD 24)",
-    "domain": "Lighting & Luminaires",
     "status": "Current",
+    "officialSourceUrl": "https://standards.bis.gov.in/item/is-10322-part-5-sec-3-2012",
     "activeAmendments": [
-      {
-        "number": 1,
-        "year": 2018,
-        "summary": "Mandates strict ingress protection test procedures (IP65/IP66) and upgraded impact resistance requirements (IK08/IK09)."
-      },
-      {
-        "number": 2,
-        "year": 2024,
-        "summary": "Harmonizes high-voltage surge withstand requirements with IS 16074 and updates thermal cycling tests."
-      }
+      { "number": 1, "year": 2018, "summary": "Mandates strict ingress protection test procedures (IP65/IP66)." },
+      { "number": 2, "year": 2024, "summary": "Harmonizes high-voltage surge withstand requirements with IS 16074." }
     ],
     "qcoOrder": {
       "isCompulsory": true,
       "orderName": "Solar DC Cable and LED Luminaires (Quality Control) Order",
-      "scheme": "Scheme-II (CRS - Compulsory Registration Scheme)",
-      "enforcementStatus": "In Force",
-      "gazetteNotification": "S.O. 2357(E) / MeitY Compulsory Registration Notification"
+      "scheme": "Scheme-I (ISI Mark) / CRS",
+      "gazetteNotification": "S.O. 2357(E)"
     }
   },
   "specificationGapsIdentified": [
     {
       "parameter": "Surge Protection Level",
       "severity": "High",
-      "suggestedClause": "The luminaire fixture shall incorporate internal and external surge protection capable of withstanding minimum 10 kV/5 kA surges conforming to IS 16074.",
-      "standardReference": "IS 16074 / IS 10322 Amd 2:2024"
+      "suggestedClause": "The luminaire shall incorporate internal and external surge protection capable of withstanding minimum 10 kV/5 kA surges conforming to IS 16074."
     }
   ],
   "generatedTenderSpecificationClause": "### MANDATORY TECHNICAL COMPLIANCE CLAUSE (GFR RULE 144):\n1. The supplied item shall strictly comply with IS 10322 (Part 5/Sec 3): 2012 incorporating Amendments 1 & 2..."
@@ -302,74 +322,22 @@ curl -X POST "http://localhost:3000/api/v1/recommend" \
 
 ---
 
-## 🏛️ Statutory & Legal Compliance Architecture
+## 🧪 Automated Verification & Testing Suite
 
-MaanakSetu is engineered in strict accordance with the legal and procurement frameworks of the Government of India:
+Evaluators can re-verify the codebase at any time using our built-in test scripts:
 
-1. **General Financial Rules (GFR 2017) - Rule 144(i):**
-   * *Statutory mandate:* "The technical specifications should, to the extent practicable, be based on national standards, having regard to the aspects of performance, quality, and environmental friendliness."
-   * *MaanakSetu alignment:* Prepopulates verified national standards and generates auditable compliance text.
-2. **Bureau of Indian Standards Act, 2016:**
-   * *Section 16:* Empowering Central Ministries to mandate standard marks under compulsory Quality Control Orders (QCOs).
-   * *Section 17:* Prohibition of manufacture, storage, sale, or distribution of non-compliant goods.
-   * *Section 29:* Penalties including imprisonment up to 2 years and fines for non-compliant public procurement.
-3. **Central Vigilance Commission (CVC) Tender Guidelines:**
-   * Mandates that technical parameters must not be biased towards single proprietary vendors and must conform to national benchmarks.
-4. **Comptroller & Auditor General (CAG) Compliance:**
-   * Generates a deterministic mathematical score and complete evidence audit trail to eliminate tender audit queries.
+```bash
+# 1. Test Demo Login, Dark Mode, and Maanak Chatbot (20 end-to-end checks)
+node scripts/testFinalPolish.js
 
----
+# 2. Test Responsive Workspace Width & Left Navigation Drawer
+node scripts/verifyLayoutAndSidebar.js
 
-## 📂 Project Repository Structure
+# 3. Audit all URLs against the 5 approved Government domains
+node scripts/verifyLinks.js
 
-```
-MaanakSetu/
-├── public/                     # Static assets, emblems & icons
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── analyze/        # Main recommendation pipeline endpoint
-│   │   │   ├── upload/         # Multi-format document parser (PDF, DOCX, TXT)
-│   │   │   └── v1/recommend/   # Public GeM / CPWD RESTful Integration API
-│   │   ├── globals.css         # Custom animations, glassmorphism & typography
-│   │   ├── layout.tsx          # Root layout with dark/light theme support
-│   │   └── page.tsx            # Main interactive procurement workstation
-│   ├── components/
-│   │   ├── ArchitectureModal.tsx          # Interactive system architecture modal
-│   │   ├── ClarifyingQuestionsCard.tsx    # Interactive disambiguation UI
-│   │   ├── ExplainabilityAuditCard.tsx    # CVC/CAG transparent audit trail
-│   │   ├── ExportClauseCard.tsx           # GeM clause generator & PDF exporter
-│   │   ├── GraphVisualizer.tsx            # Interactive force-directed knowledge graph
-│   │   ├── Navbar.tsx                     # Top navigation, theme, language & drawer
-│   │   ├── NoReliableMatchCard.tsx        # Strict anti-hallucination guardrail card
-│   │   ├── OutdatedStandardAlertCard.tsx  # Superseded standard sentinel alert
-│   │   ├── PortalApiModal.tsx             # REST API documentation & live playground
-│   │   ├── PrimaryStandardCard.tsx        # Authoritative standard & amendment display
-│   │   ├── QueryInputSection.tsx          # Multilingual text & document dropzone
-│   │   ├── RecommendationEvidenceCard.tsx # BIS catalog citations & uncertainty notes
-│   │   ├── RegulatoryCard.tsx             # Gazette QCO compliance & penalty card
-│   │   ├── RelatedStandardsTable.tsx      # Normative & testing reference matrix
-│   │   ├── RequirementBadgeGrid.tsx       # Extracted engineering parameters grid
-│   │   ├── SavedProjectsDrawer.tsx        # Local storage tender history drawer
-│   │   ├── SectionNavigator.tsx           # Sticky quick-jump section navigation
-│   │   ├── SpecificationGapsCard.tsx      # Missing benchmark detection card
-│   │   └── TenderLineItemsCard.tsx        # Multi-product BOQ item selector
-│   ├── data/
-│   │   └── standardsKnowledgeBase.ts      # Curated 24+ domain BIS standards database
-│   ├── lib/
-│   │   ├── gapAnalysis.ts      # Specification gap & missing clause detector
-│   │   ├── gemini.ts           # Vernacular NLP, item extractor & heuristic fallback
-│   │   ├── graphEngine.ts      # Standards dependency knowledge graph builder
-│   │   ├── hybridSearch.ts     # Multi-factor re-ranking & sentinel algorithms
-│   │   └── specExporter.ts     # GFR 144 compliant tender clause formatter
-│   └── types/
-│       ├── language.ts         # Multilingual translation dictionaries
-│       ├── procurement.ts      # Recommendation result, gap & audit types
-│       └── standards.ts        # BIS standard, QCO, version chain & graph types
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── README.md                   # System documentation
+# 4. Generate official 5-page Government Tagged PDF with 45 clickable links
+node scripts/generatePdfCdp.js
 ```
 
 ---
@@ -383,8 +351,8 @@ MaanakSetu/
 * **Category:** Software
 * **Domain:** Smart Automation / Legal & Regulatory Technology / Public Governance
 
-### 🙏 Special Thanks
-We express our sincere gratitude to the **Bureau of Indian Standards (BIS)** for establishing the standard benchmarks that power national quality, and to the **Smart India Hackathon** organizers for formulating a problem statement of immense economic, industrial, and national significance.
+### 🙏 Acknowledgements
+We express our deepest gratitude to the **Bureau of Indian Standards (BIS)** for establishing the standard benchmarks that power national quality, and to the **Smart India Hackathon** organizers for formulating a problem statement of immense economic, industrial, and national significance.
 
 ---
 
