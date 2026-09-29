@@ -210,7 +210,7 @@ export default function MaanakChatbot({
       if (currentResult && currentResult.specificationGaps.length > 0) {
         const gapsList = currentResult.specificationGaps
           .slice(0, 3)
-          .map((g) => `• **${g.title}**: ${g.recommendation}`)
+          .map((g) => `• **${g.parameter}**: ${g.suggestedClause}`)
           .join('\n');
         return {
           id: `res-${Date.now()}`,
