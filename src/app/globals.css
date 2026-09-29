@@ -51,6 +51,172 @@ html, body {
   transform: translateY(-1px);
 }
 
+/* ==================================================
+   COHERENT ENTERPRISE DARK MODE
+   Theme Colors:
+   Background: #0F1715 (Deep slate-teal)
+   Surfaces / Cards: #16221F (Elevated dark surface)
+   Sub-surfaces / Inputs: #1C2C28
+   Borders: #263833
+   Text Primary: #F1F5F3
+   Text Muted: #94A39D
+   Brand Accent: #14B8A6
+   Sec Green: #22C55E
+   Accent Gold: #F59E0B
+   ================================================== */
+html.dark, html.dark body {
+  background-color: #0F1715 !important;
+  color: #F1F5F3 !important;
+}
+
+html.dark {
+  --bg-ivory: #0F1715;
+  --bg-surface: #16221F;
+  --brand-emerald: #14B8A6;
+  --sec-green: #22C55E;
+  --accent-gold: #F59E0B;
+  --text-charcoal: #F1F5F3;
+  --text-muted: #94A39D;
+  --border-gov: #263833;
+}
+
+.dark .bg-ivory {
+  background-color: #0F1715 !important;
+}
+
+.dark .bg-ivory-gradient {
+  background: linear-gradient(180deg, #0F1715 0%, #121E1B 50%, #0F201C 100%) !important;
+}
+
+.dark .bg-hero-pattern {
+  background-color: #0F1715 !important;
+  background-image: radial-gradient(#263833 0.75px, transparent 0.75px), radial-gradient(#263833 0.75px, #0F1715 0.75px) !important;
+}
+
+.dark .gov-card {
+  background-color: #16221F !important;
+  border-color: #263833 !important;
+  box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.4), 0 1px 3px -1px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark .gov-card-interactive:hover {
+  border-color: #14B8A6 !important;
+  box-shadow: 0 8px 24px -4px rgba(20, 184, 166, 0.18), 0 2px 6px -2px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/95,
+.dark .bg-white\/90,
+.dark .bg-white\/80 {
+  background-color: #16221F !important;
+}
+
+.dark .bg-ivory-50,
+.dark .bg-ivory-50\/70,
+.dark .bg-ivory-100,
+.dark .bg-ivory-100\/90 {
+  background-color: #1C2C28 !important;
+}
+
+.dark .bg-ivory-200,
+.dark .bg-ivory-200\/80 {
+  background-color: #233732 !important;
+}
+
+.dark .border-govborder,
+.dark .border-govborder\/80,
+.dark .border-govborder\/60 {
+  border-color: #263833 !important;
+}
+
+.dark .text-charcoal,
+.dark .text-charcoal\/80 {
+  color: #F1F5F3 !important;
+}
+
+.dark .text-govmuted,
+.dark .text-govmuted\/90 {
+  color: #94A39D !important;
+}
+
+.dark .bg-brand-50,
+.dark .bg-brand-50\/70 {
+  background-color: rgba(15, 118, 110, 0.2) !important;
+  color: #5EEAD4 !important;
+}
+
+.dark .border-brand-200,
+.dark .border-brand-300 {
+  border-color: rgba(20, 184, 166, 0.35) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-secgreen-50 {
+  background-color: rgba(21, 128, 61, 0.2) !important;
+  color: #4ADE80 !important;
+}
+
+.dark .border-emerald-200,
+.dark .border-emerald-300,
+.dark .border-secgreen-200 {
+  border-color: rgba(34, 197, 94, 0.35) !important;
+}
+
+.dark .bg-amber-50 {
+  background-color: rgba(217, 119, 6, 0.2) !important;
+  color: #FCD34D !important;
+}
+
+.dark .border-amber-200,
+.dark .border-amber-300 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.dark .bg-accent-50 {
+  background-color: rgba(217, 119, 6, 0.2) !important;
+  color: #FCD34D !important;
+}
+
+.dark .border-accent-100,
+.dark .border-accent-200 {
+  border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark select,
+.dark textarea {
+  background-color: #1C2C28 !important;
+  color: #F1F5F3 !important;
+  border-color: #263833 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6B7C76 !important;
+}
+
+.dark aside {
+  background-color: #16221F !important;
+  border-color: #263833 !important;
+}
+
+.dark footer {
+  background-color: #121E1B !important;
+  border-color: #263833 !important;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #121E1B !important;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2D403A !important;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #14B8A6 !important;
+}
+
 /* Responsive Professional Enterprise Workspace Container */
 .gov-workspace-container {
   width: 100%;

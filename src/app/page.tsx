@@ -18,9 +18,14 @@ import {
   ChevronDown,
   Building2,
   UserCheck,
+  Sun,
+  Moon,
+  LogOut,
 } from 'lucide-react';
 
 import ManakSetuLogo from '@/components/ManakSetuLogo';
+import DemoLoginScreen from '@/components/DemoLoginScreen';
+import MaanakChatbot from '@/components/MaanakChatbot';
 import LandingWorkspaceView from '@/components/views/LandingWorkspaceView';
 import AnalyzeRequirementView from '@/components/views/AnalyzeRequirementView';
 import AnalysisResultsView from '@/components/views/AnalysisResultsView';
@@ -47,6 +52,11 @@ export default function Home() {
   const [activeView, setActiveView] = useState<ActiveAppView>('landing');
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('en');
 
+  // Demo Login & Theme states
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
   // Input state
   const [query, setQuery] = useState<string>(SCENARIO_LED.sampleQuery);
   const [tenderDocText, setTenderDocText] = useState<string>('');
@@ -71,7 +81,6 @@ export default function Home() {
   // Workspace selector state
   const [activeWorkspace] = useState<string>('Central Public Procurement Portal • GeM Standards Cell');
 
-
   // Handle Escape key to close navigation drawer
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -83,9 +92,32 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isNavDrawerOpen]);
 
-  // Load language preference on mount
+  // Load language preference, theme, and demo auth on mount
   useEffect(() => {
     try {
+      // 1. Theme
+      const savedTheme = localStorage.getItem('manaksetu_theme') as 'light' | 'dark' | null;
+      const prefersDark = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const initialTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+      setTheme(initialTheme);
+      if (initialTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      // 2. Demo Auth
+      const demoAuth = localStorage.getItem('manaksetu_demo_officer_logged_in');
+      if (demoAuth === 'false') {
+        setIsLoggedIn(false);
+      } else if (demoAuth === 'true') {
+        setIsLoggedIn(true);
+      } else {
+        // First visit: show Demo Login screen
+        setIsLoggedIn(false);
+      }
+
+      // 3. Language & Projects
       const savedLang = localStorage.getItem('manaksetu_lang') as SupportedLanguage | null;
       if (savedLang && ['en', 'hi', 'te', 'ta', 'kn'].includes(savedLang)) {
         setSelectedLanguage(savedLang);
@@ -96,8 +128,30 @@ export default function Home() {
       }
     } catch (e) {
       console.warn('Failed to load preferences:', e);
+    } finally {
+      setIsAuthChecked(true);
     }
   }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    try {
+      localStorage.setItem('manaksetu_theme', nextTheme);
+    } catch (e) {}
+    if (nextTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  const handleSignOut = () => {
+    try {
+      localStorage.removeItem('manaksetu_demo_officer_logged_in');
+    } catch (e) {}
+    setIsLoggedIn(false);
+  };
 
   const handleLanguageChange = (lang: SupportedLanguage) => {
     setSelectedLanguage(lang);
@@ -242,6 +296,10 @@ export default function Home() {
     }
   };
 
+  if (isAuthChecked && !isLoggedIn) {
+    return <DemoLoginScreen onLoginSuccess={() => setIsLoggedIn(true)} />;
+  }
+
   return (
     <div className="min-h-screen bg-ivory text-charcoal flex flex-col antialiased">
       {/* Top Application Bar */}
@@ -277,8 +335,28 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right Controls: Language, Architecture Info & Officer Profile */}
-          <div className="flex items-center gap-3">
+          {/* Right Controls: Theme Toggle, Language, Architecture Info & Officer Profile */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-ivory-100 hover:bg-ivory-200 border border-govborder text-xs font-semibold text-charcoal transition-colors cursor-pointer"
+              aria-label={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="w-3.5 h-3.5 text-accent" />
+                  <span className="hidden sm:inline">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="w-3.5 h-3.5 text-brand" />
+                  <span className="hidden sm:inline">Dark</span>
+                </>
+              )}
+            </button>
+
             {/* Language Selector */}
             <div className="flex items-center gap-1.5 bg-ivory-50 border border-govborder px-2.5 py-1 rounded-lg">
               <Globe2 className="w-3.5 h-3.5 text-brand" />
@@ -304,8 +382,8 @@ export default function Home() {
               <span>Architecture</span>
             </button>
 
-            {/* Officer Profile Badge */}
-            <div className="flex items-center gap-2.5 pl-2 border-l border-govborder">
+            {/* Officer Profile Badge with Sign Out */}
+            <div className="flex items-center gap-2 pl-2 border-l border-govborder">
               <div className="w-8 h-8 rounded-full bg-brand-50 border border-brand-200 text-brand flex items-center justify-center font-bold text-xs shadow-gov-sm">
                 PK
               </div>
@@ -318,6 +396,14 @@ export default function Home() {
                 </div>
                 <div className="text-[10px] text-govmuted">Joint Director (Procurement)</div>
               </div>
+              <button
+                onClick={handleSignOut}
+                className="p-1.5 rounded-lg text-govmuted hover:text-govdanger hover:bg-rose-50 transition-colors ml-0.5 cursor-pointer"
+                title="Sign out of Demo Session"
+                aria-label="Sign out of Demo Session"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
         </div>
@@ -792,6 +878,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Maanak — BIS Procurement Copilot Chatbot */}
+      <MaanakChatbot
+        result={result}
+        activeView={activeView}
+        onNavigateToView={(v) => setActiveView(v as ActiveAppView)}
+      />
     </div>
   );
 }
